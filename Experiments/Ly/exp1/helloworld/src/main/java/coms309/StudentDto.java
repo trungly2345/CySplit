@@ -7,6 +7,15 @@ public class StudentDto {
     private String major;
     private String message;
 
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public String getName() {
         return name;
     }
@@ -40,12 +49,4 @@ public class StudentDto {
         this.major = major;
     }
 
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setWelcomeMessage(String message) {
-        this.message = message;
-    }
 }
