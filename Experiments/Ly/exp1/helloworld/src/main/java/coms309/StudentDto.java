@@ -5,7 +5,7 @@ public class StudentDto {
     private String classification;
     private int age;
     private String major;
-
+    private String message;
 
     public String getName() {
         return name;
@@ -41,12 +41,11 @@ public class StudentDto {
     }
 
 
+    public String getMessage() {
+        return message;
+    }
 
-
-
-
-
-
-
-
+    public void setWelcomeMessage(String message) {
+        this.message = message;
+    }
 }
