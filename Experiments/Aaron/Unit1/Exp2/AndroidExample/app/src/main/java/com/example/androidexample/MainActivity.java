@@ -55,11 +55,12 @@ public class MainActivity extends AppCompatActivity {
 
         /* extract data passed into this activity from another activity */
         Bundle extras = getIntent().getExtras();
+
         if(extras == null) {
-            messageText.setText("Intent Example");
+            messageText.setText("Snickerdoodle Clicker");
         } else {
-            String number = extras.getString("NUM");  // this will come from LoginActivity
-            messageText.setText("The number was " + number);
+            int number = extras.getInt("NUM");
+            messageText.setText("Snickerdoodle Number: " + number);
         }
 
         /* click listener on counter button pressed */
@@ -69,6 +70,9 @@ public class MainActivity extends AppCompatActivity {
 
                 /* when counter button is pressed, use intent to switch to Counter Activity */
                 Intent intent = new Intent(MainActivity.this, CounterActivity.class);
+                if(extras != null){
+                    intent.putExtra("NUM", extras.getInt("NUM"));
+                }
                 startActivity(intent);
             }
         });

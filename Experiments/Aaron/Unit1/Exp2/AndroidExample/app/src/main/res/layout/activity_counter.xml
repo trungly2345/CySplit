@@ -11,30 +11,24 @@
         android:id="@+id/number"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:layout_gravity="center"
-        android:textSize="150sp"
-        android:textColor="#E91E63"
-        android:text="0" >
+        android:layout_marginTop="50dp"
+        android:layout_gravity="center_horizontal"
+        android:textSize="30sp"
+        android:textColor="#8B4513"
+        android:text="Snickerdoodles: 0" >
     </TextView>
 
-    <Button
+    <ImageButton
         android:id="@+id/counter_increase_btn"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:src="@drawable/snickerdoodle"
         android:layout_gravity="center"
+        android:scaleType="fitCenter"
         android:layout_marginTop="100dp"
-        android:text="Increase">
-    </Button>
-
-    <Button
-        android:id="@+id/counter_decrease_btn"
-        android:layout_width="250dp"
-        android:layout_height="80dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="10dp"
-        android:text="Decrease">
-    </Button>
+        android:background="@null"
+        android:contentDescription="Click Me!">
+    </ImageButton>
 
     <Button
         android:id="@+id/counter_back_btn"
@@ -43,6 +37,16 @@
         android:layout_gravity="center"
         android:layout_marginTop="50dp"
         android:text="Back to Main" >
+
+    </Button>
+
+    <Button
+        android:id="@+id/reset_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:text="Reset" >
 
     </Button>
 
