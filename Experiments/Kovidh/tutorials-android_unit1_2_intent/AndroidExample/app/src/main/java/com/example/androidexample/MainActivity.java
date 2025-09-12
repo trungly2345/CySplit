@@ -55,11 +55,14 @@ public class MainActivity extends AppCompatActivity {
 
         /* extract data passed into this activity from another activity */
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
-            messageText.setText("Intent Example");
+        if (extras == null) {
+            messageText.setText("Age");
         } else {
-            String number = extras.getString("NUM");  // this will come from LoginActivity
-            messageText.setText("The number was " + number);
+            String number = extras.getString("NUM");  // value from CounterActivity
+            int birthYear = Integer.parseInt(number);
+            int age = 2025 - birthYear;
+            messageText.setText("Your age is " + age);
+
         }
 
         /* click listener on counter button pressed */
