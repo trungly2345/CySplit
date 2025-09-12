@@ -1,12 +1,15 @@
 package com.example.androidexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 public class SignupActivity extends AppCompatActivity {
@@ -16,6 +19,9 @@ public class SignupActivity extends AppCompatActivity {
     private EditText confirmEditText;   // define confirm edittext variable
     private Button loginButton;         // define login button variable
     private Button signupButton;        // define signup button variable
+
+    private LinearLayoutCompat layout;
+    private int colorValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +34,13 @@ public class SignupActivity extends AppCompatActivity {
         confirmEditText = findViewById(R.id.signup_confirm_edt);    // link to confirm edtext in the Signup activity XML
         loginButton = findViewById(R.id.signup_login_btn);    // link to login button in the Signup activity XML
         signupButton = findViewById(R.id.signup_signup_btn);  // link to signup button in the Signup activity XML
+        layout = findViewById(R.id.signup_layout);
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            colorValue = extras.getInt("color");
+            layout.setBackgroundColor(colorValue);
+        }
 
         /* click listener on login button pressed */
         loginButton.setOnClickListener(new View.OnClickListener() {

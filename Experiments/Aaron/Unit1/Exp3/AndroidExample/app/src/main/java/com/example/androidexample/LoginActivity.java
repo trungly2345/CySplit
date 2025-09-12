@@ -1,12 +1,15 @@
 package com.example.androidexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.LinearLayoutCompat;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.graphics.Color;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -14,6 +17,9 @@ public class LoginActivity extends AppCompatActivity {
     private EditText passwordEditText;  // define password edittext variable
     private Button loginButton;         // define login button variable
     private Button signupButton;        // define signup button variable
+
+    private LinearLayoutCompat layout;
+    private int colorValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +31,15 @@ public class LoginActivity extends AppCompatActivity {
         passwordEditText = findViewById(R.id.login_password_edt);
         loginButton = findViewById(R.id.login_login_btn);    // link to login button in the Login activity XML
         signupButton = findViewById(R.id.login_signup_btn);  // link to signup button in the Login activity XML
+        layout = findViewById(R.id.login_layout);
+
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            colorValue = extras.getInt("color");
+            layout.setBackgroundColor(colorValue);
+        }
+
 
         /* click listener on login button pressed */
         loginButton.setOnClickListener(new View.OnClickListener() {
@@ -39,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                 intent.putExtra("USERNAME", username);  // key-value to pass to the MainActivity
                 intent.putExtra("PASSWORD", password);  // key-value to pass to the MainActivity
+                intent.putExtra("color", colorValue);
                 startActivity(intent);  // go to MainActivity with the key-value data
             }
         });
@@ -50,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
 
                 /* when signup button is pressed, use intent to switch to Signup Activity */
                 Intent intent = new Intent(LoginActivity.this, SignupActivity.class);
+                intent.putExtra("color", colorValue);
                 startActivity(intent);  // go to SignupActivity
             }
         });
