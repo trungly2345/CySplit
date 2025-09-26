@@ -15,7 +15,7 @@ import java.util.List;
  *
  * @author Vivek Bengre
  */
-
+// This is a test for a commit
 @RestController
 public class    BankController {
 
@@ -35,6 +35,7 @@ public class    BankController {
     public  HashMap<String, Bank> Bank() {
         return bankList;
     }
+
 
     // THIS IS THE CREATE OPERATION
     // springboot automatically converts JSON input into a person object and 
