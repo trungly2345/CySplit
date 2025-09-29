@@ -7,6 +7,9 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import androidx.fragment.app.Fragment;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import org.w3c.dom.Text;
 
@@ -17,6 +20,10 @@ public class MainActivity extends AppCompatActivity {
     private Button loginButton;     // define login button variable
     private Button signupButton;    // define signup button variable
     private Button profileButton;      // profile button variable
+    private BottomNavigationView bottomNav;
+    private HomeFragment homeFragment = new HomeFragment();
+    private GroupFragment groupFragment = new GroupFragment();
+    private ProfileFragment profileFragment = new ProfileFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +36,25 @@ public class MainActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.main_login_btn);    // link to login button in the Main activity XML
         signupButton = findViewById(R.id.main_signup_btn);  // link to signup button in the Main activity XML
         profileButton = findViewById(R.id.profile_btn);
+        bottomNav = findViewById(R.id.bottom_navigation);
+
+        loadFragment(homeFragment);
+
+        bottomNav.setOnItemSelectedListener(item ->{
+            int itemId = item.getItemId();
+
+            if(itemId == R.id.nav_home){
+                loadFragment(homeFragment);
+            }
+            else if (itemId == R.id.nav_groups){
+                loadFragment(groupFragment);
+            }
+            else if (itemId == R.id.nav_profile){
+                loadFragment(profileFragment);
+            }
+
+            return true;
+        });
 
         /* extract data passed into this activity from another activity */
         Bundle extras = getIntent().getExtras();
@@ -81,5 +107,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private boolean loadFragment(Fragment fragment){
+        if (fragment != null){
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .commit();
+                return true;
+        }
+        return false;
     }
 }
