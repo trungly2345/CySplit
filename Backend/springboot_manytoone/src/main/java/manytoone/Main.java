@@ -32,7 +32,7 @@ public class Main {
             groupRepository.save(group1);
             groupRepository.save(group2);
 
-            
+
 
 
         };
