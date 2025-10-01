@@ -1,25 +1,25 @@
 package com.example.androidexample;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import androidx.fragment.app.Fragment;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-import org.w3c.dom.Text;
-
 public class MainActivity extends AppCompatActivity {
 
-    private TextView messageText;   // define message textview variable
-    private TextView usernameText;  // define username textview variable
-    private Button loginButton;     // define login button variable
-    private Button signupButton;    // define signup button variable
-    private Button profileButton;      // profile button variable
+    private TextView messageText;
+    private TextView usernameText;
+    private Button loginButton;
+    private Button signupButton;
+    private Button profileButton;
+    private Button logoutButton;
     private BottomNavigationView bottomNav;
     private HomeFragment homeFragment = new HomeFragment();
     private GroupFragment groupFragment = new GroupFragment();
@@ -28,94 +28,92 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);             // link to Main activity XML
+        setContentView(R.layout.activity_main);
 
-        /* initialize UI elements */
-        messageText = findViewById(R.id.main_msg_txt);      // link to message textview in the Main activity XML
-        usernameText = findViewById(R.id.main_username_txt);// link to username textview in the Main activity XML
-        loginButton = findViewById(R.id.main_login_btn);    // link to login button in the Main activity XML
-        signupButton = findViewById(R.id.main_signup_btn);  // link to signup button in the Main activity XML
+        messageText = findViewById(R.id.main_msg_txt);
+        usernameText = findViewById(R.id.main_username_txt);
+        loginButton = findViewById(R.id.main_login_btn);
+        signupButton = findViewById(R.id.main_signup_btn);
         profileButton = findViewById(R.id.profile_btn);
+        logoutButton = findViewById(R.id.main_logout_btn);
         bottomNav = findViewById(R.id.bottom_navigation);
 
         loadFragment(homeFragment);
 
-        bottomNav.setOnItemSelectedListener(item ->{
+        bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            if(itemId == R.id.nav_home){
+            if (itemId == R.id.nav_home) {
                 loadFragment(homeFragment);
-            }
-            else if (itemId == R.id.nav_groups){
+            } else if (itemId == R.id.nav_groups) {
                 loadFragment(groupFragment);
-            }
-            else if (itemId == R.id.nav_profile){
+            } else if (itemId == R.id.nav_profile) {
                 loadFragment(profileFragment);
             }
 
             return true;
         });
 
-        /* extract data passed into this activity from another activity */
+        // login
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
-            messageText.setText("Home Page");
-            usernameText.setVisibility(View.INVISIBLE);             // set username text invisible initially
+
+        if (isLoggedIn && extras != null) {
+            String username = extras.getString("USERNAME");
+            messageText.setText("Welcome, " + username + "!");
+            usernameText.setText(username);
+            usernameText.setVisibility(View.VISIBLE);
+
+            loginButton.setVisibility(View.GONE);
+            signupButton.setVisibility(View.GONE);
+            logoutButton.setVisibility(View.VISIBLE);
         } else {
-            messageText.setText("Welcome, " + extras.getString("USERNAME") + "!");
-            usernameText.setText(extras.getString("USERNAME")); // this will come from LoginActivity
-            loginButton.setVisibility(View.INVISIBLE);              // set login button invisible
-            signupButton.setVisibility(View.INVISIBLE);             // set signup button invisible
+            messageText.setText("Home Page");
+            usernameText.setVisibility(View.INVISIBLE);
+
+            loginButton.setVisibility(View.VISIBLE);
+            signupButton.setVisibility(View.VISIBLE);
+            logoutButton.setVisibility(View.GONE);
         }
-        Button logoutButton = findViewById(R.id.main_logout_btn);
-        logoutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish();
-            }
-        });
-        /* click listener on login button pressed */
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-                /* when login button is pressed, use intent to switch to Login Activity */
-                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                startActivity(intent);
-            }
+        logoutButton.setOnClickListener(v -> {
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putBoolean("isLoggedIn", false); // clear login state
+            editor.apply();
+
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         });
 
-        /* click listener on signup button pressed */
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                /* when signup button is pressed, use intent to switch to Signup Activity */
-                Intent intent = new Intent(MainActivity.this, SignupActivity.class);
-                startActivity(intent);
-            }
+        // login button
+        loginButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         });
 
-        profileButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
+        // signup button
+        signupButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+            startActivity(intent);
+        });
 
-                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-                startActivity(intent);
-            }
+        // profile button
+        profileButton.setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+            startActivity(intent);
         });
     }
 
-    private boolean loadFragment(Fragment fragment){
-        if (fragment != null){
+    private boolean loadFragment(Fragment fragment) {
+        if (fragment != null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.fragment_container, fragment)
                     .commit();
-                return true;
+            return true;
         }
         return false;
     }
