@@ -14,28 +14,35 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
+<<<<<<< HEAD
     private TextView messageText;
     private TextView usernameText;
     private Button loginButton;
     private Button signupButton;
     private Button profileButton;
     private Button logoutButton;
+=======
+>>>>>>> 004ae3e146ef8ce605b7de76e746551b80e13974
     private BottomNavigationView bottomNav;
     private HomeFragment homeFragment = new HomeFragment();
     private GroupFragment groupFragment = new GroupFragment();
     private ProfileFragment profileFragment = new ProfileFragment();
+    private LoginFragment loginFragment = new LoginFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+<<<<<<< HEAD
         messageText = findViewById(R.id.main_msg_txt);
         usernameText = findViewById(R.id.main_username_txt);
         loginButton = findViewById(R.id.main_login_btn);
         signupButton = findViewById(R.id.main_signup_btn);
         profileButton = findViewById(R.id.profile_btn);
         logoutButton = findViewById(R.id.main_logout_btn);
+=======
+>>>>>>> 004ae3e146ef8ce605b7de76e746551b80e13974
         bottomNav = findViewById(R.id.bottom_navigation);
 
         loadFragment(homeFragment);
@@ -50,10 +57,14 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_profile) {
                 loadFragment(profileFragment);
             }
+            else if (itemId == R.id.nav_login){
+                loadFragment(loginFragment);
+            }
 
             return true;
         });
 
+<<<<<<< HEAD
         // login
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
@@ -105,6 +116,9 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
             startActivity(intent);
         });
+=======
+        Bundle extras = getIntent().getExtras();
+>>>>>>> 004ae3e146ef8ce605b7de76e746551b80e13974
     }
 
     private boolean loadFragment(Fragment fragment) {
