@@ -49,6 +49,11 @@ class Main {
             userRepository.save(user2);
             userRepository.save(user3);
 
+            User user5 = new User("Trung", "Trung@somemail.com");
+            User user6 = new User("Mykhail", "Mykhail@somemail.com");
+            userRepository.save(user5);
+            userRepository.save(user6);
+
         };
     }
 
