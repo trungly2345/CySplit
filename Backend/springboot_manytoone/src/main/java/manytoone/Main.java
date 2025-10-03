@@ -27,11 +27,9 @@ public class Main {
         return args -> {
 
 
-            Group group1 = new Group("Name XYZ", 4);
-            Group group2 = new Group("Trip to Mexico City", 5);
-            groupRepository.save(group1);
-            groupRepository.save(group2);
 
+//           Group group4 = new Group("Trip to Moscow", 4);
+//           groupRepository.save(group4);
 
 
 
