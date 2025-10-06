@@ -1,0 +1,4 @@
+manytoone/Groups/Group.class
+manytoone/Groups/GroupRepository.class
+manytoone/Groups/GroupController.class
+manytoone/Main.class
