@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 @Entity
 @Table(name = "groups")
@@ -23,7 +24,6 @@ public class Group {
     private String group_name;
 
 
-
     @Column(name = "capacity")
     private int capacity;
 
@@ -34,7 +34,7 @@ public class Group {
     protected Group() {}                 // <-- required no-args ctor
 
 
-    public Group(String group_name, int capacity ){
+    public Group(String group_name, int capacity){
         this.group_name = group_name;
         this.capacity = capacity;
     }
@@ -64,8 +64,5 @@ public class Group {
     public void setCapacity(int capacity) {
         this.capacity = capacity;
     }
-
-
-
 
 }

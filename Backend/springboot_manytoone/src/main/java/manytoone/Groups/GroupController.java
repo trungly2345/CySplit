@@ -26,8 +26,9 @@ public class GroupController {
    @GetMapping("groups/{group_id}")
     public Group getGroupById(@PathVariable int group_id){
        return groupRepository.findById(group_id);
-
    }
+
+
 
 
    @PutMapping("groups/{group_id}")
@@ -38,5 +39,16 @@ public class GroupController {
        }
        groupRepository.save(request);
        return groupRepository.findById(group_id);
+   }
+
+
+   @DeleteMapping("group/{group_id}")
+    public Group deleteGroupById(@PathVariable int group_id, @RequestBody Group request){
+       Group group = groupRepository.deleteById(group_id);
+       if (group == null){
+           return null;
+       }
+       groupRepository.save(request);
+       return groupRepository.deleteById(group_id);
    }
 }
