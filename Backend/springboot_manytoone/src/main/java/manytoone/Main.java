@@ -25,11 +25,14 @@ public class Main {
     @Bean
     CommandLineRunner initUser(GroupRepository groupRepository) {
         return args -> {
+        List<String>members_list = null;
 
 
 
-//           Group group4 = new Group("Trip to Moscow", 4);
-//           groupRepository.save(group4);
+
+         Group group1 = new Group("Trip to Paris", 5);
+
+         groupRepository.save(group1);
 
 
 
