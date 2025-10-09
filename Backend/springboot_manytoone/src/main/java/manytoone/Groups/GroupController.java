@@ -42,7 +42,7 @@ public class GroupController {
    }
 
 
-   @DeleteMapping("group/{group_id}")
+   @DeleteMapping("groups/{group_id}")
     public Group deleteGroupById(@PathVariable int group_id, @RequestBody Group request){
        Group group = groupRepository.deleteById(group_id);
        if (group == null){
