@@ -1,15 +1,9 @@
-package manytoone.Groups;
+package manytomany.Invitations;
 
 
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
-
-import org.hibernate.annotations.NaturalId;
-
-import java.util.ArrayList;
-import java.util.Collection;
 
 @Entity
 @Table(name = "groups")
