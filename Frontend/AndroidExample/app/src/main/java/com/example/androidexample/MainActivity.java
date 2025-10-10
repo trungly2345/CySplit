@@ -9,6 +9,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.util.Log;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
@@ -34,12 +38,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
 
-        messageText = findViewById(R.id.main_msg_txt);
-        usernameText = findViewById(R.id.main_username_txt);
-        loginButton = findViewById(R.id.main_login_btn);
-        signupButton = findViewById(R.id.main_signup_btn);
-        profileButton = findViewById(R.id.profile_btn);
-        logoutButton = findViewById(R.id.main_logout_btn);
+//        messageText = findViewById(R.id.main_msg_txt);
+//        usernameText = findViewById(R.id.main_username_txt);
+//        loginButton = findViewById(R.id.main_login_btn);
+//        signupButton = findViewById(R.id.main_signup_btn);
+//        profileButton = findViewById(R.id.profile_btn);
+//        logoutButton = findViewById(R.id.main_logout_btn);
 
         bottomNav = findViewById(R.id.bottom_navigation);
 
@@ -62,58 +66,57 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-
-        // login
-        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
-        Bundle extras = getIntent().getExtras();
-
-        if (isLoggedIn && extras != null) {
-            String username = extras.getString("USERNAME");
-            messageText.setText("Welcome, " + username + "!");
-            usernameText.setText(username);
-            usernameText.setVisibility(View.VISIBLE);
-
-            loginButton.setVisibility(View.GONE);
-            signupButton.setVisibility(View.GONE);
-            logoutButton.setVisibility(View.VISIBLE);
-        } else {
-            messageText.setText("Home Page");
-            usernameText.setVisibility(View.INVISIBLE);
-
-            loginButton.setVisibility(View.VISIBLE);
-            signupButton.setVisibility(View.VISIBLE);
-            logoutButton.setVisibility(View.GONE);
-        }
-
-        logoutButton.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("isLoggedIn", false); // clear login state
-            editor.apply();
-
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        // login button
-        loginButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        // signup button
-        signupButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
-            startActivity(intent);
-        });
-
-        // profile button
-        profileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
-        });
+//        // login
+//        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+//        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+//        Bundle extras = getIntent().getExtras();
+//
+//        if (isLoggedIn && extras != null) {
+//            String username = extras.getString("USERNAME");
+//            messageText.setText("Welcome, " + username + "!");
+//            usernameText.setText(username);
+//            usernameText.setVisibility(View.VISIBLE);
+//
+//            loginButton.setVisibility(View.GONE);
+//            signupButton.setVisibility(View.GONE);
+//            logoutButton.setVisibility(View.VISIBLE);
+//        } else {
+//            messageText.setText("Home Page");
+//            usernameText.setVisibility(View.INVISIBLE);
+//
+//            loginButton.setVisibility(View.VISIBLE);
+//            signupButton.setVisibility(View.VISIBLE);
+//            logoutButton.setVisibility(View.GONE);
+//        }
+//
+//        logoutButton.setOnClickListener(v -> {
+//            SharedPreferences.Editor editor = prefs.edit();
+//            editor.putBoolean("isLoggedIn", false); // clear login state
+//            editor.apply();
+//
+//            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//            startActivity(intent);
+//            finish();
+//        });
+//
+//        // login button
+//        loginButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+//            startActivity(intent);
+//        });
+//
+//        // signup button
+//        signupButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
+//            startActivity(intent);
+//        });
+//
+//        // profile button
+//        profileButton.setOnClickListener(v -> {
+//            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+//            startActivity(intent);
+//        });
 
 
 
