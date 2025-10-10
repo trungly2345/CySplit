@@ -4,6 +4,7 @@ package manytoone.Groups;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -32,13 +33,16 @@ public class GroupController {
 
 
    @PutMapping("groups/{group_id}")
-    public Group updateGroup(@PathVariable int group_id, @RequestBody Group request){
-       Group group = groupRepository.findById(group_id);
-       if (group == null){
+    public ResponseEntity <Group> updateGroup(@PathVariable int group_id, @RequestBody Group request){
+       Group updateGroup = groupRepository.findById(group_id);
+       if (updateGroup == null){
            return null;
        }
-       groupRepository.save(request);
-       return groupRepository.findById(group_id);
+       updateGroup.setGroup_name(request.getGroup_name());
+       updateGroup.setCapacity(request.getCapacity());
+       updateGroup.setId(request.getId());
+       groupRepository.save(updateGroup);
+       return ResponseEntity.ok(updateGroup);
    }
 
 
