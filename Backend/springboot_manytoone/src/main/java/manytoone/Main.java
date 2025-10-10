@@ -30,14 +30,14 @@ public class Main {
 
         // Mock data testing
 
-         Group group1 = new Group("Trip to Paris", 5);
-         Group group2 = new Group("NYC Trip", 3);
-         Group group3 = new Group("Miami Spring Break 2025", 10);
-
-
-         groupRepository.save(group1);
-         groupRepository.save(group2);
-         groupRepository.save(group3);
+//         Group group1 = new Group("Trip to Paris", 5);
+//         Group group2 = new Group("NYC Trip", 3);
+//         Group group3 = new Group("Miami Spring Break 2025", 10);
+//
+//
+//         groupRepository.save(group1);
+//         groupRepository.save(group2);
+//         groupRepository.save(group3);
 
 
 

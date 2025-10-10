@@ -4,6 +4,9 @@ package manytoone.Groups;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -23,32 +26,40 @@ public class GroupController {
     private String success = "{\"message\":\"success\"}";
     private String failure = "{\"message\":\"failure\"}";
 
-   @GetMapping("groups/{group_id}")
-    public Group getGroupById(@PathVariable int group_id){
-       return groupRepository.findById(group_id);
-   }
+    @GetMapping("groups/{group_id}")
+    public Group getGroupById(@PathVariable int group_id) {
+        return groupRepository.findById(group_id);
+    }
 
+    @PostMapping("groups/{group_id}")
+    public ResponseEntity <Group> createGroup(@RequestBody Group req) {
+
+     Group newGroup = groupRepository.save(req);
+      return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
+    }
 
 
 
    @PutMapping("groups/{group_id}")
-    public Group updateGroup(@PathVariable int group_id, @RequestBody Group request){
-       Group group = groupRepository.findById(group_id);
-       if (group == null){
+    public ResponseEntity <Group> updateGroup(@PathVariable int group_id, @RequestBody Group request){
+       Group updateGroup = groupRepository.findById(group_id);
+       if (updateGroup == null){
            return null;
        }
-       groupRepository.save(request);
-       return groupRepository.findById(group_id);
+       updateGroup.setGroup_name(request.getGroup_name());
+       updateGroup.setCapacity(request.getCapacity());
+       updateGroup.setId(request.getId());
+       groupRepository.save(updateGroup);
+       return ResponseEntity.ok(updateGroup);
    }
 
 
    @DeleteMapping("groups/{group_id}")
-    public Group deleteGroupById(@PathVariable int group_id, @RequestBody Group request){
-       Group group = groupRepository.deleteById(group_id);
-       if (group == null){
-           return null;
-       }
-       groupRepository.save(request);
-       return groupRepository.deleteById(group_id);
+    public ResponseEntity <Group> deleteGroupById(@PathVariable Long group_id){
+     if (!groupRepository.existsById(group_id)){
+         return null;
+     }
+     groupRepository.deleteById(group_id);
+       return ResponseEntity.noContent().build();
    }
 }
