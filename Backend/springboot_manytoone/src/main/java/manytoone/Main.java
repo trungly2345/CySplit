@@ -4,8 +4,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
-        "manytoone",      // your Group + GroupController
-        "manytomany"      // your GroupInvitationController, entity, repo
+        "manytoone"
 })
 public class Main {
     public static void main(String[] args) {

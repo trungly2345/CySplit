@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+@RestController
 public class GroupInvitationController {
 
     @Autowired
@@ -44,8 +45,6 @@ public class GroupInvitationController {
         if (group == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-
-        req.setId(0);
         req.setGroup(group);
         GroupInvitation saved = invitationRepository.save(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
@@ -72,7 +71,7 @@ public class GroupInvitationController {
     }
 
 
-    @DeleteMapping("groups/{invitation_id}")
+    @DeleteMapping("invitations/{invitation_id}")
     public ResponseEntity <GroupInvitation> deleteGroupById(@PathVariable Long invitation_id){
         if (!invitationRepository.existsById(invitation_id)){
             return ResponseEntity.notFound().build();
