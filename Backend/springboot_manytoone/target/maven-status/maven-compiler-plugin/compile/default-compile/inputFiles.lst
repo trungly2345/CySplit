@@ -1,4 +1,7 @@
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Main.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitationRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupController.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitationController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/Group.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitation.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupRepository.java
