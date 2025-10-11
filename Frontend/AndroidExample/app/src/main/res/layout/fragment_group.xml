@@ -23,4 +23,12 @@
         android:textSize="18sp"
         android:textColor="#000000"/>
 
+    <Button
+        android:id="@+id/viewInvitesButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/groupStatusTextView"
+        android:layout_marginTop="352dp"
+        android:text="Group Invites" />
+
 </RelativeLayout>
