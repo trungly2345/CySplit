@@ -1,4 +1,4 @@
-package manytomany.Invitations;
+package manytoone.Groups;
 
 
 import jakarta.persistence.*;
@@ -6,18 +6,16 @@ import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "group_Invitation")
-public class GroupInvitation {
+@Table(name = "groups")
+public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "gid" , nullable = false)
+
+    @Column(name = "group_id" , nullable = false)
     private int group_id; // Primary key
-
-    @Column(name = "user_id" , nullable = false)
-    private int user_id;
-
-
+    @Column(name = "group_name" , nullable = false)
+    private String group_name;
 
 
     @Column(name = "capacity")
@@ -27,10 +25,10 @@ public class GroupInvitation {
     @JsonIgnore
 
 
-    protected GroupInvitation() {}                 // <-- required no-args ctor
+    protected Group() {}                 // <-- required no-args ctor
 
 
-    public GroupInvitation(String group_name, int capacity){
+    public Group(String group_name, int capacity){
         this.group_name = group_name;
         this.capacity = capacity;
     }

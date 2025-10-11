@@ -1,4 +1,4 @@
-package manytomany.Invitations;
+package manytoone.Groups;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,22 +24,22 @@ public class GroupController {
     private String failure = "{\"message\":\"failure\"}";
 
     @GetMapping("groups/{group_id}")
-    public GroupInvitation getGroupById(@PathVariable int group_id) {
+    public Group getGroupById(@PathVariable int group_id) {
         return groupRepository.findById(group_id);
     }
 
     @PostMapping("groups/{group_id}")
-    public ResponseEntity <GroupInvitation> createGroup(@RequestBody GroupInvitation req) {
+    public ResponseEntity <Group> createGroup(@RequestBody Group req) {
 
-     GroupInvitation newGroup = groupRepository.save(req);
+     Group newGroup = groupRepository.save(req);
       return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
 
 
 
    @PutMapping("groups/{group_id}")
-    public ResponseEntity <GroupInvitation> updateGroup(@PathVariable int group_id, @RequestBody GroupInvitation request){
-       GroupInvitation updateGroup = groupRepository.findById(group_id);
+    public ResponseEntity <Group> updateGroup(@PathVariable int group_id, @RequestBody Group request){
+       Group updateGroup = groupRepository.findById(group_id);
        if (updateGroup == null){
            return null;
        }
@@ -52,7 +52,7 @@ public class GroupController {
 
 
    @DeleteMapping("groups/{group_id}")
-    public ResponseEntity <GroupInvitation> deleteGroupById(@PathVariable Long group_id){
+    public ResponseEntity <Group> deleteGroupById(@PathVariable Long group_id){
      if (!groupRepository.existsById(group_id)){
          return null;
      }
