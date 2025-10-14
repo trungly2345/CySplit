@@ -1,7 +1,6 @@
 package manytoone.Users;
 
-// This class represents a limited view of user data for search results
-// to avoid exposing sensitive information
+// This class is for getting data about the user for login and search (if we need to display friends) results
 public class UserSearchResponse {
     private int userId;
     private String userName;
