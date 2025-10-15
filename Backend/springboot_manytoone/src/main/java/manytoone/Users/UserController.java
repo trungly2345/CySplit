@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
+@RequestMapping("/users")  // Base path for all user endpoints
 public class UserController {
 
     @Autowired
@@ -31,7 +32,7 @@ public class UserController {
     // }
 
     // Get user by ID
-    @GetMapping("user/{user_id}")
+    @GetMapping("/{user_id}")
     public ResponseEntity<User> getUserById(@PathVariable int user_id) {
         User user = userRepository.findById(user_id);
         if (user == null) {
@@ -52,7 +53,7 @@ public class UserController {
     }
 
     // Update user
-    @PutMapping("user/{user_id}")
+    @PutMapping("/{user_id}")
     public ResponseEntity<User> updateUser(@PathVariable int user_id, @RequestBody User request) {
         User existingUser = userRepository.findById(user_id);
         if (existingUser == null) {
@@ -76,7 +77,7 @@ public class UserController {
     }
 
     // Delete user
-    @DeleteMapping("user/{user_id}")
+    @DeleteMapping("/{user_id}")
     public ResponseEntity<Void> deleteUser(@PathVariable int user_id) {
         if (!userRepository.existsById(user_id)) {
             return ResponseEntity.notFound().build();
