@@ -55,25 +55,34 @@ public class UserController {
     // Update user
     @PutMapping("/{user_id}")
     public ResponseEntity<User> updateUser(@PathVariable int user_id, @RequestBody User request) {
-        User existingUser = userRepository.findById(user_id);
-        if (existingUser == null) {
-            return ResponseEntity.notFound().build();
+        try {
+            User existingUser = userRepository.findById(user_id);
+            if (existingUser == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Check if new username already exists and is not the current user
+            if (!request.getUserName().equals(existingUser.getUserName()) && 
+                userRepository.existsByUserName(request.getUserName())) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
+
+            // Update all fields
+            existingUser.setUserName(request.getUserName());
+            existingUser.setUserPassword(request.getUserPassword());
+            existingUser.setPhoneNumber(request.getPhoneNumber());
+            existingUser.setPaymentMethod(request.getPaymentMethod());
+            existingUser.setUserRating(request.getUserRating());
+            existingUser.setName(request.getName());
+            existingUser.setEmailId(request.getEmailId());
+            existingUser.setIfActive(request.isIfActive());
+
+            User updatedUser = userRepository.save(existingUser);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(null);
         }
-
-        // Check if new username already exists and is not the current user
-        if (!request.getUserName().equals(existingUser.getUserName()) && 
-            userRepository.existsByUserName(request.getUserName())) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
-
-        existingUser.setUserName(request.getUserName());
-        existingUser.setUserPassword(request.getUserPassword());
-        existingUser.setPhoneNumber(request.getPhoneNumber());
-        existingUser.setPaymentMethod(request.getPaymentMethod());
-        existingUser.setUserRating(request.getUserRating());
-
-        User updatedUser = userRepository.save(existingUser);
-        return ResponseEntity.ok(updatedUser);
     }
 
     // Delete user
