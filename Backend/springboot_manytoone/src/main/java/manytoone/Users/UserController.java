@@ -21,15 +21,15 @@ public class UserController {
     private String success = "{\"message\":\"success\"}";
     private String failure = "{\"message\":\"failure\"}";
 
-    // // Search users by username (for adding friends/to groups - returns minimal info)
-    // @GetMapping("/search/{username}")
-    // public ResponseEntity<UserSearchResponse> searchUserByUsername(@PathVariable String username) {
-    //     User user = userRepository.findByUserName(username);
-    //     if (user == null) {
-    //         return ResponseEntity.notFound().build();
-    //     }
-    //     return ResponseEntity.ok(new UserSearchResponse(user.getUserId(), user.getUserName(), user.getUserRating()));
-    // }
+    // Search users by username (for adding friends/to groups - returns minimal info)
+    @GetMapping("/search/{username}")
+    public ResponseEntity<UserSearchResponse> searchUserByUsername(@PathVariable String username) {
+        User user = userRepository.findByUserName(username);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(new UserSearchResponse(user.getId(), user.getUserName(), user.getUserRating()));
+    }
 
     // Get user by ID
     @GetMapping("/{user_id}")
