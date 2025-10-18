@@ -46,6 +46,7 @@ public class GroupInvitationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         req.setGroup(group);
+        req.setInv_status(GroupInvitation.invitationStatus.pending);
         GroupInvitation saved = invitationRepository.save(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
@@ -56,7 +57,24 @@ public class GroupInvitationController {
     @PutMapping("invitations/{invitation_id}")
     public ResponseEntity <GroupInvitation> updateGroup(@PathVariable int invitation_id, @RequestBody GroupInvitation req){
         Optional<GroupInvitation>currentInv = invitationRepository.findById((long) invitation_id);
-        if (currentInv.isEmpty()){
+        if (currentInv.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        GroupInvitation invitation = currentInv.get();
+        invitation.setUserName(req.getUserName());
+        invitation.setDateCreated(req.getDateCreated());
+
+        GroupInvitation updated = invitationRepository.save(invitation);
+
+        return ResponseEntity.ok(updated);
+
+
+    }
+
+    @PutMapping("invitations/{invitation_id}/invitationStatus")
+    public ResponseEntity <GroupInvitation> updateInvitationStatus(@PathVariable int invitation_id, @RequestBody GroupInvitation req){
+        Optional<GroupInvitation>currentInv = invitationRepository.findById((long) invitation_id);
+        if (currentInv.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
         GroupInvitation invitation = currentInv.get();

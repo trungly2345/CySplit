@@ -14,15 +14,20 @@ import java.time.LocalDateTime;
 )
 public class GroupInvitation {
 
+
+    public enum invitationStatus {
+        pending,accepted, decline
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id; // 👈 use Integer (nullable for JPA)
+    private Integer id; //
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "group_id",
             nullable = false,
-            foreignKey = @ForeignKey(name = "fk_group_invitation_group") // 👈 stable FK name
+            foreignKey = @ForeignKey(name = "fk_group_invitation_group")
     )
     @JsonIgnore
     private Group group;
@@ -33,6 +38,9 @@ public class GroupInvitation {
     @Column(name = "date_created", nullable = false)
     private LocalDateTime dateCreated = LocalDateTime.now();
 
+    @Column(name = "invitation_status", nullable = false)
+    private invitationStatus inv_status = invitationStatus.pending;
+
     public GroupInvitation() {}
 
     public GroupInvitation(Group group, String userName) {
@@ -40,6 +48,9 @@ public class GroupInvitation {
         this.userName = userName;
     }
 
+    public invitationStatus getInv_status() { return inv_status; }
+
+    public void setInv_status(invitationStatus inv_status) { this.inv_status = inv_status;}
     // getters/setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
