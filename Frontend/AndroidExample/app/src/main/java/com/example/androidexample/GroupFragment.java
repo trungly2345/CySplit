@@ -30,9 +30,9 @@ public class GroupFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_group, container, false);
         groupStatusTextView = view.findViewById(R.id.groupStatusTextView);
 
-        //getGroup(23);
-        //putGroup(2, "Gas Money", 3);
-        //postGroup(10, "Gas Money", 5);
+        //getGroup(8);
+        postGroup(1, "Hells Kitchen Las Vegas Summer 2027", 6);
+        //postGroup(9, "Gas Money", 5);
         //deleteGroup(23);
 
         return view;
