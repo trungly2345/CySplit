@@ -4,4 +4,5 @@ manytoone/Groups/Group.class
 manytoone/Groups/GroupInvitation.class
 manytoone/Groups/GroupRepository.class
 manytoone/Groups/GroupController.class
+manytoone/Groups/GroupInvitation$invitationStatus.class
 manytoone/Main.class
