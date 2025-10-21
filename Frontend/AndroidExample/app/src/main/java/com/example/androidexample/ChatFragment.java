@@ -25,7 +25,7 @@ public class ChatFragment extends Fragment {
 
         TextView chatTitle = view.findViewById(R.id.chatTitle);
         messageContainer = view.findViewById(R.id.messageContainer);
-        EditText messageInput = view.findViewById(R.id.messageInput);
+        EditText messageInput = view.findViewById(R.id.chatInput);
         ImageButton sendButton = view.findViewById(R.id.sendButton);
 
         chatTitle.setText("Chat for Transaction #" + transactionId);

@@ -1,34 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
     android:orientation="vertical"
     android:padding="12dp"
-    android:background="?android:attr/selectableItemBackground"
-    android:layout_marginVertical="4dp">
+    android:background="?attr/selectableItemBackground"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 
     <TextView
         android:id="@+id/transactionNameText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Transaction Name"
+        android:text="Dinner at Joe’s"
+        android:textSize="18sp"
         android:textStyle="bold"
-        android:textSize="16sp" />
+        android:textColor="@color/primary_dark"
+        android:layout_height="24dp"
+        android:layout_width="200dp"/>
 
     <TextView
         android:id="@+id/transactionAmountText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="$0.00"
-        android:textColor="@android:color/holo_green_dark"
-        android:textSize="14sp" />
+        android:text="$45.00"
+        android:textSize="16sp"
+        android:textColor="@color/accent"
+        android:layout_height="24dp"
+        android:layout_width="200dp"/>
 
     <TextView
         android:id="@+id/transactionDateText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2025-10-20"
-        android:textSize="12sp"
-        android:textColor="@android:color/darker_gray" />
-
+        android:text="Oct 19, 2025"
+        android:textSize="13sp"
+        android:textColor="@color/text_secondary"
+        android:layout_height="24dp"
+        android:layout_width="200dp"/>
 </LinearLayout>

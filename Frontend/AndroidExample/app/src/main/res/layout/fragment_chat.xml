@@ -1,39 +1,51 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:background="@color/background_light"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/chatTitle"
-        android:textSize="18sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Transaction Chat"
+        android:textColor="@color/primary_dark"
         android:textStyle="bold"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:textSize="20sp"
+        android:gravity="center"
+        android:padding="8dp" />
 
     <LinearLayout
         android:id="@+id/messageContainer"
         android:orientation="vertical"
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="0dp"/>
+        android:layout_height="0dp" />
 
     <LinearLayout
         android:orientation="horizontal"
+        android:padding="8dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/white">
 
         <EditText
-            android:id="@+id/messageInput"
-            android:layout_weight="1"
-            android:hint="Type a message"
+            android:id="@+id/chatInput"
+            android:hint="Add a comment..."
             android:layout_width="0dp"
-            android:layout_height="wrap_content"/>
+            android:layout_weight="1"
+            android:layout_height="48dp" />
 
         <ImageButton
             android:id="@+id/sendButton"
-            android:src="@android:drawable/ic_menu_send"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_send"
+            android:contentDescription="Send message"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_gravity="end"
+            android:layout_marginTop="8dp"
+            app:tint="@color/primary_dark" />
     </LinearLayout>
 </LinearLayout>

@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <!--Theme Colors -->
+    <color name="primary">#C8102E</color>
+    <color name="primary_dark">#981E32</color>
+    <color name="accent">#F1BE48</color>
+
+    <!--Background -->
+    <color name="background_light">#FFF8E1</color>
+    <color name="white">#FFFFFF</color>
+    <color name="card_surface">#FFFFFF</color>
+
+    <!--Text -->
+    <color name="text_primary">#2E2E2E</color>
+    <color name="text_secondary">#6E6E6E</color>
+
+    <!--Utility -->
+    <color name="divider">#E0E0E0</color>
+    <color name="success">#2E7D32</color>
+    <color name="error">#C62828</color>
 </resources>
