@@ -13,35 +13,38 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GroupFragment extends Fragment {
+public class TransactionFragment extends Fragment {
 
-    private RecyclerView groupRecyclerView;
-    private final List<JSONObject> groupList = new ArrayList<>();
+    private int groupId;
+    private RecyclerView recyclerView;
+    private final List<JSONObject> transactionList = new ArrayList<>();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_group, container, false);
-        groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
-        groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        View view = inflater.inflate(R.layout.fragment_transaction, container, false);
+        recyclerView = view.findViewById(R.id.transactionRecyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        GroupAdapter adapter = new GroupAdapter(groupList, this::onGroupClick);
-        groupRecyclerView.setAdapter(adapter);
+        groupId = getArguments().getInt("groupId");
 
-        //TODO: TEMP: mock data until WebSocket pushes groups
-        addMockGroups(adapter);
+        TransactionAdapter adapter = new TransactionAdapter(transactionList, this::onTransactionClick);
+        recyclerView.setAdapter(adapter);
+
+        //TODO: TEMP mock data — later, populate via WebSocket
+        addMockTransactions(adapter);
 
         return view;
     }
 
-    private void addMockGroups(GroupAdapter adapter) {
+    private void addMockTransactions(TransactionAdapter adapter) {
         try {
-            for (int i = 1; i <= 5; i++) {
+            for (int i = 1; i <= 4; i++) {
                 JSONObject obj = new JSONObject();
                 obj.put("id", i);
-                obj.put("group_name", "Group " + i);
-                obj.put("capacity", 3 + i);
-                groupList.add(obj);
+                obj.put("name", "Transaction " + i + " (Group " + groupId + ")");
+                obj.put("amount", i * 10);
+                transactionList.add(obj);
             }
             adapter.notifyDataSetChanged();
         } catch (Exception e) {
@@ -49,13 +52,13 @@ public class GroupFragment extends Fragment {
         }
     }
 
-    private void onGroupClick(JSONObject group) {
+    private void onTransactionClick(JSONObject transaction) {
         try {
-            int groupId = group.getInt("id");
-            TransactionFragment fragment = new TransactionFragment();
+            int transactionId = transaction.getInt("id");
+            ChatFragment fragment = new ChatFragment();
 
             Bundle bundle = new Bundle();
-            bundle.putInt("groupId", groupId);
+            bundle.putInt("transactionId", transactionId);
             fragment.setArguments(bundle);
 
             requireActivity().getSupportFragmentManager().beginTransaction()

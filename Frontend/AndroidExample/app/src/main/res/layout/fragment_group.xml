@@ -1,34 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="12dp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GroupFragment"
-    android:gravity="center"
-    android:orientation="vertical">
-
-    <TextView
-        android:text="Group Page"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:textSize="24sp"
-        android:gravity="center|top"
-        android:layout_margin="25dp"/>
+    tools:context=".GroupFragment">
 
     <TextView
         android:id="@+id/groupStatusTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Loading group..."
-        android:textSize="18sp"
-        android:textColor="#000000"/>
+        android:text="Your Groups"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:paddingBottom="8dp"
+        android:textColor="@android:color/black" />
 
     <Button
-        android:id="@+id/viewInvitesButton"
-        android:layout_width="wrap_content"
+        android:id="@+id/createGroupButton"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/groupStatusTextView"
-        android:layout_marginTop="352dp"
-        android:text="Group Invites" />
+        android:text="Create New Group"
+        android:visibility="gone" />
 
-</RelativeLayout>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/groupRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        tools:listitem="@layout/item_group"
+        android:clipToPadding="false"
+        android:paddingBottom="8dp" />
+
+</LinearLayout>
