@@ -13,13 +13,17 @@ import java.time.LocalDateTime;
         )
 )
 public class GroupInvitation {
-
-
-    public enum invitationStatus {
-        pending,accepted, decline
+    public enum invitationStatus  {
+        Pending,
+        Accepted,
+        Declined
     }
 
-    @Id
+
+
+
+
+@Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id; //
 
@@ -28,7 +32,10 @@ public class GroupInvitation {
             name = "group_id",
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_group_invitation_group")
-    )
+
+    )   
+
+
     @JsonIgnore
     private Group group;
 
@@ -38,8 +45,9 @@ public class GroupInvitation {
     @Column(name = "date_created", nullable = false)
     private LocalDateTime dateCreated = LocalDateTime.now();
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "invitation_status", nullable = false)
-    private invitationStatus inv_status = invitationStatus.pending;
+    private invitationStatus inv_status = invitationStatus.Pending;
 
     public GroupInvitation() {}
 

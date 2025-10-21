@@ -46,7 +46,7 @@ public class GroupInvitationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         req.setGroup(group);
-        req.setInv_status(GroupInvitation.invitationStatus.pending);
+        req.setInv_status(GroupInvitation.invitationStatus.Pending);
         GroupInvitation saved = invitationRepository.save(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 
