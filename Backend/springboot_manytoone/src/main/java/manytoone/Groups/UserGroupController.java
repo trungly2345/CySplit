@@ -23,7 +23,7 @@ public class UserGroupController {
 
     @GetMapping("/users/{userId}/groups")
     public ResponseEntity<List<UserGroup>> getUserGroups(@PathVariable int userId) {
-        if (!userRepository.existsById((long)userId)) {
+        if (!userRepository.existsById(userId)) {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(userGroupRepository.findByUserId(userId));
@@ -41,7 +41,7 @@ public class UserGroupController {
     @PostMapping("/groups/{groupId}/users/{userId}")
     public ResponseEntity<UserGroup> addUserToGroup(@PathVariable int groupId, @PathVariable int userId, @RequestBody(required = false) String role) {
         Group group = groupRepository.findById(groupId);
-        User user = userRepository.findById((long)userId).orElse(null);
+        User user = userRepository.findById(userId); // don't want the user id be null
         
         if (group == null || user == null) {
             return ResponseEntity.notFound().build();

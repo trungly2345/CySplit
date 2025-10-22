@@ -1,8 +1,16 @@
 manytoone/Groups/GroupInvitationController.class
+manytoone/Groups/UserGroupController.class
+manytoone/Groups/UserGroupRepository.class
 manytoone/Groups/GroupInvitationRepository.class
 manytoone/Groups/Group.class
-manytoone/Groups/GroupInvitation.class
 manytoone/Groups/GroupRepository.class
 manytoone/Groups/GroupController.class
+manytoone/Groups/UserGroup.class
 manytoone/Groups/GroupInvitation$invitationStatus.class
+manytoone/Users/UserSearchResponse.class
 manytoone/Main.class
+manytoone/Groups/GroupInvitation.class
+manytoone/Users/UserController.class
+manytoone/Users/UserRepository.class
+manytoone/Users/User.class
+manytoone/Users/LoginRequest.class
