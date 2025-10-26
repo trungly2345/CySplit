@@ -7,7 +7,6 @@
     android:layout_width="match_parent"
     android:orientation="vertical">
 
-<<<<<<< HEAD
     <TextView
         android:id="@+id/main_msg_txt"
         android:layout_width="wrap_content"
@@ -71,8 +70,6 @@
         >
     </Button>
 
-=======
->>>>>>> 004ae3e146ef8ce605b7de76e746551b80e13974
     <FrameLayout
         android:id="@+id/fragment_container"
         android:layout_width="match_parent"

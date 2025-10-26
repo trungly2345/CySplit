@@ -11,6 +11,8 @@
         android:text="Home Page"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textSize="24sp"/>
+        android:textSize="24sp"
+        android:gravity="center|top"
+        android:layout_margin="25dp"/>
 
 </RelativeLayout>
