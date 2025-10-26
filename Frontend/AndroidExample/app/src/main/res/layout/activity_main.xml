@@ -7,68 +7,68 @@
     android:layout_width="match_parent"
     android:orientation="vertical">
 
-         <TextView
-            android:id="@+id/main_msg_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Home Page"
-            android:layout_gravity="center"
-            android:layout_marginTop="100dp"
-            android:layout_marginBottom="50dp"
-            android:textSize="30dp"
-            android:textColor="#fc0303">
-        </TextView>
+    <TextView
+        android:id="@+id/main_msg_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Home Page"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="50dp"
+        android:textSize="30dp"
+        android:textColor="#fc0303">
+    </TextView>
 
-        <TextView
-            android:id="@+id/main_username_txt"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="{{username}}"
-            android:layout_gravity="center"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="100dp"
-            android:textSize="30dp"
-            android:textColor="#000000">
-        </TextView>
+    <TextView
+        android:id="@+id/main_username_txt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="{{username}}"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="100dp"
+        android:textSize="30dp"
+        android:textColor="#000000">
+    </TextView>
 
 
-        <Button
-            android:id="@+id/main_login_btn"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Login"
-            android:textSize="20sp"
-            android:textColor="#ffffff">
-        </Button>
+    <Button
+        android:id="@+id/main_login_btn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Login"
+        android:textSize="20sp"
+        android:textColor="#ffffff">
+    </Button>
 
-        <Button
-            android:id="@+id/main_signup_btn"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Signup"
-            android:textSize="20sp"
-            android:textColor="#ffffff">
-        </Button>
+    <Button
+        android:id="@+id/main_signup_btn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Signup"
+        android:textSize="20sp"
+        android:textColor="#ffffff">
+    </Button>
 
-        <Button
-            android:id="@+id/main_logout_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Logout"
-            android:visibility="gone" />
+    <Button
+        android:id="@+id/main_logout_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Logout"
+        android:visibility="gone" />
 
-        <Button
-            android:id="@+id/profile_btn"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Go to Profile"
-            android:textSize="20sp"
-            android:textColor="#ffffff"
-            >
-        </Button>
+    <Button
+        android:id="@+id/profile_btn"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Go to Profile"
+        android:textSize="20sp"
+        android:textColor="#ffffff"
+        >
+    </Button>
 
     <FrameLayout
         android:id="@+id/fragment_container"
