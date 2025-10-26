@@ -14,7 +14,6 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
-
     private TextView messageText;
     private TextView usernameText;
     private Button loginButton;
@@ -26,13 +25,11 @@ public class MainActivity extends AppCompatActivity {
     private HomeFragment homeFragment = new HomeFragment();
     private GroupFragment groupFragment = new GroupFragment();
     private ProfileFragment profileFragment = new ProfileFragment();
-    private LoginFragment loginFragment = new LoginFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
 
         messageText = findViewById(R.id.main_msg_txt);
         usernameText = findViewById(R.id.main_username_txt);
@@ -43,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottom_navigation);
 
-        loadFragment(homeFragment);
+        // ✅ Change 1: default to Login/Signup tab when opening app
+        bottomNav.setSelectedItemId(R.id.nav_login);
 
         bottomNav.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
@@ -55,15 +53,11 @@ public class MainActivity extends AppCompatActivity {
             } else if (itemId == R.id.nav_profile) {
                 loadFragment(profileFragment);
             }
-            else if (itemId == R.id.nav_login){
-                loadFragment(loginFragment);
-            }
 
             return true;
         });
 
-
-        // login
+        // login logic
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
         Bundle extras = getIntent().getExtras();
@@ -88,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
         logoutButton.setOnClickListener(v -> {
             SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("isLoggedIn", false); // clear login state
+            editor.putBoolean("isLoggedIn", false);
             editor.apply();
 
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -109,14 +103,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // profile button
+        // ✅ Change 2: go to Profile tab instead of launching new activity
         profileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
-            startActivity(intent);
+            bottomNav.setSelectedItemId(R.id.nav_profile);
+            loadFragment(profileFragment);
         });
-
-
-
     }
 
     private boolean loadFragment(Fragment fragment) {
