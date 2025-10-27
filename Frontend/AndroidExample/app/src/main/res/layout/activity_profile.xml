@@ -21,6 +21,6 @@
         android:textSize="30sp"
         android:textColor="#fc0303"
         >
-        </TextView>
+    </TextView>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
