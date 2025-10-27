@@ -1,4 +1,4 @@
-package websocket;
+package manytoone.websocket;
 
 import java.io.IOException;
 import java.util.Hashtable;
@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
  * The server provides functionality for broadcasting messages to all connected
  * users and sending messages to specific users.
  */
-@ServerEndpoint("/GroupServer/{groupname}")
+@ServerEndpoint("/GroupServer/{group_name}")
 @Component
 public class GroupServer {
 

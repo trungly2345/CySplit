@@ -33,7 +33,7 @@ public class GroupInvitation {
             nullable = false,
             foreignKey = @ForeignKey(name = "fk_group_invitation_group")
 
-    )   
+    )
 
 
     @JsonIgnore
