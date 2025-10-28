@@ -3,14 +3,22 @@ package manytoone.websocket;
 import java.io.IOException;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.server.PathParam;
 import jakarta.websocket.server.ServerEndpoint;
 
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupInvitationRepository;
+import manytoone.Groups.GroupRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,14 +35,17 @@ import org.springframework.stereotype.Component;
  * The server provides functionality for broadcasting messages to all connected
  * users and sending messages to specific users.
  */
-@ServerEndpoint("/GroupServer/{group_name}")
+@ServerEndpoint("/GroupServer/{group_name}/{user_name}")
 @Component
 public class GroupServer {
 
     // Store all socket session and their corresponding username
     // Two maps for the ease of retrieval by key
-    private static Map < Session, String > sessionGroupNameMap = new Hashtable < > ();
-    private static Map < String, Session > groupNameSessionMap = new Hashtable < > ();
+    private static final Map <String , Set<Session>> groupSession = new ConcurrentHashMap<>();
+    private static final Map <Session, String> sessionToGroup = new ConcurrentHashMap<>();
+    private static final Map < Session , String> sessionToUser = new ConcurrentHashMap<>();
+    private static final Map < String, Session > usernameSessionMap = new ConcurrentHashMap <> ();
+
 
     // server side logger
     private final Logger logger = LoggerFactory.getLogger(GroupServer.class);
@@ -46,39 +57,74 @@ public class GroupServer {
      * @param group_name username specified in path parameter.
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("group_name") String group_name) throws IOException {
+    public void onOpen(Session session, @PathParam("group_name") String group_name, @PathParam("user_name") String username) throws IOException {
 
-        // server side log
-        logger.info("[onOpen] " + group_name);
+        GroupRepository groupRepository;
 
-        // Handle the case of a duplicate groupname
-        if (groupNameSessionMap.containsKey(group_name)) {
-            session.getBasicRemote().sendText("group name already exists");
-            session.close();
-        }
-        else {
-//            // map current session with username
-//            sessionUsernameMap.put(session, username);
-            sessionGroupNameMap.put(session, group_name);
 
-            // map current username with session
-            groupNameSessionMap.put(group_name, session);
+        groupSession.computeIfAbsent(group_name, g -> ConcurrentHashMap.newKeySet()).add(session);
+        sessionToGroup.put(session, group_name);
+        sessionToUser.put(session, username);
 
-//            // send to the user joining in
-//            sendMessageToPArticularUser(username, "Welcome to the chat server, "+username);
+        broadcast(group_name, "User " + username + " has joined the chat!" );
 
-            // send to everyone in the chat
-           broadcast("Group: " + group_name + " has been created!");
+
+
+    }
+
+    @OnClose
+    public void onClose(Session session) {
+        String group = sessionToGroup.remove(session);
+        String user  = sessionToUser.remove(session);
+        if (group != null) {
+            Set<Session> set = groupSession.get(group);
+            if (set != null) set.remove(session);
+            broadcast(group, "[leave] " + (user != null ? user : "user") + " left");
         }
     }
+
+    @OnMessage
+    public void onMessage(Session session, String message) throws IOException{
+        // get the user from the session
+
+        String user = sessionToUser.get(session);
+        String group = sessionToGroup.get(session);
+
+
+
+        message = (message == null) ? " " : message.trim();
+        if(message.isEmpty()){
+            return;
+        }
+
+        logger.info("[onMessage] " + group  + user + ": " + message);
+        broadcast(group,user + " " + message);
+
+    }
+
+    /**
+     * Sends a message to a specific user in the chat (DM).
+     *
+     * @param username The username of the recipient.
+     * @param message  The message to be sent.
+     */
+    private void sendMessageToPArticularUser(String username, String message) {
+        try {
+            usernameSessionMap.get(username).getBasicRemote().sendText(message);
+        } catch (IOException e) {
+            logger.info("[DM Exception] " + e.getMessage());
+        }
+    }
+
 
     /**
      * Broadcasts a message to all users in the chat.
      *
      * @param message The message to be broadcasted to all users.
      */
-    private void broadcast(String message) {
-        sessionGroupNameMap.forEach((session, group_name) -> {
+    private void broadcast(String group_name, String message) {
+        Set <Session> sessions = groupSession.get(group_name);
+        sessions.forEach((session) -> {
             try {
                 session.getBasicRemote().sendText(message);
             } catch (IOException e) {
