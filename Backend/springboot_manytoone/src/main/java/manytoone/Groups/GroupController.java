@@ -4,7 +4,13 @@ package manytoone.Groups;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 
 /**
@@ -23,21 +29,20 @@ public class GroupController {
     private String success = "{\"message\":\"success\"}";
     private String failure = "{\"message\":\"failure\"}";
 
-    @GetMapping("groups/{group_id}")
+    @GetMapping("/groups/{group_id}")
     public Group getGroupById(@PathVariable int group_id) {
         return groupRepository.findById(group_id);
     }
 
-    @PostMapping("groups/{group_id}")
+    @PostMapping("/groups")
     public ResponseEntity <Group> createGroup(@RequestBody Group req) {
-
      Group newGroup = groupRepository.save(req);
       return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
 
 
 
-   @PutMapping("groups/{group_id}")
+   @PutMapping("/groups/{group_id}")
     public ResponseEntity <Group> updateGroup(@PathVariable int group_id, @RequestBody Group request){
        Group updateGroup = groupRepository.findById(group_id);
        if (updateGroup == null){
@@ -51,7 +56,7 @@ public class GroupController {
    }
 
 
-   @DeleteMapping("groups/{group_id}")
+   @DeleteMapping("/groups/{group_id}")
     public ResponseEntity <Group> deleteGroupById(@PathVariable Long group_id){
      if (!groupRepository.existsById(group_id)){
          return null;
