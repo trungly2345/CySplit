@@ -3,6 +3,7 @@ package manytoone.Groups;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
@@ -25,46 +26,81 @@ public class UserGroupController {
     private GroupInvitationRepository invitationRepository;
 
     @GetMapping("/users/{userId}/groups")
+    @Transactional
     public ResponseEntity<List<UserGroup>> getUserGroups(@PathVariable int userId) {
         if (!userRepository.existsById(userId)) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(userGroupRepository.findByUserId(userId));
+        List<UserGroup> groups = userGroupRepository.findByUserId(userId);
+        // Force initialization of lazy-loaded entities
+        groups.forEach(ug -> {
+            ug.getUser().getUserName();
+            ug.getGroup().getId();
+        });
+        return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/users/{userId}/groups/active")
+    @Transactional
     public ResponseEntity<List<UserGroup>> getUserActiveGroups(@PathVariable int userId) {
         if (!userRepository.existsById(userId)) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(userGroupRepository.findActiveGroupsByUserId(userId));
+        List<UserGroup> groups = userGroupRepository.findActiveGroupsByUserId(userId);
+        // Force initialization of lazy-loaded entities
+        groups.forEach(ug -> {
+            ug.getUser().getUserName();
+            ug.getGroup().getId();
+        });
+        return ResponseEntity.ok(groups);
     }
 
     @GetMapping("/groups/{groupId}/members")
+    @Transactional
     public ResponseEntity<List<UserGroup>> getGroupMembers(@PathVariable int groupId) {
         Group group = groupRepository.findById(groupId);
         if (group == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(userGroupRepository.findByGroupId(groupId));
+        List<UserGroup> members = userGroupRepository.findByGroupId(groupId);
+        // Force initialization of lazy-loaded entities
+        members.forEach(ug -> {
+            ug.getUser().getUserName();
+            ug.getGroup().getId();
+        });
+        return ResponseEntity.ok(members);
     }
 
     @GetMapping("/groups/{groupId}/members/active")
+    @Transactional
     public ResponseEntity<List<UserGroup>> getActiveGroupMembers(@PathVariable int groupId) {
         Group group = groupRepository.findById(groupId);
         if (group == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(userGroupRepository.findActiveMembersByGroupId(groupId));
+        List<UserGroup> members = userGroupRepository.findActiveMembersByGroupId(groupId);
+        // Force initialization of lazy-loaded entities
+        members.forEach(ug -> {
+            ug.getUser().getUserName();
+            ug.getGroup().getId();
+        });
+        return ResponseEntity.ok(members);
     }
 
     @GetMapping("/groups/{groupId}/admins")
+    @Transactional
     public ResponseEntity<List<UserGroup>> getGroupAdmins(@PathVariable int groupId) {
         Group group = groupRepository.findById(groupId);
         if (group == null) {
             return ResponseEntity.notFound().build();
         }
-        return ResponseEntity.ok(userGroupRepository.findAdminsByGroupId(groupId));
+        List<UserGroup> admins = userGroupRepository.findAdminsByGroupId(groupId);
+        // Force initialization of lazy-loaded entities
+        admins.forEach(ug -> {
+            ug.getUser().getUserName();
+            ug.getGroup().getId();
+        });
+        return ResponseEntity.ok(admins);
     }
 
     @GetMapping("/groups/{groupId}/members/count")
@@ -77,6 +113,7 @@ public class UserGroupController {
     }
 
     @PostMapping("/groups/{groupId}/members")
+    @Transactional
     public ResponseEntity<UserGroup> addMemberToGroup(
             @PathVariable int groupId, 
             @RequestParam int userId,
@@ -101,10 +138,17 @@ public class UserGroupController {
         }
 
         UserGroup userGroup = new UserGroup(user, group, userRole);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userGroupRepository.save(userGroup));
+        UserGroup savedUserGroup = userGroupRepository.save(userGroup);
+        
+        // Force initialization
+        savedUserGroup.getUser().getUserName();
+        savedUserGroup.getGroup().getId();
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUserGroup);
     }
 
     @PostMapping("/invitations/{invitationId}/accept")
+    @Transactional
     public ResponseEntity<UserGroup> acceptInvitation(
             @PathVariable int invitationId,
             @RequestParam int userId) {
@@ -129,18 +173,28 @@ public class UserGroupController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (userGroupRepository.existsByUserIdAndGroupId(userId, invitation.getGroup().getId())) {
+        // Access the group within the transaction to avoid LazyInitializationException
+        Group group = invitation.getGroup();
+        
+        if (userGroupRepository.existsByUserIdAndGroupId(userId, group.getId())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
 
         invitation.setInv_status(GroupInvitation.invitationStatus.Accepted);
         invitationRepository.save(invitation);
 
-        UserGroup userGroup = new UserGroup(user, invitation.getGroup(), UserGroup.Role.MEMBER);
-        return ResponseEntity.status(HttpStatus.CREATED).body(userGroupRepository.save(userGroup));
+        UserGroup userGroup = new UserGroup(user, group, UserGroup.Role.MEMBER);
+        UserGroup savedUserGroup = userGroupRepository.save(userGroup);
+        
+        // Force initialization of lazy-loaded entities before transaction ends
+        savedUserGroup.getUser().getUserName(); // Touch user to load it
+        savedUserGroup.getGroup().getId(); // Touch group to load it
+        
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUserGroup);
     }
 
     @PutMapping("/groups/{groupId}/members/{userId}/role")
+    @Transactional
     public ResponseEntity<UserGroup> updateMemberRole(
             @PathVariable int groupId,
             @PathVariable int userId,
@@ -166,10 +220,17 @@ public class UserGroupController {
 
         UserGroup membership = targetMembership.get();
         membership.setRole(role);
-        return ResponseEntity.ok(userGroupRepository.save(membership));
+        UserGroup savedMembership = userGroupRepository.save(membership);
+        
+        // Force initialization
+        savedMembership.getUser().getUserName();
+        savedMembership.getGroup().getId();
+        
+        return ResponseEntity.ok(savedMembership);
     }
 
     @PutMapping("/groups/{groupId}/members/{userId}/contribution")
+    @Transactional
     public ResponseEntity<UserGroup> updateMemberContribution(
             @PathVariable int groupId,
             @PathVariable int userId,
@@ -182,10 +243,17 @@ public class UserGroupController {
 
         UserGroup membership = membershipOpt.get();
         membership.setTotalContribution(membership.getTotalContribution() + amount);
-        return ResponseEntity.ok(userGroupRepository.save(membership));
+        UserGroup savedMembership = userGroupRepository.save(membership);
+        
+        // Force initialization
+        savedMembership.getUser().getUserName();
+        savedMembership.getGroup().getId();
+        
+        return ResponseEntity.ok(savedMembership);
     }
 
     @DeleteMapping("/groups/{groupId}/members/{userId}")
+    @Transactional
     public ResponseEntity<Void> removeMemberFromGroup(
             @PathVariable int groupId,
             @PathVariable int userId,
