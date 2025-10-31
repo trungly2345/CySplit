@@ -61,15 +61,11 @@ public class GroupServer {
 
         GroupRepository groupRepository;
 
-
         groupSession.computeIfAbsent(group_name, g -> ConcurrentHashMap.newKeySet()).add(session);
         sessionToGroup.put(session, group_name);
         sessionToUser.put(session, username);
 
         broadcast(group_name, "User " + username + " has joined the chat!" );
-
-
-
     }
 
     @OnClose
@@ -86,11 +82,8 @@ public class GroupServer {
     @OnMessage
     public void onMessage(Session session, String message) throws IOException{
         // get the user from the session
-
         String user = sessionToUser.get(session);
         String group = sessionToGroup.get(session);
-
-
 
         message = (message == null) ? " " : message.trim();
         if(message.isEmpty()){
