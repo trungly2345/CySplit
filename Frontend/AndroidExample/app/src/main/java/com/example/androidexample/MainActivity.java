@@ -15,11 +15,12 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private TextView messageText;
-    private TextView usernameText;
-    private Button loginButton;
-    private Button signupButton;
+
     private Button profileButton;
-    private Button logoutButton;
+
+    private Button logout;
+    private TextView userName;
+
 
     private BottomNavigationView bottomNav;
     private HomeFragment homeFragment = new HomeFragment();
@@ -32,15 +33,39 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         messageText = findViewById(R.id.main_msg_txt);
-        usernameText = findViewById(R.id.main_username_txt);
-        loginButton = findViewById(R.id.main_login_btn);
-        signupButton = findViewById(R.id.main_signup_btn);
         profileButton = findViewById(R.id.profile_btn);
-        logoutButton = findViewById(R.id.main_logout_btn);
+        userName = findViewById(R.id.userName);
+        logout = findViewById(R.id.logout);
+
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
+        Bundle extras = getIntent().getExtras();
+
+        if (isLoggedIn && extras != null) {
+            String email = prefs.getString("email", "User");
+            userName.setText(email);
+        } else {
+            // If not logged in, go back to LoginActivity
+            startActivity(new Intent(MainActivity.this, LoginActivity.class));
+            finish();
+        }
+
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SharedPreferences.Editor editor = prefs.edit();
+                editor.clear();
+                editor.apply();
+
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
+
 
         bottomNav = findViewById(R.id.bottom_navigation);
 
-        // ✅ Change 1: default to Login/Signup tab when opening app
         bottomNav.setSelectedItemId(R.id.nav_login);
 
         bottomNav.setOnItemSelectedListener(item -> {
@@ -57,58 +82,12 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // login logic
-        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
-        Bundle extras = getIntent().getExtras();
-
-        if (isLoggedIn && extras != null) {
-            String username = extras.getString("USERNAME");
-            messageText.setText("Welcome, " + username + "!");
-            usernameText.setText(username);
-            usernameText.setVisibility(View.VISIBLE);
-
-            loginButton.setVisibility(View.GONE);
-            signupButton.setVisibility(View.GONE);
-            logoutButton.setVisibility(View.VISIBLE);
-        } else {
-            messageText.setText("Home Page");
-            usernameText.setVisibility(View.INVISIBLE);
-
-            loginButton.setVisibility(View.VISIBLE);
-            signupButton.setVisibility(View.VISIBLE);
-            logoutButton.setVisibility(View.GONE);
-        }
-
-        logoutButton.setOnClickListener(v -> {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean("isLoggedIn", false);
-            editor.apply();
-
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-
-        // login button
-        loginButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivity(intent);
-        });
-
-        // signup button
-        signupButton.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, SignupActivity.class);
-            startActivity(intent);
-        });
-
-        // ✅ Change 2: go to Profile tab instead of launching new activity
         profileButton.setOnClickListener(v -> {
             bottomNav.setSelectedItemId(R.id.nav_profile);
             loadFragment(profileFragment);
         });
     }
+
 
     private boolean loadFragment(Fragment fragment) {
         if (fragment != null) {
