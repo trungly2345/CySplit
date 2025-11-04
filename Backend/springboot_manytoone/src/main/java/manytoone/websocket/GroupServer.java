@@ -45,6 +45,7 @@ public class GroupServer {
     private static final Map <Session, String> sessionToGroup = new ConcurrentHashMap<>();
     private static final Map < Session , String> sessionToUser = new ConcurrentHashMap<>();
     private static final Map < String, Session > usernameSessionMap = new ConcurrentHashMap <> ();
+    private static final Map < String, Session > groupnameSessionMap = new ConcurrentHashMap <> ();
 
 
     // server side logger
@@ -64,8 +65,16 @@ public class GroupServer {
         groupSession.computeIfAbsent(group_name, g -> ConcurrentHashMap.newKeySet()).add(session);
         sessionToGroup.put(session, group_name);
         sessionToUser.put(session, username);
+        usernameSessionMap.put(username,session);
 
         broadcast(group_name, "User " + username + " has joined the chat!" );
+
+       // check if the group name duplicate exists
+        if (groupnameSessionMap.containsKey(group_name)){
+            session.getBasicRemote().sendText("Group Name exists!");
+        }
+
+
     }
 
     @OnClose
@@ -85,13 +94,29 @@ public class GroupServer {
         String user = sessionToUser.get(session);
         String group = sessionToGroup.get(session);
 
+        logger.info("[onMessage] " + group + user + ": " + message);
+
         message = (message == null) ? " " : message.trim();
+
         if(message.isEmpty()){
             return;
         }
 
-        logger.info("[onMessage] " + group  + user + ": " + message);
-        broadcast(group,user + " " + message);
+        if(message.startsWith("@")){
+            String[] split_msg = message.split("\\s+");
+
+            StringBuilder msgBuilder = new StringBuilder();
+            for(int i = 1; i < split_msg.length; i++){
+                msgBuilder.append(split_msg[i]).append(" ");
+            }
+            String toUserName = split_msg[0].substring(1);
+            String Msg = msgBuilder.toString();
+            sendMessageToPArticularUser(toUserName, "<Whisper from..." + user + "> : " + Msg);
+            sendMessageToPArticularUser(user, "<Whisper from..." + user + "> : " + Msg);
+
+        } else {
+            broadcast(group, " <" + user + "> " + " " + message);
+        }
 
     }
 
