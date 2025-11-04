@@ -19,7 +19,7 @@ public class ProfileFragment extends Fragment {
         settingsButton.setOnClickListener(v -> {
             FragmentTransaction transaction = getParentFragmentManager().beginTransaction();
             transaction.replace(R.id.fragment_container, new SettingsFragment());
-            transaction.addToBackStack(null); // allows going back
+            transaction.addToBackStack(null);
             transaction.commit();
         });
 
