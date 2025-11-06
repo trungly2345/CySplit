@@ -35,12 +35,12 @@ public class BillsListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.billsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        adapter = new BillsAdapter(billList, this::openBillDetail);
-        recyclerView.setAdapter(adapter);
-
         if (getArguments() != null) {
             groupId = getArguments().getInt("groupId");
         }
+
+        adapter = new BillsAdapter(billList, billId -> openBillDetail(billId, groupId));
+        recyclerView.setAdapter(adapter);
 
         loadBills();
 
@@ -69,10 +69,11 @@ public class BillsListFragment extends Fragment {
         });
     }
 
-    private void openBillDetail(int billId) {
+    private void openBillDetail(int billId, int groupId) {
         BillDetailFragment fragment = new BillDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("billId", billId);
+        bundle.putInt("groupId", groupId);
         fragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager().beginTransaction()

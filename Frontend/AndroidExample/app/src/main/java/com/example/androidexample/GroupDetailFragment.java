@@ -54,7 +54,7 @@ public class GroupDetailFragment extends Fragment {
         loadRecentBill();
 
         // Click listeners
-        recentBillContainer.setOnClickListener(v -> openBillDetail(recentBillId));
+        recentBillContainer.setOnClickListener(v -> openBillDetail(recentBillId, groupId));
         buttonViewAllBills.setOnClickListener(v -> openAllBills());
         buttonViewTransactions.setOnClickListener(v -> openTransactions());
 
@@ -120,10 +120,11 @@ public class GroupDetailFragment extends Fragment {
         recentBillAmount.setText("$0.00");
     }
 
-    private void openBillDetail(int billId) {
+    private void openBillDetail(int billId, int groupId) {
         BillDetailFragment fragment = new BillDetailFragment();
         Bundle bundle = new Bundle();
         bundle.putInt("billId", billId);
+        bundle.putInt("groupId", groupId);
         fragment.setArguments(bundle);
 
         requireActivity().getSupportFragmentManager().beginTransaction()

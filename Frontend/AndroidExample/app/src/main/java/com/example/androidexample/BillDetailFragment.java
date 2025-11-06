@@ -42,6 +42,7 @@ public class BillDetailFragment extends Fragment {
 
         if (getArguments() != null) {
             billId = getArguments().getInt("billId");
+            groupId = getArguments().getInt("groupId");
             loadBillInfo();
         }
 
@@ -62,6 +63,21 @@ public class BillDetailFragment extends Fragment {
                     .addToBackStack(null) // optional, allows "back" button to work
                     .commit();
         });
+
+        // Add ChatFragment inside the container at the bottom
+        if (savedInstanceState == null) { // Prevent re-adding on rotation
+            ChatFragment chatFragment = new ChatFragment();
+
+            // Optionally pass identifiers to associate chat with a bill
+            Bundle chatArgs = new Bundle();
+            chatArgs.putInt("billId", billId);
+            chatArgs.putInt("groupId", groupId);
+            chatFragment.setArguments(chatArgs);
+
+            getChildFragmentManager().beginTransaction()
+                    .replace(R.id.billChatContainer, chatFragment)
+                    .commit();
+        }
 
         return view;
     }
