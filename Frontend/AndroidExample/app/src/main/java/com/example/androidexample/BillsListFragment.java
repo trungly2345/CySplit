@@ -11,17 +11,19 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class BillsListFragment extends Fragment {
 
     private int groupId;
     private RecyclerView recyclerView;
     private BillsAdapter adapter;
-    private List<JSONObject> billList;
+    private List<Bill> billList = new ArrayList<>();
 
     @Nullable
     @Override
@@ -33,33 +35,38 @@ public class BillsListFragment extends Fragment {
         recyclerView = view.findViewById(R.id.billsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        billList = new ArrayList<>();
         adapter = new BillsAdapter(billList, this::openBillDetail);
         recyclerView.setAdapter(adapter);
 
         if (getArguments() != null) {
             groupId = getArguments().getInt("groupId");
-            loadBills();
         }
+
+        loadBills();
 
         return view;
     }
 
     private void loadBills() {
-        // TODO: Replace with real backend API call
-        try {
-            for (int i = 1; i <= 10; i++) {
-                JSONObject bill = new JSONObject();
-                bill.put("id", i);
-                bill.put("title", "Bill " + i);
-                bill.put("amount", i * 10.0);
-                bill.put("date", "Nov " + i);
-                billList.add(bill);
+        // For now, fetch a single bill (bill 1) from local backend
+        BillService billService = RetrofitClient.getLocalClient().create(BillService.class);
+        Call<Bill> call = billService.getBillById(1);
+
+        call.enqueue(new Callback<Bill>() {
+            @Override
+            public void onResponse(Call<Bill> call, Response<Bill> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    billList.clear();
+                    billList.add(response.body());
+                    adapter.notifyDataSetChanged();
+                }
             }
-            adapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
+            @Override
+            public void onFailure(Call<Bill> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
     private void openBillDetail(int billId) {

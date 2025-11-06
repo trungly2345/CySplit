@@ -11,16 +11,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import org.json.JSONObject;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class BillDetailFragment extends Fragment {
 
     private int billId;
-    private int groupId; // optional, for back navigation
-    private TextView billTitleTextView, billAmountTextView, billDescriptionTextView;
-    private Button payButton, backToBillsButton;
-
-    private boolean isPaid = false; // mock status
+    private int groupId = 1; // mock for now
+    private TextView billTitleTextView, billAmountTextView, billDescriptionTextView, billStatusTextView;
+    private Button payButton, backButton;
 
     @Nullable
     @Override
@@ -32,66 +36,98 @@ public class BillDetailFragment extends Fragment {
         billTitleTextView = view.findViewById(R.id.billTitleTextView);
         billAmountTextView = view.findViewById(R.id.billAmountTextView);
         billDescriptionTextView = view.findViewById(R.id.billDescriptionTextView);
+        billStatusTextView = view.findViewById(R.id.billStatusTextView);
         payButton = view.findViewById(R.id.payButton);
-        backToBillsButton = view.findViewById(R.id.backToBillsButton);
+        backButton = view.findViewById(R.id.backToGroupButton);
 
         if (getArguments() != null) {
             billId = getArguments().getInt("billId");
-            groupId = getArguments().getInt("groupId", -1); // optional
+            loadBillInfo();
         }
 
-        loadBillInfo();
-        setupButtons();
-        loadChat();
+        payButton.setOnClickListener(v -> markBillAsPaid());
+
+        backButton.setOnClickListener(v -> {
+            // Create a new instance of GroupDetailFragment
+            GroupDetailFragment fragment = new GroupDetailFragment();
+
+            // Pass the groupId back
+            Bundle bundle = new Bundle();
+            bundle.putInt("groupId", groupId);  // make sure groupId is stored in this fragment
+            fragment.setArguments(bundle);
+
+            // Replace current fragment with GroupDetailFragment
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null) // optional, allows "back" button to work
+                    .commit();
+        });
 
         return view;
     }
 
     private void loadBillInfo() {
-        // TODO: Replace mock data with backend API call
-        billTitleTextView.setText("Dinner at Joe's");
-        billAmountTextView.setText("$45.50");
-        billDescriptionTextView.setText("Split among 4 people");
+        BillService service = RetrofitClient.getLocalClient().create(BillService.class);
+        Call<Bill> call = service.getBillById(billId);
 
-        isPaid = false; // mock unpaid
-        payButton.setEnabled(!isPaid);
-        payButton.setText(isPaid ? "Paid" : "Pay");
+        call.enqueue(new Callback<Bill>() {
+            @Override
+            public void onResponse(Call<Bill> call, Response<Bill> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Bill bill = response.body();
+
+                    billTitleTextView.setText(bill.getBillName());
+                    billAmountTextView.setText("$" + bill.getBillAmount());
+                    billDescriptionTextView.setText("Due: " + bill.getDueTime());
+                    billStatusTextView.setText(bill.isPaid() ? "Paid ✅" : "Unpaid ❌");
+
+                    // If it’s already paid from the backend, we’ll still show the transaction
+                    if (bill.isPaid()) {
+                        addMockTransaction(bill);
+                        payButton.setEnabled(false);
+                        payButton.setText("Already Paid");
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Bill> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
-    private void setupButtons() {
-        payButton.setOnClickListener(v -> payBill());
-        backToBillsButton.setOnClickListener(v -> openAllBills());
-    }
-
-    private void payBill() {
-        // TODO: Call backend API to mark bill as paid
-        isPaid = true;
+    private void markBillAsPaid() {
+        // Disable button immediately to prevent duplicates
         payButton.setEnabled(false);
-        payButton.setText("Paid");
+        payButton.setText("Paid ✅");
+        billStatusTextView.setText("Paid ✅");
+
+        // Add to mock transactions (even though backend doesn't persist yet)
+        String billName = billTitleTextView.getText().toString();
+        String billAmount = billAmountTextView.getText().toString().replace("$", "");
+
+        // Get current date
+        String currentDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
+
+        TransactionMockStorage.addTransaction(
+                "Payment for " + billName,
+                Double.parseDouble(billAmount),
+                groupId,
+                billId,
+                currentDate  // <-- pass date here
+        );
     }
 
-    private void openAllBills() {
-        if (groupId == -1) return; // safety check
+    private void addMockTransaction(Bill bill) {
+        String currentDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
 
-        BillsListFragment fragment = new BillsListFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("groupId", groupId);
-        fragment.setArguments(bundle);
-
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .addToBackStack(null)
-                .commit();
-    }
-
-    private void loadChat() {
-        ChatFragment chatFragment = new ChatFragment();
-        Bundle bundle = new Bundle();
-        bundle.putInt("transactionId", billId); // link chat to this bill
-        chatFragment.setArguments(bundle);
-
-        requireActivity().getSupportFragmentManager().beginTransaction()
-                .replace(R.id.billChatContainer, chatFragment)
-                .commit();
+        TransactionMockStorage.addTransaction(
+                "Payment for " + bill.getBillName(),
+                Double.parseDouble(bill.getBillAmount()),
+                groupId,
+                billId,
+                currentDate
+        );
     }
 }

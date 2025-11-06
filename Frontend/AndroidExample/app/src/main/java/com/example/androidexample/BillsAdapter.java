@@ -13,14 +13,15 @@ import org.json.JSONObject;
 import java.util.List;
 
 public class BillsAdapter extends RecyclerView.Adapter<BillsAdapter.BillViewHolder> {
-    private final List<JSONObject> bills;
-    private final OnBillClickListener listener;
+
+    private List<Bill> bills;
+    private OnBillClickListener listener;
 
     public interface OnBillClickListener {
         void onBillClick(int billId);
     }
 
-    public BillsAdapter(List<JSONObject> bills, OnBillClickListener listener) {
+    public BillsAdapter(List<Bill> bills, OnBillClickListener listener) {
         this.bills = bills;
         this.listener = listener;
     }
@@ -34,17 +35,11 @@ public class BillsAdapter extends RecyclerView.Adapter<BillsAdapter.BillViewHold
 
     @Override
     public void onBindViewHolder(@NonNull BillViewHolder holder, int position) {
-        JSONObject bill = bills.get(position);
-        try {
-            holder.title.setText(bill.getString("title"));
-            holder.amount.setText("$" + bill.getDouble("amount"));
-            holder.date.setText(bill.getString("date"));
+        Bill bill = bills.get(position);
+        holder.title.setText(bill.getBillName());
+        holder.amount.setText("$" + bill.getBillAmount());
 
-            int billId = bill.getInt("id");
-            holder.itemView.setOnClickListener(v -> listener.onBillClick(billId));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        holder.itemView.setOnClickListener(v -> listener.onBillClick(bill.getBillId()));
     }
 
     @Override
@@ -53,13 +48,12 @@ public class BillsAdapter extends RecyclerView.Adapter<BillsAdapter.BillViewHold
     }
 
     static class BillViewHolder extends RecyclerView.ViewHolder {
-        TextView title, amount, date;
+        TextView title, amount;
 
         public BillViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.billItemTitle);
             amount = itemView.findViewById(R.id.billItemAmount);
-            date = itemView.findViewById(R.id.billItemDate);
         }
     }
 }
