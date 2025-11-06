@@ -47,7 +47,6 @@ public class GroupServer {
     private static final Map < String, Session > usernameSessionMap = new ConcurrentHashMap <> ();
     private static final Map < String, Session > groupnameSessionMap = new ConcurrentHashMap <> ();
 
-
     // server side logger
     private final Logger logger = LoggerFactory.getLogger(GroupServer.class);
 
@@ -70,11 +69,9 @@ public class GroupServer {
         broadcast(group_name, "User " + username + " has joined the chat!" );
 
        // check if the group name duplicate exists
-        if (groupnameSessionMap.containsKey(group_name)){
+        if (groupnameSessionMap.containsKey(group_name)) {
             session.getBasicRemote().sendText("Group Name exists!");
         }
-
-
     }
 
     @OnClose
@@ -133,7 +130,6 @@ public class GroupServer {
             logger.info("[DM Exception] " + e.getMessage());
         }
     }
-
 
     /**
      * Broadcasts a message to all users in the chat.
