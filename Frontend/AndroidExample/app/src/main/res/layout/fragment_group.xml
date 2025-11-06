@@ -11,7 +11,8 @@
         android:textStyle="bold"
         android:layout_marginBottom="12dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="?android:textColorPrimary"/>
 
     <TextView
         android:id="@+id/groupStatusTextView"
@@ -20,14 +21,16 @@
         android:text="Your Groups"
         android:textStyle="bold"
         android:textSize="20sp"
-        android:paddingBottom="8dp"/>
+        android:paddingBottom="8dp"
+        android:textColor="?android:textColorSecondary"/>
 
     <Button
         android:id="@+id/createGroupButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Create New Group"
-        android:visibility="gone" />
+        android:visibility="gone"
+        android:textColor="?android:textColorPrimary"/>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/groupRecyclerView"

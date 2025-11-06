@@ -12,14 +12,16 @@
         android:textStyle="bold"
         android:textSize="20sp"
         android:gravity="center"
-        android:padding="8dp" />
+        android:padding="8dp"
+        android:textColor="?android:textColorPrimary"/>
 
     <LinearLayout
         android:id="@+id/messageContainer"
         android:orientation="vertical"
         android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="0dp" />
+        android:layout_height="0dp"
+        android:textColor="?android:textColorPrimary"/>
 
     <LinearLayout
         android:orientation="horizontal"
@@ -32,7 +34,8 @@
             android:hint="Add a comment..."
             android:layout_width="0dp"
             android:layout_weight="1"
-            android:layout_height="48dp" />
+            android:layout_height="48dp"
+            android:textColor="?android:textColorSecondary"/>
 
         <ImageButton
             android:id="@+id/sendButton"

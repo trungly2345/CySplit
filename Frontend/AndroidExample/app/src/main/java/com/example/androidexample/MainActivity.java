@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case "system":
             default:
-                setTheme(R.style.Theme_AndroidExample);
+                setTheme(R.style.ThemeOverlay_App_Light);
                 break;
         }
 

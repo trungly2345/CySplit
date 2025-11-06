@@ -11,7 +11,7 @@
         android:text="Dinner at Joe’s"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:textColor="@color/primary_dark"
+        android:textColor="?android:colorPrimary"
         android:layout_height="24dp"
         android:layout_width="200dp"/>
 
@@ -19,7 +19,7 @@
         android:id="@+id/transactionAmountText"
         android:text="$45.00"
         android:textSize="16sp"
-        android:textColor="@color/accent"
+        android:textColor="?android:textColorPrimary"
         android:layout_height="24dp"
         android:layout_width="200dp"/>
 
@@ -27,7 +27,7 @@
         android:id="@+id/transactionDateText"
         android:text="Oct 19, 2025"
         android:textSize="13sp"
-        android:textColor="@color/text_secondary"
         android:layout_height="24dp"
-        android:layout_width="200dp"/>
+        android:layout_width="200dp"
+        android:textColor="?android:textColorSecondary"/>
 </LinearLayout>

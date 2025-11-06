@@ -44,7 +44,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 break;
             case "system":
             default:
-                requireActivity().setTheme(R.style.Theme_AndroidExample);
+                requireActivity().setTheme(R.style.ThemeOverlay_App_Light);
                 break;
         }
 

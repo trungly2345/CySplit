@@ -19,7 +19,7 @@
         android:layout_marginTop="100dp"
         android:layout_marginBottom="50dp"
         android:textSize="30sp"
-        android:textColor="#fc0303"
+        android:textColor="?android:textColorPrimary"
         >
         </TextView>
 

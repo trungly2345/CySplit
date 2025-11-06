@@ -11,6 +11,7 @@
         android:textStyle="bold"
         android:layout_marginBottom="12dp"
         android:layout_height="24dp"
+        android:textColor="?android:textColorPrimary"
 
         android:layout_width="200dp"/>
 
