@@ -52,7 +52,7 @@ public class GroupFragment extends Fragment {
     private void onGroupClick(JSONObject group) {
         try {
             int groupId = group.getInt("id");
-            TransactionFragment fragment = new TransactionFragment();
+            GroupDetailFragment fragment = new GroupDetailFragment();
 
             Bundle bundle = new Bundle();
             bundle.putInt("groupId", groupId);

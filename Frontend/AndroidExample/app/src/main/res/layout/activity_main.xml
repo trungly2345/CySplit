@@ -15,12 +15,13 @@
         android:layout_weight="1"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
-        android:backgroundTint="?attr/colorSurface">
+        android:background="?android:colorBackground">
 
         <FrameLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:background="?android:colorBackground"/>
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.bottomnavigation.BottomNavigationView

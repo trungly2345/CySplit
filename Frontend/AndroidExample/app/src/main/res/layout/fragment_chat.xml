@@ -15,13 +15,13 @@
         android:padding="8dp"
         android:textColor="?android:textColorPrimary"/>
 
-    <LinearLayout
-        android:id="@+id/messageContainer"
-        android:orientation="vertical"
-        android:layout_weight="1"
+    <!-- RecyclerView for messages -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/messageRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:textColor="?android:textColorPrimary"/>
+        android:layout_weight="1"
+        android:padding="8dp" />
 
     <LinearLayout
         android:orientation="horizontal"

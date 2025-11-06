@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Group info -->
+        <TextView
+            android:id="@+id/groupNameTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:text="Group Name" />
+
+        <TextView
+            android:id="@+id/groupDescriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Group Description or Info"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Most recent bill -->
+        <TextView
+            android:text="Most Recent Bill:"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"/>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/recentBillContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="4dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:padding="12dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/recentBillTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bill Title" />
+
+                <TextView
+                    android:id="@+id/recentBillAmount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="$0.00" />
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <!-- Buttons for navigation -->
+        <Button
+            android:id="@+id/buttonViewAllBills"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View All Bills"
+            android:layout_marginTop="8dp" />
+
+        <Button
+            android:id="@+id/buttonViewTransactions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="View Past Transactions" />
+
+    </LinearLayout>
+</ScrollView>

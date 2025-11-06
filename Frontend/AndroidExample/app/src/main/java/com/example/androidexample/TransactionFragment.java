@@ -55,7 +55,7 @@ public class TransactionFragment extends Fragment {
     private void onTransactionClick(JSONObject transaction) {
         try {
             int transactionId = transaction.getInt("id");
-            ChatFragment fragment = new ChatFragment();
+            TransactionOptionsFragment fragment = new TransactionOptionsFragment();
 
             Bundle bundle = new Bundle();
             bundle.putInt("transactionId", transactionId);
