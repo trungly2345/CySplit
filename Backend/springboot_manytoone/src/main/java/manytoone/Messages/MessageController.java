@@ -44,22 +44,23 @@ public class MessageController {
     @PostMapping
     public ResponseEntity<Message> createMessage(@RequestBody Message req) {
 
-        var convo = conversationRepository.findById(req.getConversationId()).orElse(null);
-        var sender = userRepository.findById(req.getSenderId()).orElse(null);
+        // Optional: Validate that the conversation and user actually exist
+        boolean convoExists = conversationRepository.existsById(req.getConversationId());
+        boolean senderExists = userRepository.existsById(req.getSenderId());
 
-        if (convo == null || sender == null) {
+        if (!convoExists || !senderExists) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
         Message msg = new Message();
-        msg.setSender(sender);
+        msg.setConversationId(req.getConversationId());
+        msg.setSenderId(req.getSenderId());
         msg.setContent(req.getContent());
         msg.setSent_At(LocalDateTime.now());
 
         Message saved = messageRepository.save(msg);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMessage(@PathVariable int id) {

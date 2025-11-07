@@ -13,45 +13,46 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id" , nullable = false)
+    @Column(name = "messageId" , nullable = false)
     private int message_id; // Primary key
 
     @Column(name = "conversation_id" , nullable = false)
-    private int conversation_id;
+    private int conversationId;
 
-    @ManyToOne
-    @JoinColumn(name = "sender_id" , nullable = false)
-    private User sender;
+
+    @Column(name = "sender_id" , nullable = false)
+    private int senderId;
 
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "sent_At", nullable = false)
-    private LocalDateTime sent_At;
+    private LocalDateTime sentAt;
 
     protected Message(){}
 
-    public Message(int conversation_id, User sender, String content){
-        this.conversation_id = conversation_id;
-        this.sender = sender;
+    public Message(int conversation_id,int senderId, String content){
+        this.conversationId = conversationId;
+        this.senderId = senderId;
         this.content = content;
+        this.sentAt = LocalDateTime.now();
     }
 
 
     public int getConversationId() {
-        return conversation_id;
+        return conversationId;
     }
 
-    public void setConversation(int conversation_id) {
-        this.conversation_id = conversation_id;
+    public void setConversationId(int conversation_id) {
+        this.conversationId = conversation_id;
     }
 
-    public User getSender() {
-        return sender;
+    public int getSenderId() {
+        return senderId;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
+    public void setSenderId(int sender_id) {
+        this.senderId = sender_id;
     }
 
     public String getContent() {
@@ -63,11 +64,11 @@ public class Message {
     }
 
     public LocalDateTime getSent_At() {
-        return sent_At;
+        return sentAt;
     }
 
     public void setSent_At(LocalDateTime sent_At) {
-        this.sent_At = sent_At;
+        this.sentAt = sentAt;
     }
 
 

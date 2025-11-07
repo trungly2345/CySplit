@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -17,6 +17,13 @@ public class BillController {
 
     @Autowired
     private BillRepository billRepository;
+
+
+    @GetMapping
+    public ResponseEntity<List<Bill>> getAllBills() {
+        List<Bill> bills = billRepository.findAll();
+        return ResponseEntity.ok(bills);
+    }
 
     // GET /bill/{bill_id}
     @GetMapping("/{bill_id}")
@@ -44,13 +51,13 @@ public class BillController {
         }
 
         Bill updateBill = billOpt.get();
-        // update fields — adjust to your Bill entity
+
         updateBill.setBill_name(request.getBill_name());
         updateBill.setBill_amount(request.getBill_amount());
         updateBill.setDueCreated(request.getDueCreated());
         updateBill.setDueTime(request.getDueTime());
         updateBill.setPaid(request.isPaid());
-        // don't change the primary key here
+
 
         billRepository.save(updateBill);
         return ResponseEntity.ok(updateBill);
