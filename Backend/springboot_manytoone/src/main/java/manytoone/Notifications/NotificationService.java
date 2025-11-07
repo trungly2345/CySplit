@@ -3,6 +3,9 @@ package manytoone.Notifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import manytoone.Notifications.Notification;
+import manytoone.Notifications.NotificationRepository;
+import manytoone.Notifications.NotificationWebSocket;
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
 import manytoone.Groups.Group;
@@ -42,8 +45,8 @@ public class NotificationService {
     @Transactional
     public Notification notifyGroupInvitation(User recipient, Group group, User invitedBy) {
         String title = "Group Invitation";
-        String message = String.format("You have been invited to join '%s' by %s", 
-            group.getName(), invitedBy.getUserName());
+        String message = String.format("You've been invited to join group '%s' by %s", 
+            group.getGroup_name(), invitedBy.getUserName());
         
         Notification notification = new Notification(
             recipient,
@@ -53,7 +56,8 @@ public class NotificationService {
         );
         notification.setRelatedGroup(group);
         notification.setTriggeredBy(invitedBy);
-        notification.setPriority(Notification.Priority.HIGH);
+        notification.setPriority(3); // High priority
+        notification.setRelatedEntityType("INVITATION");
         
         Notification saved = notificationRepository.save(notification);
         sendNotificationToUser(recipient.getId(), saved);
@@ -67,8 +71,8 @@ public class NotificationService {
     @Transactional
     public Notification notifyInvitationAccepted(User admin, Group group, User acceptedUser) {
         String title = "Invitation Accepted";
-        String message = String.format("%s has joined '%s'", 
-            acceptedUser.getUserName(), group.getName());
+        String message = String.format("%s accepted the invitation to join '%s'", 
+            acceptedUser.getUserName(), group.getGroup_name());
         
         Notification notification = new Notification(
             admin,
@@ -92,7 +96,7 @@ public class NotificationService {
     public Notification notifyRoleChanged(User recipient, Group group, UserGroup.Role newRole, User changedBy) {
         String title = "Role Changed";
         String message = String.format("Your role in '%s' has been changed to %s by %s", 
-            group.getName(), newRole.name(), changedBy.getUserName());
+            group.getGroup_name(), newRole.name(), changedBy.getUserName());
         
         Notification notification = new Notification(
             recipient,
@@ -102,7 +106,7 @@ public class NotificationService {
         );
         notification.setRelatedGroup(group);
         notification.setTriggeredBy(changedBy);
-        notification.setPriority(Notification.Priority.MEDIUM);
+        notification.setPriority(2); // Medium priority
         
         Notification saved = notificationRepository.save(notification);
         sendNotificationToUser(recipient.getId(), saved);
@@ -118,8 +122,8 @@ public class NotificationService {
         List<UserGroup> members = userGroupRepository.findByGroupId(group.getId());
         
         String title = "New Member Added";
-        String message = String.format("%s added %s to '%s'", 
-            addedBy.getUserName(), newMember.getUserName(), group.getName());
+        String message = String.format("%s added %s to the group '%s'", 
+            addedBy.getUserName(), newMember.getUserName(), group.getGroup_name());
         
         for (UserGroup member : members) {
             // Don't notify the new member or the person who added them
@@ -149,8 +153,8 @@ public class NotificationService {
         List<UserGroup> members = userGroupRepository.findByGroupId(group.getId());
         
         String title = "Member Removed";
-        String message = String.format("%s removed %s from '%s'", 
-            removedBy.getUserName(), removedMember.getUserName(), group.getName());
+        String message = String.format("%s removed %s from the group '%s'", 
+            removedBy.getUserName(), removedMember.getUserName(), group.getGroup_name());
         
         for (UserGroup member : members) {
             if (member.getUser().getId() != removedMember.getId() && 
@@ -176,8 +180,8 @@ public class NotificationService {
      */
     @Transactional
     public Notification notifyGroupChatMention(User recipient, Group group, User mentionedBy, String messagePreview) {
-        String title = String.format("Mentioned in %s", group.getName());
-        String message = String.format("%s mentioned you: %s", 
+        String title = String.format("Mentioned in %s", group.getGroup_name());
+        String message = String.format("%s mentioned you in group chat: %s", 
             mentionedBy.getUserName(), messagePreview);
         
         Notification notification = new Notification(
@@ -188,7 +192,7 @@ public class NotificationService {
         );
         notification.setRelatedGroup(group);
         notification.setTriggeredBy(mentionedBy);
-        notification.setPriority(Notification.Priority.HIGH);
+        notification.setPriority(3); // High priority
         
         Notification saved = notificationRepository.save(notification);
         sendNotificationToUser(recipient.getId(), saved);
@@ -201,9 +205,9 @@ public class NotificationService {
      */
     @Transactional
     public Notification notifyGroupChatNewMessage(User recipient, Group group, int unreadCount) {
-        String title = String.format("New messages in %s", group.getName());
+        String title = String.format("New messages in %s", group.getGroup_name());
         String message = String.format("You have %d unread message%s in '%s'", 
-            unreadCount, unreadCount > 1 ? "s" : "", group.getName());
+            unreadCount, unreadCount > 1 ? "s" : "", group.getGroup_name());
         
         Notification notification = new Notification(
             recipient,
@@ -212,7 +216,7 @@ public class NotificationService {
             message
         );
         notification.setRelatedGroup(group);
-        notification.setPriority(Notification.Priority.LOW);
+        notification.setPriority(1); // Low priority
         
         Notification saved = notificationRepository.save(notification);
         sendNotificationToUser(recipient.getId(), saved);
@@ -228,8 +232,8 @@ public class NotificationService {
         List<UserGroup> members = userGroupRepository.findByGroupId(group.getId());
         
         String title = "New Bill Created";
-        String message = String.format("%s created a bill '%s' for $%.2f in '%s'", 
-            createdBy.getUserName(), billTitle, amount, group.getName());
+        String message = String.format("%s created a new bill '%s' for $%.2f in group '%s'", 
+            createdBy.getUserName(), billTitle, amount, group.getGroup_name());
         
         for (UserGroup member : members) {
             if (member.getUser().getId() != createdBy.getId()) {
@@ -241,7 +245,7 @@ public class NotificationService {
                 );
                 notification.setRelatedGroup(group);
                 notification.setTriggeredBy(createdBy);
-                notification.setPriority(Notification.Priority.MEDIUM);
+                notification.setPriority(2); // Medium priority
                 
                 Notification saved = notificationRepository.save(notification);
                 sendNotificationToUser(member.getUser().getId(), saved);
@@ -255,8 +259,8 @@ public class NotificationService {
     @Transactional
     public Notification notifyBillUpdated(User recipient, Group group, User updatedBy, String billTitle) {
         String title = "Bill Updated";
-        String message = String.format("%s updated the bill '%s' in '%s'", 
-            updatedBy.getUserName(), billTitle, group.getName());
+        String message = String.format("%s updated the bill '%s' in group '%s'", 
+            updatedBy.getUserName(), billTitle, group.getGroup_name());
         
         Notification notification = new Notification(
             recipient,
@@ -278,9 +282,9 @@ public class NotificationService {
      */
     @Transactional
     public Notification notifyBillPaymentRequired(User recipient, Group group, String billTitle, double amount) {
-        String title = "Payment Required";
-        String message = String.format("You owe $%.2f for '%s' in '%s'", 
-            amount, billTitle, group.getName());
+        String title = "Bill Due Soon";
+        String message = String.format("You owe $%.2f for '%s' in group '%s'", 
+            amount, billTitle, group.getGroup_name());
         
         Notification notification = new Notification(
             recipient,
@@ -289,7 +293,7 @@ public class NotificationService {
             message
         );
         notification.setRelatedGroup(group);
-        notification.setPriority(Notification.Priority.HIGH);
+        notification.setPriority(3); // High priority
         
         Notification saved = notificationRepository.save(notification);
         sendNotificationToUser(recipient.getId(), saved);
@@ -303,8 +307,8 @@ public class NotificationService {
     @Transactional
     public Notification notifyBillPaymentReceived(User recipient, Group group, User paidBy, double amount) {
         String title = "Payment Received";
-        String message = String.format("%s paid $%.2f in '%s'", 
-            paidBy.getUserName(), amount, group.getName());
+        String message = String.format("%s paid $%.2f in group '%s'", 
+            paidBy.getUserName(), amount, group.getGroup_name());
         
         Notification notification = new Notification(
             recipient,
@@ -326,9 +330,9 @@ public class NotificationService {
      */
     @Transactional
     public Notification notifyContributionAdded(User recipient, Group group, User addedBy, String contributionDetails) {
-        String title = "Contribution Added";
-        String message = String.format("%s added a contribution in '%s': %s", 
-            addedBy.getUserName(), group.getName(), contributionDetails);
+        String title = "New Contribution";
+        String message = String.format("%s added a contribution to group '%s': %s", 
+            addedBy.getUserName(), group.getGroup_name(), contributionDetails);
         
         Notification notification = new Notification(
             recipient,
@@ -367,7 +371,7 @@ public class NotificationService {
                 message
             );
             notification.setRelatedGroup(group);
-            notification.setPriority(Notification.Priority.HIGH);
+            notification.setPriority(3); // High priority
             
             Notification saved = notificationRepository.save(notification);
             sendNotificationToUser(user.getId(), saved);
