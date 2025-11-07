@@ -4,12 +4,12 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Top section -->
     <LinearLayout
-        android:id="@+id/top_section"
+        android:id="@+id/login_section"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
         android:layout_alignParentTop="true">
 
         <TextView
@@ -20,42 +20,46 @@
             android:gravity="center"
             android:paddingBottom="24dp"
             android:textColor="?android:textColorPrimary"/>
+=======
+        android:layout_centerInParent="true">
+>>>>>>> main
 
         <EditText
             android:id="@+id/username_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:hint="Username" />
 
         <EditText
             android:id="@+id/password_input"
             android:inputType="textPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:hint="Password"
             android:layout_marginTop="12dp"/>
-    </LinearLayout>
-
-    <!-- Bottom section -->
-    <LinearLayout
-        android:id="@+id/bottom_section"
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
 
         <Button
             android:id="@+id/login_btn"
             android:text="Login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:layout_marginBottom="12dp"
             android:textColor="?android:textColorPrimary"/>
+=======
+            android:layout_marginTop="16dp"/>
+>>>>>>> main
 
         <Button
             android:id="@+id/signup_btn"
             android:text="Signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:textColor="?android:textColorPrimary"/>
+=======
+            android:layout_marginTop="8dp"/>
+>>>>>>> main
     </LinearLayout>
 
 </RelativeLayout>

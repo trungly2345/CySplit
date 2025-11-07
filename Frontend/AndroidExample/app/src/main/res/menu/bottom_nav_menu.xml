@@ -4,25 +4,21 @@
     <item
         android:id="@+id/nav_home"
         android:icon="@android:drawable/ic_menu_view"
-        android:title="Home"
-        />
+        android:title="Home" />
 
     <item
         android:id="@+id/nav_groups"
         android:icon="@android:drawable/ic_menu_compass"
-        android:title="Groups"
-        />
+        android:title="Groups" />
 
     <item
         android:id="@+id/nav_profile"
         android:icon="@android:drawable/ic_menu_myplaces"
-        android:title="Profile"
-        />
+        android:title="Profile" />
 
     <item
         android:id="@+id/nav_login"
         android:icon="@android:drawable/ic_menu_add"
-        android:title="Login/Signup"
-        />
+        android:title="Login/Signup" />
 
 </menu>

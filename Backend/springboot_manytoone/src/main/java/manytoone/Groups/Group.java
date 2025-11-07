@@ -5,19 +5,12 @@ import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-
-import org.hibernate.annotations.NaturalId;
-
-import java.util.ArrayList;
-import java.util.Collection;
-
 @Entity
 @Table(name = "groups")
 public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-
     @Column(name = "group_id" , nullable = false)
     private int group_id; // Primary key
     @Column(name = "group_name" , nullable = false)

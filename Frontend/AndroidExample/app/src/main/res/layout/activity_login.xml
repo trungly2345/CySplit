@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.appcompat.widget.LinearLayoutCompat
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    tools:context=".MainActivity"
-    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:orientation="vertical">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@drawable/background"
+    android:padding="16dp"
+    tools:context=".LoginActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+<<<<<<< HEAD
         android:text="Login Example"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
@@ -17,37 +22,48 @@
         android:textSize="30dp"
         android:textColor="?android:textColorPrimary">
     </TextView>
+=======
+        android:layout_margin="16dp"
+        app:cardCornerRadius="30dp"
+        app:cardElevation="10dp">
+>>>>>>> main
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+<<<<<<< HEAD
             android:text="username: "
             android:textSize="20dp"
             android:textColor="?android:textColorPrimary">
         </TextView>
+=======
+            android:orientation="vertical"
+            android:padding="24dp">
+>>>>>>> main
 
-        <EditText
-            android:id="@+id/login_username_edt"
-            android:layout_width="wrap_content"
-            android:layout_height="50dp"
-            android:hint="Enter Username Here">
-        </EditText>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:textSize="32sp"
+                android:textAlignment="center"
+                android:textStyle="bold"
+                android:textColor="@color/orange" />
 
-    </LinearLayout>
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:orientation="horizontal">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/login_username"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Username"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
 
+<<<<<<< HEAD
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -55,24 +71,40 @@
             android:textSize="20dp"
             android:textColor="?android:textColorPrimary">
         </TextView>
+=======
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp">
+>>>>>>> main
 
-        <EditText
-            android:id="@+id/login_password_edt"
-            android:layout_width="wrap_content"
-            android:inputType="textPassword"
-            android:layout_height="50dp"
-            android:hint="Enter Password Here">
-        </EditText>
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/login_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Password"
+                    android:inputType="textPassword" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-    </LinearLayout>
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/login_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Login"
+                android:layout_marginTop="24dp"
+                app:cornerRadius="20dp"
+                android:backgroundTint="@color/orange" />
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginTop="100dp"
-        android:orientation="horizontal">
+            <TextView
+                android:id="@+id/forgot_password"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Forgot Password?"
+                android:textColor="@color/orange"
+                android:layout_marginTop="12dp"
+                android:layout_gravity="center" />
 
+<<<<<<< HEAD
         <Button
             android:id="@+id/login_login_btn"
             android:layout_width="150dp"
@@ -97,3 +129,16 @@
 
 
 </androidx.appcompat.widget.LinearLayoutCompat>
+=======
+            <TextView
+                android:id="@+id/signUpRedirectText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Not yet registered? Sign Up"
+                android:textColor="@color/orange"
+                android:layout_marginTop="16dp"
+                android:layout_gravity="center" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
+>>>>>>> main

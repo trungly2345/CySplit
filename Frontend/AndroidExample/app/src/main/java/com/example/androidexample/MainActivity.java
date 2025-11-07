@@ -5,12 +5,17 @@ import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
     private int selectedNavItemId = R.id.nav_home; // default
+
+    private final HomeFragment homeFragment = new HomeFragment();
+    private final GroupFragment groupFragment = new GroupFragment();
+    private final ProfileFragment profileFragment = new ProfileFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

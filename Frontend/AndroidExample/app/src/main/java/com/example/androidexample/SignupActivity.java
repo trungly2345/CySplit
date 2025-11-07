@@ -1,83 +1,104 @@
 package com.example.androidexample;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
-import android.content.SharedPreferences;
-import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputEditText;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText usernameEditText;  // define username edittext variable
-    private EditText passwordEditText;  // define password edittext variable
-    private EditText confirmEditText;   // define confirm edittext variable
-    private Button loginButton;         // define login button variable
-    private Button signupButton;        // define signup button variable
+    private TextInputEditText usernameEditText, emailEditText, passwordEditText;
+    private TextInputEditText nameEditText, phoneEditText, paymentEditText;
+    private MaterialButton signupButton;
+    private RequestQueue requestQueue;
+
+    private final String SIGNUP_URL = "http://coms-3090-039.class.las.iastate.edu:8080/users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
-        /* initialize UI elements */
-        usernameEditText = findViewById(R.id.signup_username_edt);  // link to username edtext in the Signup activity XML
-        passwordEditText = findViewById(R.id.signup_password_edt);  // link to password edtext in the Signup activity XML
-        confirmEditText = findViewById(R.id.signup_confirm_edt);    // link to confirm edtext in the Signup activity XML
-        loginButton = findViewById(R.id.signup_login_btn);    // link to login button in the Signup activity XML
-        signupButton = findViewById(R.id.signup_signup_btn);  // link to signup button in the Signup activity XML
+        requestQueue = Volley.newRequestQueue(this);
 
-        /* click listener on login button pressed */
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        usernameEditText = findViewById(R.id.signup_username);
+        emailEditText = findViewById(R.id.signup_email);
+        passwordEditText = findViewById(R.id.signup_password);
+        nameEditText = findViewById(R.id.signup_name);
+        phoneEditText = findViewById(R.id.signup_phone);
+        paymentEditText = findViewById(R.id.signup_payment);
+        signupButton = findViewById(R.id.signup_button);
 
-                /* when login button is pressed, use intent to switch to Login Activity */
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                startActivity(intent);  // go to LoginActivity
+        signupButton.setOnClickListener(v -> {
+            String username = usernameEditText.getText().toString().trim();
+            String email = emailEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
+            String name = nameEditText.getText().toString().trim();
+            String phone = phoneEditText.getText().toString().trim();
+            String payment = paymentEditText.getText().toString().trim();
+
+            if (username.isEmpty() || email.isEmpty() || password.isEmpty() ||
+                    name.isEmpty() || phone.isEmpty() || payment.isEmpty()) {
+                Toast.makeText(SignupActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+            } else {
+                sendSignupRequest(username, email, password, name, phone, payment);
             }
         });
 
-        /* click listener on signup button pressed */
-        signupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                /* grab strings from user inputs */
-                String username = usernameEditText.getText().toString().trim();
-                String password = passwordEditText.getText().toString().trim();
-                String confirm = confirmEditText.getText().toString().trim();
-
-                if (username.isEmpty() || password.isEmpty() || confirm.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if (!password.equals(confirm)) {
-                    Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                // Save username and password in SharedPreferences
-                SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
-                SharedPreferences.Editor editor = prefs.edit();
-                editor.putString("username", username);
-                editor.putString("password", password);
-                editor.apply();
-
-                Toast.makeText(getApplicationContext(), "Sign up successful", Toast.LENGTH_SHORT).show();
-
-                // Optional: Navigate back to LoginActivity after successful signup
-                Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        TextView loginRedirectText = findViewById(R.id.loginRedirectText);
+        loginRedirectText.setOnClickListener(v -> {
+            Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
+            startActivity(intent);
         });
+    }
 
+    private void sendSignupRequest(String username, String email, String password,
+                                   String name, String phone, String payment) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("userName", username);
+            json.put("userPassword", password);
+            json.put("emailId", email);
+            json.put("ifActive", true);
+            json.put("name", name);
+            json.put("phoneNumber", phone);
+            json.put("paymentMethod", payment);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                SIGNUP_URL,
+                json,
+                response -> {
+                    Toast.makeText(SignupActivity.this, "Signup successful! Please login.", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(SignupActivity.this, LoginActivity.class));
+                    finish();
+                },
+                error -> {
+                    String errorMsg = error.getMessage();
+                    if (error.networkResponse != null) {
+                        errorMsg = "Error " + error.networkResponse.statusCode;
+                    }
+                    Toast.makeText(SignupActivity.this, "Signup failed: " + errorMsg, Toast.LENGTH_LONG).show();
+                }
+        );
+
+        requestQueue.add(jsonObjectRequest);
     }
 }

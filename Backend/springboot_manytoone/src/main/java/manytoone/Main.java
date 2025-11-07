@@ -1,46 +1,43 @@
 package manytoone;
 
-import manytoone.Groups.Group;
-import manytoone.Groups.GroupRepository;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-// If your main class is already in package "manytoone", you usually don't need these two:
-import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-
-@SpringBootApplication
-// You can remove these if Main is in the root package "manytoone"
-
+@SpringBootApplication(scanBasePackages = {
+        "manytoone"
+})
 public class Main {
-
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }
 
+
+    //trying to add new format user to the database on startup for testing. Will remove later. Will use the same construction to connect it with Groups.
     @Bean
-    CommandLineRunner initUser(GroupRepository groupRepository) {
+    CommandLineRunner initUser(UserRepository userRepository) {
         return args -> {
-        List<String>members_list = null;
-
-
-        // Mock data testing
-
-//         Group group1 = new Group("Trip to Paris", 5);
-//         Group group2 = new Group("NYC Trip", 3);
-//         Group group3 = new Group("Miami Spring Break 2025", 10);
-//
-//
-//         groupRepository.save(group1);
-//         groupRepository.save(group2);
-//         groupRepository.save(group3);
-
-
-
+            // Create a test user
+            User testUser = new User(
+                "testuser",         // userName
+                "password123",      // userPassword
+                "515-123-4567",    // phoneNumber
+                "PayPal"           // paymentMethod
+            );
+            testUser.setName("Test User");
+            testUser.setEmailId("testuser@iastate.edu");
+            testUser.setIfActive(true);
+            
+            // Save the user to database
+            if (!userRepository.existsByUserName("testuser")) {
+                User savedUser = userRepository.save(testUser);
+                System.out.println("Test user created with ID: " + savedUser.getId());
+            } else {
+                System.out.println("Test user already exists");
+            }
         };
     }
 }
