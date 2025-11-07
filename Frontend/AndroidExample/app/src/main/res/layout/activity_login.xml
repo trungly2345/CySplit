@@ -14,32 +14,18 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
-        android:text="Login Example"
         android:layout_gravity="center"
         android:layout_marginTop="100dp"
         android:layout_marginBottom="150dp"
-        android:textSize="30dp"
-        android:textColor="?android:textColorPrimary">
-    </TextView>
-=======
         android:layout_margin="16dp"
         app:cardCornerRadius="30dp"
         app:cardElevation="10dp">
->>>>>>> main
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
-            android:text="username: "
-            android:textSize="20dp"
-            android:textColor="?android:textColorPrimary">
-        </TextView>
-=======
             android:orientation="vertical"
             android:padding="24dp">
->>>>>>> main
 
             <TextView
                 android:layout_width="match_parent"
@@ -63,20 +49,17 @@
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
 
-<<<<<<< HEAD
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="password: "
-            android:textSize="20dp"
-            android:textColor="?android:textColorPrimary">
-        </TextView>
-=======
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password: "
+                android:textSize="20dp"
+                android:textColor="?android:textColorPrimary" />
+
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp">
->>>>>>> main
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/login_password"
@@ -104,32 +87,24 @@
                 android:layout_marginTop="12dp"
                 android:layout_gravity="center" />
 
-<<<<<<< HEAD
-        <Button
-            android:id="@+id/login_login_btn"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="Login"
-            android:textSize="20sp"
-            android:textColor="?android:textColorPrimary">
-        </Button>
+            <Button
+                android:id="@+id/login_login_btn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:text="Login"
+                android:textSize="20sp"
+                android:textColor="?android:textColorPrimary" />
 
-        <Button
-            android:id="@+id/login_signup_btn"
-            android:layout_width="150dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:text="Signup"
-            android:textSize="20sp"
-            android:textColor="?android:textColorPrimary">
-        </Button>
+            <Button
+                android:id="@+id/login_signup_btn"
+                android:layout_width="150dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="Signup"
+                android:textSize="20sp"
+                android:textColor="?android:textColorPrimary" />
 
-    </LinearLayout>
-
-
-</androidx.appcompat.widget.LinearLayoutCompat>
-=======
             <TextView
                 android:id="@+id/signUpRedirectText"
                 android:layout_width="wrap_content"
@@ -138,7 +113,8 @@
                 android:textColor="@color/orange"
                 android:layout_marginTop="16dp"
                 android:layout_gravity="center" />
+
         </LinearLayout>
     </androidx.cardview.widget.CardView>
+
 </LinearLayout>
->>>>>>> main

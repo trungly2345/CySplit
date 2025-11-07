@@ -11,26 +11,7 @@
 
     <ScrollView
         android:layout_width="match_parent"
-<<<<<<< HEAD
-        android:layout_height="match_parent"
-        android:textSize="24sp"
-        android:gravity="center|top"
-        android:layout_margin="25dp"
-        android:textColor="?android:textColorPrimary"/>
-
-    <Button
-        android:id="@+id/settings_button"
-        android:text="Settings"
-        android:layout_width="200dp"
-        android:layout_height="50dp"
-        android:textSize="15sp"
-        android:gravity="center"
-        android:layout_margin="25dp"
-        android:layout_centerInParent="true"
-        android:textColor="?android:textColorPrimary"/>
-=======
         android:layout_height="match_parent">
->>>>>>> main
 
         <LinearLayout
             android:layout_width="match_parent"

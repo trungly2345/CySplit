@@ -9,7 +9,6 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
         android:layout_alignParentTop="true">
 
         <TextView
@@ -20,9 +19,6 @@
             android:gravity="center"
             android:paddingBottom="24dp"
             android:textColor="?android:textColorPrimary"/>
-=======
-        android:layout_centerInParent="true">
->>>>>>> main
 
         <EditText
             android:id="@+id/username_input"
@@ -43,23 +39,17 @@
             android:text="Login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
             android:layout_marginBottom="12dp"
             android:textColor="?android:textColorPrimary"/>
-=======
-            android:layout_marginTop="16dp"/>
->>>>>>> main
 
         <Button
             android:id="@+id/signup_btn"
             android:text="Signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-<<<<<<< HEAD
-            android:textColor="?android:textColorPrimary"/>
-=======
+            android:textColor="?android:textColorPrimary"
             android:layout_marginTop="8dp"/>
->>>>>>> main
+
     </LinearLayout>
 
 </RelativeLayout>

@@ -17,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private final GroupFragment groupFragment = new GroupFragment();
     private final ProfileFragment profileFragment = new ProfileFragment();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +71,6 @@ public class MainActivity extends AppCompatActivity {
             selectedFragment = new GroupFragment();
         } else if (itemId == R.id.nav_profile) {
             selectedFragment = new ProfileFragment();
-        } else if (itemId == R.id.nav_login) {
-            selectedFragment = new LoginFragment();
         }
 
         if (selectedFragment != null) {
