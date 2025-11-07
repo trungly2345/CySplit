@@ -26,6 +26,7 @@ public class ProfileFragment extends Fragment {
     private TextView userNameTextView;
     private TextView userEmailTextView;
     private Button editProfileButton;
+    private ImageView settingsIcon;
     private ImageView notificationsIcon;
 
     private static final String DEFAULT_PROFILE_IMAGE = "";
@@ -49,6 +50,7 @@ public class ProfileFragment extends Fragment {
         editProfileButton = view.findViewById(R.id.button2);
 
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
+        settingsIcon = view.findViewById(R.id.imageViewSettings);
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
         String email = prefs.getString("email", "user@example.com");
@@ -75,6 +77,22 @@ public class ProfileFragment extends Fragment {
         notificationsIcon.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), NotificationsActivity.class);
             startActivity(intent);
+        });
+
+        settingsIcon.setOnClickListener(v -> {
+            try {
+                SettingsFragment fragment = new SettingsFragment();
+
+                Bundle bundle = new Bundle();
+                fragment.setArguments(bundle);
+
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         editProfileButton.setOnClickListener(v -> {
