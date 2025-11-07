@@ -18,7 +18,7 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class GroupFragment extends Fragment {
+public class  GroupFragment extends Fragment {
 
     private TextView groupStatusTextView;
     private static final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/groups";
