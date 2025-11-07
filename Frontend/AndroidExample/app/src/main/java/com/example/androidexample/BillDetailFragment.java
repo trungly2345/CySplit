@@ -23,6 +23,8 @@ public class BillDetailFragment extends Fragment {
 
     private int billId;
     private int groupId = 1; // mock for now
+    private String userName = "";
+
     private TextView billTitleTextView, billAmountTextView, billDescriptionTextView, billStatusTextView;
     private Button payButton, backButton;
 
@@ -40,40 +42,35 @@ public class BillDetailFragment extends Fragment {
         payButton = view.findViewById(R.id.payButton);
         backButton = view.findViewById(R.id.backToGroupButton);
 
+        // Get arguments if any
         if (getArguments() != null) {
             billId = getArguments().getInt("billId");
-            groupId = getArguments().getInt("groupId");
+            groupId = getArguments().getInt("groupId", 1); // default to 1 if not passed
+            userName = getArguments().getString("userName", "Aaron"); // default name
+
             loadBillInfo();
         }
 
         payButton.setOnClickListener(v -> markBillAsPaid());
 
         backButton.setOnClickListener(v -> {
-            // Create a new instance of GroupDetailFragment
             GroupDetailFragment fragment = new GroupDetailFragment();
-
-            // Pass the groupId back
             Bundle bundle = new Bundle();
-            bundle.putInt("groupId", groupId);  // make sure groupId is stored in this fragment
+            bundle.putInt("groupId", groupId);
             fragment.setArguments(bundle);
 
-            // Replace current fragment with GroupDetailFragment
             requireActivity().getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_container, fragment)
-                    .addToBackStack(null) // optional, allows "back" button to work
+                    .addToBackStack(null)
                     .commit();
         });
 
-        // Add ChatFragment inside the container at the bottom
-        if (savedInstanceState == null) { // Prevent re-adding on rotation
-            ChatFragment chatFragment = new ChatFragment();
+        // Add ChatFragment dynamically with group name & username
+        if (savedInstanceState == null) { // prevent duplicates on rotation
+            userName = UserSession.getInstance().getUsername();
 
-            // Optionally pass identifiers to associate chat with a bill
-            Bundle chatArgs = new Bundle();
-            chatArgs.putInt("billId", billId);
-            chatArgs.putInt("groupId", groupId);
-            chatFragment.setArguments(chatArgs);
-
+            String groupName = "Group" + groupId;
+            ChatFragment chatFragment = ChatFragment.newInstance(groupName, userName);
             getChildFragmentManager().beginTransaction()
                     .replace(R.id.billChatContainer, chatFragment)
                     .commit();
@@ -97,7 +94,6 @@ public class BillDetailFragment extends Fragment {
                     billDescriptionTextView.setText("Due: " + bill.getDueTime());
                     billStatusTextView.setText(bill.isPaid() ? "Paid ✅" : "Unpaid ❌");
 
-                    // If it’s already paid from the backend, we’ll still show the transaction
                     if (bill.isPaid()) {
                         addMockTransaction(bill);
                         payButton.setEnabled(false);
@@ -114,16 +110,13 @@ public class BillDetailFragment extends Fragment {
     }
 
     private void markBillAsPaid() {
-        // Disable button immediately to prevent duplicates
         payButton.setEnabled(false);
         payButton.setText("Paid ✅");
         billStatusTextView.setText("Paid ✅");
 
-        // Add to mock transactions (even though backend doesn't persist yet)
         String billName = billTitleTextView.getText().toString();
         String billAmount = billAmountTextView.getText().toString().replace("$", "");
 
-        // Get current date
         String currentDate = new SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(new Date());
 
         TransactionMockStorage.addTransaction(
@@ -131,7 +124,7 @@ public class BillDetailFragment extends Fragment {
                 Double.parseDouble(billAmount),
                 groupId,
                 billId,
-                currentDate  // <-- pass date here
+                currentDate
         );
     }
 

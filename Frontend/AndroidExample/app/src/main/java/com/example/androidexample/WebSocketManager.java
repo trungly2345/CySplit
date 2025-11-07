@@ -1,70 +1,84 @@
 package com.example.androidexample;
 
 import android.util.Log;
-import okhttp3.*;
+
+import androidx.annotation.NonNull;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 
 public class WebSocketManager {
 
-    private static final String TAG = "WebSocketManager";
-    private static final String SOCKET_URL = "ws://coms-3090-039.class.las.iastate.edu:8080/chat";
-    // TODO: ^ adjust endpoint later
-
-    private OkHttpClient client;
-    private WebSocket webSocket;
-    private WebSocketListener listener;
-
     public interface MessageListener {
-        void onMessageReceived(String message);
+        void onMessageReceived(String sender, String text);
     }
 
-    private MessageListener messageListener;
+    private WebSocket webSocket;
+    private MessageListener listener;
+    private OkHttpClient client;
+    private String url;
 
-    public WebSocketManager(MessageListener messageListener) {
-        this.messageListener = messageListener;
+    public WebSocketManager(String groupName, String username, MessageListener listener) {
+        this.listener = listener;
         this.client = new OkHttpClient();
+        this.url = "ws://10.0.2.2:8080/GroupServer/" + groupName + "/" + username;
     }
 
     public void connect() {
-        Request request = new Request.Builder().url(SOCKET_URL).build();
-        listener = new WebSocketListener() {
+        Request request = new Request.Builder().url(url).build();
+        webSocket = client.newWebSocket(request, new WebSocketListener() {
+
             @Override
-            public void onOpen(WebSocket webSocket, Response response) {
-                Log.d(TAG, "Connected to WebSocket");
+            public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
+                Log.d("WebSocketManager", "Connected to " + url);
             }
 
             @Override
-            public void onMessage(WebSocket webSocket, String text) {
-                Log.d(TAG, "Message received: " + text);
-                if (messageListener != null) {
-                    messageListener.onMessageReceived(text);
+            public void onMessage(@NonNull WebSocket webSocket, @NonNull String text) {
+                try {
+                    JSONObject json = new JSONObject(text);
+                    String sender = json.optString("user", "Server");
+                    String messageText = json.optString("text", text);
+
+                    if (listener != null) {
+                        listener.onMessageReceived(sender, messageText);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    if (listener != null) {
+                        listener.onMessageReceived("Server", text);
+                    }
                 }
             }
 
             @Override
-            public void onFailure(WebSocket webSocket, Throwable t, Response response) {
-                Log.e(TAG, "WebSocket error", t);
+            public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, Response response) {
+                Log.e("WebSocketManager", "Error: " + t.getMessage(), t);
             }
 
             @Override
-            public void onClosed(WebSocket webSocket, int code, String reason) {
-                Log.d(TAG, "WebSocket closed: " + reason);
+            public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
+                webSocket.close(1000, null);
+                Log.d("WebSocketManager", "Closing: " + reason);
             }
-        };
-        webSocket = client.newWebSocket(request, listener);
+        });
     }
 
     public void sendMessage(String message) {
         if (webSocket != null) {
             webSocket.send(message);
-        } else {
-            Log.e(TAG, "WebSocket not connected!");
         }
     }
 
     public void disconnect() {
         if (webSocket != null) {
-            webSocket.close(1000, "User left chat");
-            webSocket = null;
+            webSocket.close(1000, "Disconnected");
         }
     }
 }

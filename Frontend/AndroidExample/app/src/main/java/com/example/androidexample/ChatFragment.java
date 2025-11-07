@@ -19,6 +19,12 @@ import java.util.Locale;
 
 public class ChatFragment extends Fragment {
 
+    private static final String ARG_GROUP = "group_name";
+    private static final String ARG_USER = "username";
+
+    private String groupName;
+    private String username;
+
     private RecyclerView recyclerView;
     private ChatAdapter adapter;
     private List<Message> messageList;
@@ -27,6 +33,24 @@ public class ChatFragment extends Fragment {
     private ImageButton sendButton;
 
     private WebSocketManager webSocketManager;
+
+    public static ChatFragment newInstance(String groupName, String username) {
+        ChatFragment fragment = new ChatFragment();
+        Bundle args = new Bundle();
+        args.putString(ARG_GROUP, groupName);
+        args.putString(ARG_USER, username);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            groupName = getArguments().getString(ARG_GROUP);
+            username = getArguments().getString(ARG_USER);
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -39,21 +63,14 @@ public class ChatFragment extends Fragment {
         chatInput = view.findViewById(R.id.chatInput);
         sendButton = view.findViewById(R.id.sendButton);
 
-        // Example initial messages
         messageList = new ArrayList<>();
-        messageList.add(new Message("Alice", "Hello!", "12:01 PM", "Nov 5", R.drawable.profile_placeholder));
-        messageList.add(new Message("Bob", "Hi Alice!", "12:02 PM", "Nov 5", R.drawable.profile_placeholder));
-
         adapter = new ChatAdapter(messageList);
         recyclerView.setAdapter(adapter);
-
-        // Scroll to bottom initially
         recyclerView.scrollToPosition(messageList.size() - 1);
 
-        webSocketManager = new WebSocketManager(message -> {
-            requireActivity().runOnUiThread(() ->{
-                addMessage("Server", message, R.drawable.profile_placeholder);
-            });
+        // Initialize WebSocketManager
+        webSocketManager = new WebSocketManager(groupName, username, (sender, messageText) -> {
+            requireActivity().runOnUiThread(() -> addMessage(sender, messageText, R.drawable.profile_placeholder));
         });
 
         webSocketManager.connect();
@@ -61,11 +78,10 @@ public class ChatFragment extends Fragment {
         sendButton.setOnClickListener(v -> {
             String text = chatInput.getText().toString().trim();
             if (!text.isEmpty()) {
-                // Send via WebSocket
+                // Send to server
                 webSocketManager.sendMessage(text);
-
-                // Add locally
-                addMessage("You", text, R.drawable.profile_placeholder);
+                // Display locally
+                addMessage(username, text, R.drawable.profile_placeholder);
                 chatInput.setText("");
             }
         });
@@ -73,13 +89,11 @@ public class ChatFragment extends Fragment {
         return view;
     }
 
-    private void addMessage(String username, String text, int profileRes) {
-        // Get current time
+    private void addMessage(String sender, String text, int profileRes) {
         String time = new SimpleDateFormat("hh:mm a", Locale.getDefault()).format(new Date());
-        // Get current date
         String date = new SimpleDateFormat("MMM d", Locale.getDefault()).format(new Date());
 
-        Message message = new Message(username, text, time, date, profileRes);
+        Message message = new Message(sender, text, time, date, profileRes);
         messageList.add(message);
 
         adapter.notifyItemInserted(messageList.size() - 1);

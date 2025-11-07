@@ -27,6 +27,8 @@ public class HomeFragment extends Fragment {
         String email = prefs.getString("email", "hi@example.com");
         userNameText.setText(email);
 
+        UserSession.getInstance().setUsername(email);
+
         logoutBtn.setOnClickListener(v -> {
             prefs.edit().clear().apply();
             startActivity(new Intent(getActivity(), LoginActivity.class));
