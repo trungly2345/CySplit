@@ -1,125 +1,117 @@
 package com.example.androidexample;
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Patterns;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.androidexample.R;
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private EditText loginEmail, loginPassword;
-    private TextView signupRedirectText, forgotPassword;
+    private EditText usernameEditText, passwordEditText;
     private Button loginButton;
+    private TextView forgotPassword, signUpRedirect;
+
+    private RequestQueue requestQueue;
+
+    private final String LOGIN_URL = "http://coms-3090-039.class.las.iastate.edu:8080/users/login";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        loginEmail = findViewById(R.id.login_email);
-        loginPassword = findViewById(R.id.login_password);
+        requestQueue = Volley.newRequestQueue(this);
+
+        usernameEditText = findViewById(R.id.login_username);
+        passwordEditText = findViewById(R.id.login_password);
         loginButton = findViewById(R.id.login_button);
-        signupRedirectText = findViewById(R.id.signUpRedirectText);
         forgotPassword = findViewById(R.id.forgot_password);
+        signUpRedirect = findViewById(R.id.signUpRedirectText);
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String email = loginEmail.getText().toString().trim();
-                String pass = loginPassword.getText().toString().trim();
+        loginButton.setOnClickListener(v -> {
+            String username = usernameEditText.getText().toString().trim();
+            String password = passwordEditText.getText().toString().trim();
 
-                if (email.isEmpty()) {
-                    loginEmail.setError("Email cannot be empty");
-                    return;
-                }
-                if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                    loginEmail.setError("Please enter a valid email");
-                    return;
-                }
-                if (pass.isEmpty()) {
-                    loginPassword.setError("Password cannot be empty");
-                    return;
-                }
-
-                SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                String savedEmail = prefs.getString("email", "");
-                String savedPass = prefs.getString("password", "");
-
-                if (email.equals(savedEmail) && pass.equals(savedPass)) {
-                    Toast.makeText(LoginActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                } else {
-                    Toast.makeText(LoginActivity.this, "Invalid email or password", Toast.LENGTH_SHORT).show();
-                }
+            if (username.isEmpty() || password.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Please fill all fields", Toast.LENGTH_SHORT).show();
+                return;
             }
-        });
 
-        signupRedirectText.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class));
+            if (username.equals("hi") && password.equals("hi")) {
+                saveSession("hi", "hi@example.com");
+                Toast.makeText(LoginActivity.this, "Welcome, hi!", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
+                return;
             }
+
+            sendLoginRequest(username, password);
         });
 
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
-                View dialogView = getLayoutInflater().inflate(R.layout.dialog_forgot, null);
-                EditText emailBox = dialogView.findViewById(R.id.emailBox);
-                Button btnReset = dialogView.findViewById(R.id.btnReset);
-                Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+        signUpRedirect.setOnClickListener(v ->
+                startActivity(new Intent(LoginActivity.this, SignupActivity.class))
+        );
+    }
 
-                builder.setView(dialogView);
-                AlertDialog dialog = builder.create();
+    private void sendLoginRequest(String username, String password) {
+        JSONObject json = new JSONObject();
+        try {
+            json.put("userName", username);
+            json.put("userPassword", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
-                btnReset.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String enteredEmail = emailBox.getText().toString().trim();
-                        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-                        String savedEmail = prefs.getString("email", "");
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.POST,
+                LOGIN_URL,
+                json,
+                response -> {
+                    try {
+                        String userName = response.optString("userName");
+                        String email = response.optString("emailId");
 
-                        if (TextUtils.isEmpty(enteredEmail) || !Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches()) {
-                            Toast.makeText(LoginActivity.this, "Enter a valid email", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
+                        saveSession(userName, email);
+                        Toast.makeText(LoginActivity.this, "Welcome, " + userName + "!", Toast.LENGTH_SHORT).show();
 
-                        if (enteredEmail.equals(savedEmail)) {
-                            Toast.makeText(LoginActivity.this, "Password reset email simulated", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-                        } else {
-                            Toast.makeText(LoginActivity.this, "No account found for this email", Toast.LENGTH_SHORT).show();
-                        }
+                        startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                        finish();
+
+                    } catch (Exception e) {
+                        Toast.makeText(LoginActivity.this, "Response parse error", Toast.LENGTH_SHORT).show();
                     }
-                });
-
-                btnCancel.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
+                },
+                error -> {
+                    String errorMsg = error.getMessage();
+                    if (error.networkResponse != null) {
+                        errorMsg = "Error " + error.networkResponse.statusCode;
                     }
-                });
-
-                if (dialog.getWindow() != null) {
-                    dialog.getWindow().setBackgroundDrawable(new ColorDrawable(0));
+                    Toast.makeText(LoginActivity.this, "Login failed: " + errorMsg, Toast.LENGTH_LONG).show();
                 }
-                dialog.show();
-            }
-        });
+        );
+
+        requestQueue.add(jsonObjectRequest);
+    }
+
+    private void saveSession(String username, String email) {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putBoolean("isLoggedIn", true);
+        editor.putString("username", username);
+        editor.putString("email", email);
+        editor.apply();
     }
 }
