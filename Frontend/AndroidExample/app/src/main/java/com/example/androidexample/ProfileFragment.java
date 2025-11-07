@@ -25,6 +25,7 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImageView;
     private TextView userNameTextView;
     private TextView userEmailTextView;
+    private TextView userPhoneNumber;
     private Button editProfileButton;
     private ImageView settingsIcon;
     private ImageView notificationsIcon;
@@ -47,6 +48,7 @@ public class ProfileFragment extends Fragment {
         profileImageView = view.findViewById(R.id.imageView2);
         userNameTextView = view.findViewById(R.id.textView);
         userEmailTextView = view.findViewById(R.id.textView2);
+        userPhoneNumber = view.findViewById(R.id.textView7);
         editProfileButton = view.findViewById(R.id.button2);
 
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
@@ -55,9 +57,12 @@ public class ProfileFragment extends Fragment {
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
         String email = prefs.getString("email", "user@example.com");
         String name = prefs.getString("name", "User");
+        String phoneNumber = prefs.getString("phone", "");
 
         userNameTextView.setText(name);
         userEmailTextView.setText(email);
+        userPhoneNumber.setText(phoneNumber);
+
 
         String profileImageUrl = prefs.getString("profileImageUrl", DEFAULT_PROFILE_IMAGE);
         if (!profileImageUrl.isEmpty()) {
