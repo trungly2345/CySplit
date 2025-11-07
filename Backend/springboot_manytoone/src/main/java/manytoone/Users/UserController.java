@@ -6,10 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 
-
-
-
-
 @RestController
 @RequestMapping("/users")  // Base path for all user endpoints
 public class UserController {
