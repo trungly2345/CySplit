@@ -66,11 +66,11 @@ public class Notification {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "notification_type", nullable = false)
+    @Column(name = "type", nullable = false)
     private NotificationType type;
 
     @Column(name = "title", nullable = false, length = 255)

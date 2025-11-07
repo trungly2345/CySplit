@@ -1,20 +1,23 @@
 package manytoone.Groups;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
 import manytoone.Notifications.NotificationService;
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class GroupInvitationController {
@@ -63,13 +66,14 @@ public class GroupInvitationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         
-        // Check for duplicate invitation
         if (invitationRepository.existsByGroup_IdAndUserName(groupId, req.getUserName())) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         
-        // TODO: Replace with actual logged-in user
-        User inviter = userRepository.findById(1);
+        User inviter = userRepository.findAll().stream().findFirst().orElse(null);
+        if (inviter == null) {
+            System.out.println("WARNING: No users exist in database. Create a user first.");
+        }
         
         req.setGroup(group);
         req.setInv_status(GroupInvitation.invitationStatus.Pending);
@@ -128,7 +132,7 @@ public class GroupInvitationController {
             Group group = invitation.getGroup();
             
             if (acceptedUser != null && group != null) {
-                User admin = userRepository.findById(1);
+                User admin = userRepository.findAll().stream().findFirst().orElse(null);
                 if (admin != null) {
                     notificationService.notifyInvitationAccepted(admin, group, acceptedUser);
                 }
