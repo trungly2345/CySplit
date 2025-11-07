@@ -1,26 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".GroupFragment"
-    android:gravity="center"
-    android:orientation="vertical">
+    android:padding="16dp">
 
     <TextView
-        android:text="Group Page"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:text="Groups"
         android:textSize="24sp"
-        android:gravity="center|top"
-        android:layout_margin="25dp"/>
+        android:textStyle="bold"
+        android:layout_marginBottom="12dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="?android:textColorPrimary"/>
 
     <TextView
         android:id="@+id/groupStatusTextView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Loading group..."
-        android:textSize="18sp"
-        android:textColor="#000000"/>
+        android:text="Your Groups"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:paddingBottom="8dp"
+        android:textColor="?android:textColorSecondary"/>
 
-</RelativeLayout>
+    <Button
+        android:id="@+id/createGroupButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Create New Group"
+        android:visibility="gone"
+        android:textColor="?android:textColorPrimary"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/groupRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="100dp"/>
+</LinearLayout>

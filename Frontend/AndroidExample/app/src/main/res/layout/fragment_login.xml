@@ -4,13 +4,21 @@
     android:layout_height="match_parent"
     android:padding="24dp">
 
-    <!-- Login input fields -->
     <LinearLayout
         android:id="@+id/login_section"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerInParent="true">
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:text="Login/Signup Page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:gravity="center"
+            android:paddingBottom="24dp"
+            android:textColor="?android:textColorPrimary"/>
 
         <EditText
             android:id="@+id/username_input"
@@ -31,14 +39,17 @@
             android:text="Login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"/>
+            android:layout_marginBottom="12dp"
+            android:textColor="?android:textColorPrimary"/>
 
         <Button
             android:id="@+id/signup_btn"
             android:text="Signup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textColor="?android:textColorPrimary"
             android:layout_marginTop="8dp"/>
+
     </LinearLayout>
 
 </RelativeLayout>

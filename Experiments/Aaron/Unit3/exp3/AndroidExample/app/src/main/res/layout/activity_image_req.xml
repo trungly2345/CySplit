@@ -21,8 +21,13 @@
         android:id="@+id/btnImageReq"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Image Request" />
-
+        android:text="My Profile"
+        android:layout_gravity="center"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="50dp"
+        android:textSize="30sp"
+        android:textColor="?android:textColorPrimary"
+        >
+        </TextView>
 
 </androidx.appcompat.widget.LinearLayoutCompat>
