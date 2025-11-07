@@ -7,6 +7,7 @@
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/UserGroupController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/UserRepository.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/MessageRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitationRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/UserGroupRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/websocket/WebSocketConfig.java
@@ -14,8 +15,10 @@
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Bills/Bill.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/User.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/LoginRequest.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Conversations/Conversation.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/websocket/GroupServer.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/UserGroup.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Bills/BillController.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/Message.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitation.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/UserController.java
