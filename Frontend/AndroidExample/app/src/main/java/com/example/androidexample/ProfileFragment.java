@@ -25,7 +25,9 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImageView;
     private TextView userNameTextView;
     private TextView userEmailTextView;
+    private TextView userPhoneNumber;
     private Button editProfileButton;
+    private ImageView settingsIcon;
     private ImageView notificationsIcon;
 
     private static final String DEFAULT_PROFILE_IMAGE = "";
@@ -46,16 +48,21 @@ public class ProfileFragment extends Fragment {
         profileImageView = view.findViewById(R.id.imageView2);
         userNameTextView = view.findViewById(R.id.textView);
         userEmailTextView = view.findViewById(R.id.textView2);
+        userPhoneNumber = view.findViewById(R.id.textView7);
         editProfileButton = view.findViewById(R.id.button2);
 
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
+        settingsIcon = view.findViewById(R.id.imageViewSettings);
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
         String email = prefs.getString("email", "user@example.com");
         String name = prefs.getString("name", "User");
+        String phoneNumber = prefs.getString("phone", "");
 
         userNameTextView.setText(name);
         userEmailTextView.setText(email);
+        userPhoneNumber.setText(phoneNumber);
+
 
         String profileImageUrl = prefs.getString("profileImageUrl", DEFAULT_PROFILE_IMAGE);
         if (!profileImageUrl.isEmpty()) {
@@ -75,6 +82,22 @@ public class ProfileFragment extends Fragment {
         notificationsIcon.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), NotificationsActivity.class);
             startActivity(intent);
+        });
+
+        settingsIcon.setOnClickListener(v -> {
+            try {
+                SettingsFragment fragment = new SettingsFragment();
+
+                Bundle bundle = new Bundle();
+                fragment.setArguments(bundle);
+
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         editProfileButton.setOnClickListener(v -> {

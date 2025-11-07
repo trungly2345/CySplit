@@ -48,22 +48,24 @@ public class BillsListFragment extends Fragment {
     }
 
     private void loadBills() {
-        // For now, fetch a single bill (bill 1) from local backend
         BillService billService = RetrofitClient.getLocalClient().create(BillService.class);
-        Call<Bill> call = billService.getBillById(1);
+        Call<List<Bill>> call = billService.getAllBills();
 
-        call.enqueue(new Callback<Bill>() {
+        call.enqueue(new Callback<List<Bill>>() {
             @Override
-            public void onResponse(Call<Bill> call, Response<Bill> response) {
+            public void onResponse(Call<List<Bill>> call, Response<List<Bill>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     billList.clear();
-                    billList.add(response.body());
+                    billList.addAll(response.body());
                     adapter.notifyDataSetChanged();
+                } else {
+                    // Optional: handle API errors or empty list
+                    System.out.println("Failed to load bills: " + response.code());
                 }
             }
 
             @Override
-            public void onFailure(Call<Bill> call, Throwable t) {
+            public void onFailure(Call<List<Bill>> call, Throwable t) {
                 t.printStackTrace();
             }
         });
