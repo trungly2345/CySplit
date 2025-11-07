@@ -25,6 +25,12 @@ public class MessageController {
         this.userRepository = userRepository;
     }
 
+    @GetMapping
+    public ResponseEntity<List<Message>> getAllMessages() {
+        List<Message> messages = messageRepository.findAll();
+        return ResponseEntity.ok(messages);
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<Message> getMessageById(@PathVariable int id) {
@@ -56,11 +62,12 @@ public class MessageController {
         msg.setConversationId(req.getConversationId());
         msg.setSenderId(req.getSenderId());
         msg.setContent(req.getContent());
-        msg.setSent_At(LocalDateTime.now());
+        msg.setSentAt(LocalDateTime.now());
 
         Message saved = messageRepository.save(msg);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMessage(@PathVariable int id) {
