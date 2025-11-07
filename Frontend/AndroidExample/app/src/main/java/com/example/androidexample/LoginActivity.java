@@ -51,7 +51,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             if (username.equals("hi") && password.equals("hi")) {
-                saveSession("hi", "hi@example.com");
+                saveSession(1, "hi", "hi@example.com");
                 Toast.makeText(LoginActivity.this, "Welcome, hi!", Toast.LENGTH_SHORT).show();
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
                 finish();
@@ -81,12 +81,18 @@ public class LoginActivity extends AppCompatActivity {
                 json,
                 response -> {
                     try {
+                        int userId = response.optInt("id", -1);
                         String userName = response.optString("userName");
                         String email = response.optString("emailId");
 
-                        saveSession(userName, email);
-                        Toast.makeText(LoginActivity.this, "Welcome, " + userName + "!", Toast.LENGTH_SHORT).show();
+                        if (userId == -1) {
+                            Toast.makeText(LoginActivity.this, "Invalid server response: no ID", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
 
+                        saveSession(userId, userName, email);
+
+                        Toast.makeText(LoginActivity.this, "Welcome, " + userName + "!", Toast.LENGTH_SHORT).show();
                         startActivity(new Intent(LoginActivity.this, MainActivity.class));
                         finish();
 
@@ -95,21 +101,22 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 },
                 error -> {
-                    String errorMsg = error.getMessage();
+                    String errorMsg = "Login failed";
                     if (error.networkResponse != null) {
-                        errorMsg = "Error " + error.networkResponse.statusCode;
+                        errorMsg += " (" + error.networkResponse.statusCode + ")";
                     }
-                    Toast.makeText(LoginActivity.this, "Login failed: " + errorMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginActivity.this, errorMsg, Toast.LENGTH_LONG).show();
                 }
         );
 
         requestQueue.add(jsonObjectRequest);
     }
 
-    private void saveSession(String username, String email) {
+    private void saveSession(int userId, String username, String email) {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putBoolean("isLoggedIn", true);
+        editor.putInt("user_id", userId);
         editor.putString("username", username);
         editor.putString("email", email);
         editor.apply();

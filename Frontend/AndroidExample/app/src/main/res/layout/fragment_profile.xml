@@ -273,14 +273,13 @@
                                 android:textSize="18sp" />
 
                             <TextView
-                                android:id="@+id/textView7"
+                                android:id="@+id/textViewMobileValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:text="111-222-3333     "
-                                android:textAlignment="viewEnd"
                                 android:textColor="#5B5B5B"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:textAlignment="viewEnd" />
 
                         </LinearLayout>
 
@@ -301,19 +300,18 @@
                                 android:layout_width="34dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:text="     Home:"
+                                android:text="     User Rating:"
                                 android:textColor="@color/orange"
                                 android:textSize="18sp" />
 
                             <TextView
-                                android:id="@+id/textView7"
+                                android:id="@+id/textViewHomeValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="222-333-4444     "
-                                android:textAlignment="viewEnd"
+                                android:text="4.3     "
                                 android:textColor="#5B5B5B"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:textAlignment="viewEnd" />
 
                         </LinearLayout>
 
@@ -339,14 +337,13 @@
                                 android:textSize="18sp" />
 
                             <TextView
-                                android:id="@+id/textView7"
+                                android:id="@+id/textViewAddressValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
                                 android:text="St., City, State     "
-                                android:textAlignment="viewEnd"
                                 android:textColor="#5B5B5B"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:textAlignment="viewEnd" />
 
                         </LinearLayout>
 
@@ -372,14 +369,13 @@
                                 android:textSize="18sp" />
 
                             <TextView
-                                android:id="@+id/textView7"
+                                android:id="@+id/textViewPincodeValue"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:text="00000     "
-                                android:textAlignment="viewEnd"
+                                android:text="00000      "
                                 android:textColor="#5B5B5B"
-                                android:textSize="16sp" />
+                                android:textSize="16sp"
+                                android:textAlignment="viewEnd" />
 
                         </LinearLayout>
 

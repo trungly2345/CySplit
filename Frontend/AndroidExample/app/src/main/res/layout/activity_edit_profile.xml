@@ -15,14 +15,16 @@
             android:layout_height="120dp"
             android:src="@drawable/baseline_person_24"
             android:scaleType="centerCrop"
-            android:layout_marginBottom="12dp"/>
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/circle_background"
+            android:padding="8dp" />
 
         <Button
             android:id="@+id/change_pic_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/orange"
-            android:text="Change Picture" />
+            android:text="Change Picture"
+            android:backgroundTint="@color/orange" />
 
         <EditText
             android:id="@+id/edit_name"
@@ -43,12 +45,25 @@
             android:layout_height="wrap_content"
             android:hint="Phone Number" />
 
+        <EditText
+            android:id="@+id/edit_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/edit_payment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Payment Method" />
+
         <Button
             android:id="@+id/save_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/orange"
             android:text="Save Changes"
+            android:backgroundTint="@color/orange"
             android:layout_marginTop="20dp" />
 
     </LinearLayout>
