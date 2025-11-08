@@ -42,6 +42,7 @@ public class BillsAdapter extends RecyclerView.Adapter<BillsAdapter.BillViewHold
         holder.itemView.setOnClickListener(v -> listener.onBillClick(bill.getBillId()));
     }
 
+
     @Override
     public int getItemCount() {
         return bills.size();

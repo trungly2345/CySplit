@@ -7,4 +7,7 @@ import retrofit2.http.Path;
 public interface GroupService {
     @GET("groups/{group_id}")
     Call<Group> getGroupById(@Path("group_id") int groupId);
+
+    @GET("{user}/groups")
+    Call<Group> getUserGroups(@Path("user") String username);
 }
