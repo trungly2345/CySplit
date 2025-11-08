@@ -340,7 +340,7 @@ public class NotificationController {
         );
         
         if (groupId != null) {
-            Group group = groupRepository.findById(groupId);
+            Group group = groupRepository.findById(groupId).orElse(null);
             if (group != null) {
                 notification.setRelatedGroup(group);
             }

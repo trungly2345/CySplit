@@ -245,11 +245,11 @@ public class NotificationWebSocket {
         Map<String, Object> map = new ConcurrentHashMap<>();
         
         map.put("id", notification.getId());
-        map.put("type", notification.getType().name());
+        map.put("type", notification.getType().toString());
         map.put("title", notification.getTitle());
         map.put("message", notification.getMessage());
-        map.put("priority", notification.getPriority().name());
-        map.put("isRead", notification.isRead());
+        map.put("priority", notification.getPriority());
+        map.put("isRead", notification.getIsRead());
         map.put("createdAt", notification.getCreatedAt().toString());
         
         if (notification.getReadAt() != null) {
@@ -259,7 +259,7 @@ public class NotificationWebSocket {
         if (notification.getRelatedGroup() != null) {
             Map<String, Object> groupInfo = new ConcurrentHashMap<>();
             groupInfo.put("id", notification.getRelatedGroup().getId());
-            groupInfo.put("name", notification.getRelatedGroup().getName());
+            groupInfo.put("name", notification.getRelatedGroup().getGroup_name());
             map.put("relatedGroup", groupInfo);
         }
         

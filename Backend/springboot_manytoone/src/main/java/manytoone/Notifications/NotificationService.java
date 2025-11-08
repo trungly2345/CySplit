@@ -384,18 +384,18 @@ public class NotificationService {
      * Delete old read notifications (older than specified days)
      */
     @Transactional
-    public int cleanupOldNotifications(int daysOld) {
+    public void cleanupOldNotifications(int daysOld) {
         LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysOld);
-        return notificationRepository.deleteOldReadNotifications(cutoffDate);
+        notificationRepository.deleteOldReadNotifications(cutoffDate);
     }
 
     /**
      * Delete expired notifications
      */
     @Transactional
-    public int cleanupExpiredNotifications() {
+    public void cleanupExpiredNotifications() {
         LocalDateTime now = LocalDateTime.now();
-        return notificationRepository.deleteExpiredNotifications(now);
+        notificationRepository.deleteExpiredNotifications(now);
     }
 
     // ========== WebSocket Communication ==========
