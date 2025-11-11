@@ -9,7 +9,6 @@ import manytoone.Notifications.NotificationWebSocket;
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
 import manytoone.Groups.Group;
-import manytoone.Groups.GroupRepository;
 import manytoone.Groups.UserGroup;
 import manytoone.Groups.UserGroupRepository;
 
@@ -27,9 +26,6 @@ public class NotificationService {
 
     @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private GroupRepository groupRepository;
 
     @Autowired
     private UserGroupRepository userGroupRepository;
@@ -412,25 +408,4 @@ public class NotificationService {
         }
     }
 
-    /**
-     * Send notification update (read/delete) via WebSocket
-     */
-    public void sendNotificationUpdate(int userId, String updateType, Object data) {
-        try {
-            notificationWebSocket.sendUpdateToUser(userId, updateType, data);
-        } catch (Exception e) {
-            System.err.println("Failed to send WebSocket update to user " + userId + ": " + e.getMessage());
-        }
-    }
-
-    /**
-     * Broadcast notification to all users in a group
-     */
-    public void broadcastToGroup(int groupId, Object message) {
-        try {
-            notificationWebSocket.broadcastToGroup(groupId, message);
-        } catch (Exception e) {
-            System.err.println("Failed to broadcast to group " + groupId + ": " + e.getMessage());
-        }
-    }
 }

@@ -211,9 +211,6 @@ public class NotificationController {
         if (saved.getRelatedGroup() != null) saved.getRelatedGroup().getId();
         if (saved.getTriggeredBy() != null) saved.getTriggeredBy().getUserName();
         
-        // Notify via WebSocket
-        notificationService.sendNotificationUpdate(saved.getRecipient().getId(), "NOTIFICATION_READ", saved);
-        
         return ResponseEntity.ok(saved);
     }
 
@@ -232,9 +229,6 @@ public class NotificationController {
         Map<String, Object> response = new HashMap<>();
         response.put("message", "All notifications marked as read");
         response.put("userId", userId);
-        
-        // Notify via WebSocket
-        notificationService.sendNotificationUpdate(userId, "ALL_NOTIFICATIONS_READ", null);
         
         return ResponseEntity.ok(response);
     }
@@ -279,12 +273,7 @@ public class NotificationController {
             return ResponseEntity.notFound().build();
         }
         
-        int userId = notification.getRecipient().getId();
         notificationRepository.deleteById(notificationId);
-        
-        // Notify via WebSocket
-        notificationService.sendNotificationUpdate(userId, "NOTIFICATION_DELETED", 
-            Map.of("notificationId", notificationId));
         
         return ResponseEntity.noContent().build();
     }
