@@ -1,14 +1,23 @@
 package manytoone.Groups;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.Notifications.NotificationService;
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 public class UserGroupController {
@@ -24,6 +33,9 @@ public class UserGroupController {
 
     @Autowired
     private GroupInvitationRepository invitationRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @GetMapping("/users/{userId}/groups")
     @Transactional
@@ -187,8 +199,16 @@ public class UserGroupController {
         UserGroup savedUserGroup = userGroupRepository.save(userGroup);
         
         // Force initialization of lazy-loaded entities before transaction ends
-        savedUserGroup.getUser().getUserName(); // Touch user to load it
-        savedUserGroup.getGroup().getId(); // Touch group to load it
+        savedUserGroup.getUser().getUserName();
+        savedUserGroup.getGroup().getId();
+        
+        // Notify all existing group members about new member (except the new member)
+        List<UserGroup> groupMembers = userGroupRepository.findByGroupId(group.getId());
+        for (UserGroup member : groupMembers) {
+            if (member.getUser().getId() != userId) {
+                notificationService.notifyGroupMemberAdded(group, user, user);
+            }
+        }
         
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUserGroup);
     }
@@ -225,6 +245,17 @@ public class UserGroupController {
         // Force initialization
         savedMembership.getUser().getUserName();
         savedMembership.getGroup().getId();
+        
+        // Notify the user whose role changed
+        User requester = userRepository.findById(requesterId);
+        if (requester != null) {
+            notificationService.notifyRoleChanged(
+                savedMembership.getUser(), 
+                savedMembership.getGroup(), 
+                role, 
+                requester
+            );
+        }
         
         return ResponseEntity.ok(savedMembership);
     }
@@ -269,7 +300,17 @@ public class UserGroupController {
             return ResponseEntity.notFound().build();
         }
 
+        User removedUser = userRepository.findById(userId);
+        User requester = userRepository.findById(requesterId);
+        Group group = groupRepository.findById(groupId);
+        
         userGroupRepository.delete(targetMembership.get());
+        
+        // Notify all remaining group members about removed member
+        if (group != null && requester != null && removedUser != null) {
+            notificationService.notifyGroupMemberRemoved(group, removedUser, requester);
+        }
+        
         return ResponseEntity.noContent().build();
     }
 
@@ -290,8 +331,17 @@ public class UserGroupController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
 
+        User leavingUser = userRepository.findById(userId);
+        Group group = groupRepository.findById(groupId);
+        
         membership.setIsActive(false);
         userGroupRepository.save(membership);
+        
+        // Notify all remaining group members
+        if (group != null && leavingUser != null) {
+            notificationService.notifyGroupMemberLeft(group, leavingUser);
+        }
+        
         return ResponseEntity.noContent().build();
     }
 }
