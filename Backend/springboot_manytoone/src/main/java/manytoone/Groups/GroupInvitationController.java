@@ -51,6 +51,28 @@ public class GroupInvitationController {
         return invitation.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/invitations/user/{userName}")
+    public ResponseEntity<List<GroupInvitation>> getInvitationsForUser(@PathVariable String userName) {
+        User user = userRepository.findByUserName(userName);
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<GroupInvitation> invitations = invitationRepository.findAllByUserName(userName);
+        return ResponseEntity.ok(invitations);
+    }
+
+    @GetMapping("/groups/{group_id}/invitations")
+    public ResponseEntity<List<GroupInvitation>> getInvitationsForGroup(@PathVariable int group_id) {
+        Group group = groupRepository.findById(group_id);
+        if (group == null) {
+            return ResponseEntity.notFound().build();
+        }
+        
+        List<GroupInvitation> invitations = invitationRepository.findAllByGroup_Id(group_id);
+        return ResponseEntity.ok(invitations);
+    }
+
     @PostMapping("/groups/{group_id}/invitations")
     public ResponseEntity<GroupInvitation> createInvitation(
             @RequestBody GroupInvitation req, 
