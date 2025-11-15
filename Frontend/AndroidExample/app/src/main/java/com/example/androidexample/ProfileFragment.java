@@ -30,6 +30,7 @@ public class ProfileFragment extends Fragment {
     private TextView userNameTextView;
     private TextView userEmailTextView;
     private Button editProfileButton;
+    private TextView userPhoneNumber;
     private ImageView notificationsIcon;
 
     private BroadcastReceiver profileUpdateReceiver;
@@ -52,8 +53,20 @@ public class ProfileFragment extends Fragment {
         profileImageView = view.findViewById(R.id.imageView2);
         userNameTextView = view.findViewById(R.id.textView);
         userEmailTextView = view.findViewById(R.id.textView2);
+        userPhoneNumber = view.findViewById(R.id.textView7);
         editProfileButton = view.findViewById(R.id.button2);
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
+
+        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
+        String email = prefs.getString("email", "user@example.com");
+        String name = prefs.getString("name", "User");
+        String phoneNumber = prefs.getString("phone", "");
+
+        userNameTextView.setText(name);
+        userEmailTextView.setText(email);
+        userPhoneNumber.setText(phoneNumber);
+
+
 
         loadProfileData();
 
@@ -73,7 +86,6 @@ public class ProfileFragment extends Fragment {
         super.onResume();
         loadProfileData();
 
-        // Register receiver for profile updates
         if (profileUpdateReceiver == null) {
             profileUpdateReceiver = new BroadcastReceiver() {
                 @Override

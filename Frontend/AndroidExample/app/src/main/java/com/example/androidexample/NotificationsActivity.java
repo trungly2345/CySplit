@@ -55,7 +55,19 @@ public class NotificationsActivity extends AppCompatActivity {
         backArrow.setOnClickListener(v -> onBackPressed());
 
         fetchNotifications();
+        addTestNotification();
     }
+
+    private void addTestNotification() {
+        NotificationItem test = new NotificationItem(
+                "Test Notification",
+                "hi",
+                "just now"
+        );
+        notifications.add(0, test);
+        adapter.notifyItemInserted(0);
+    }
+
 
     private void fetchNotifications() {
         progressBar.setVisibility(View.VISIBLE);

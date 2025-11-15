@@ -91,6 +91,7 @@ public class EditProfileActivity extends AppCompatActivity {
         String newPhone = phoneField.getText().toString().trim();
         String newPassword = passwordField.getText().toString().trim();
         String newPayment = paymentField.getText().toString().trim();
+        updateLocalProfile(newName, newEmail, newPhone, newPassword, newPayment);
 
         if (newName.isEmpty() || newEmail.isEmpty()) {
             Toast.makeText(this, "Please fill all required fields", Toast.LENGTH_SHORT).show();
