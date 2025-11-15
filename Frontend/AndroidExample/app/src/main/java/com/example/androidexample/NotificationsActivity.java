@@ -34,7 +34,7 @@ public class NotificationsActivity extends AppCompatActivity {
 
     private RequestQueue requestQueue;
 
-    private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/notifications/user/";
+    private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/groups";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
