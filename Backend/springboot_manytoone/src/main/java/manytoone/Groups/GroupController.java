@@ -57,9 +57,10 @@ public class GroupController {
 
 
    @DeleteMapping("/groups/{group_id}")
-    public ResponseEntity <Group> deleteGroupById(@PathVariable Long group_id){
-     if (!groupRepository.existsById(group_id)){
-         return null;
+    public ResponseEntity <Group> deleteGroupById(@PathVariable int group_id){
+     Group group = groupRepository.findById(group_id);
+     if (group == null){
+         return ResponseEntity.notFound().build();
      }
      groupRepository.deleteById(group_id);
        return ResponseEntity.noContent().build();

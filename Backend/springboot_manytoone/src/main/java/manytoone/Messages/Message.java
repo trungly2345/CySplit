@@ -1,58 +1,58 @@
 package manytoone.Messages;
 
 import jakarta.persistence.*;
-import manytoone.Conversations.Conversation;
-import manytoone.Users.User;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "messages")
 public class Message {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "messageId" , nullable = false)
-    private int message_id; // Primary key
+    @Column(name = "message_id", nullable = false)
+    private int messageId; // Primary key
 
-    @Column(name = "conversation_id" , nullable = false)
+    @Column(name = "conversation_id", nullable = false)
     private int conversationId;
 
-
-    @Column(name = "sender_id" , nullable = false)
+    @Column(name = "sender_id", nullable = false)
     private int senderId;
 
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "sent_At", nullable = false)
-    private LocalDateTime sentAt;
+    @Column(name = "sent_at", nullable = false)
+    private LocalDateTime sentAt = LocalDateTime.now();
 
-    protected Message(){}
+    protected Message() {}
 
-    public Message(int conversation_id,int senderId, String content){
+    public Message(int conversationId, int senderId, String content) {
         this.conversationId = conversationId;
         this.senderId = senderId;
         this.content = content;
         this.sentAt = LocalDateTime.now();
     }
 
+    // getters & setters
+
+    public int getMessageId() {
+        return messageId;
+    }
 
     public int getConversationId() {
         return conversationId;
     }
 
-    public void setConversationId(int conversation_id) {
-        this.conversationId = conversation_id;
+    public void setConversationId(int conversationId) {
+        this.conversationId = conversationId;
     }
 
     public int getSenderId() {
         return senderId;
     }
 
-    public void setSenderId(int sender_id) {
-        this.senderId = sender_id;
+    public void setSenderId(int senderId) {
+        this.senderId = senderId;
     }
 
     public String getContent() {
@@ -63,13 +63,11 @@ public class Message {
         this.content = content;
     }
 
-    public LocalDateTime getSent_At() {
+    public LocalDateTime getSentAt() {
         return sentAt;
     }
 
-    public void setSent_At(LocalDateTime sent_At) {
+    public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
     }
-
-
 }
