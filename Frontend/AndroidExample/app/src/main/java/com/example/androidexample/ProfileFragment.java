@@ -12,6 +12,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -29,8 +30,9 @@ public class ProfileFragment extends Fragment {
     private ImageView profileImageView;
     private TextView userNameTextView;
     private TextView userEmailTextView;
-    private Button editProfileButton;
     private TextView userPhoneNumber;
+    private Button editProfileButton;
+    private ImageView settingsIcon;
     private ImageView notificationsIcon;
 
     private BroadcastReceiver profileUpdateReceiver;
@@ -56,6 +58,7 @@ public class ProfileFragment extends Fragment {
         userPhoneNumber = view.findViewById(R.id.textView7);
         editProfileButton = view.findViewById(R.id.button2);
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
+        settingsIcon = view.findViewById(R.id.imageViewSettings);
 
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
         String email = prefs.getString("email", "user@example.com");
@@ -68,11 +71,28 @@ public class ProfileFragment extends Fragment {
 
 
 
+
         loadProfileData();
 
         notificationsIcon.setOnClickListener(v -> {
             Intent intent = new Intent(requireActivity(), NotificationsActivity.class);
             startActivity(intent);
+        });
+
+        settingsIcon.setOnClickListener(v -> {
+            try {
+                SettingsFragment fragment = new SettingsFragment();
+
+                Bundle bundle = new Bundle();
+                fragment.setArguments(bundle);
+
+                requireActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.fragment_container, fragment)
+                        .addToBackStack(null)
+                        .commit();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         });
 
         editProfileButton.setOnClickListener(v -> {

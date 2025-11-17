@@ -1,0 +1,173 @@
+***NOTIFICATIONS
+
+# Get all notifications for a user
+GET http://localhost:8080/notifications/user/{userId}
+
+# Get unread notifications only
+GET http://localhost:8080/notifications/user/{userId}/unread
+
+# Get notifications by type
+GET http://localhost:8080/notifications/user/{userId}/type/{type}
+# Types: GROUP_INVITATION, BILL_CREATED, GROUP_CHAT_MENTION, etc.
+
+# Get recent notifications (last 30 days)
+GET http://localhost:8080/notifications/user/{userId}/recent
+
+# Get notifications for a specific group
+GET http://localhost:8080/notifications/user/{userId}/group/{groupId}
+
+# Get high priority unread notifications
+GET http://localhost:8080/notifications/user/{userId}/high-priority
+
+# Count unread notifications
+GET http://localhost:8080/notifications/user/{userId}/unread/count
+
+# Count unread by group
+GET http://localhost:8080/notifications/user/{userId}/group/{groupId}/unread/count
+
+
+
+***MANAGE NOTIFICATIONS
+
+# Mark single notification as read
+PUT http://localhost:8080/notifications/{notificationId}/read
+
+# Mark all notifications as read for a user
+PUT http://localhost:8080/notifications/user/{userId}/read-all
+
+# Delete a notification
+DELETE http://localhost:8080/notifications/{notificationId}
+
+# Delete all read notifications for a user
+DELETE http://localhost:8080/notifications/user/{userId}/read
+
+# Delete old notifications (older than specified date)
+DELETE http://localhost:8080/notifications/cleanup?before=2024-01-01T00:00:00
+
+# Delete expired notifications
+DELETE http://localhost:8080/notifications/expired
+
+***NOTIFICATION WEBSOCKET ENDPOINT
+
+# Real-time notification delivery
+ws://localhost:8080/NotificationServer/{userId}
+
+***GROUP INVITATION
+
+# Get all invitations
+GET http://localhost:8080/invitations
+
+# Get specific invitation
+GET http://localhost:8080/invitations/{invitation_id}
+
+# Create invitation (sends notification automatically)
+POST http://localhost:8080/groups/{group_id}/invitations
+Content-Type: application/json
+{
+  "userName": "testuser"
+}
+
+# Update invitation status (sends notification on accept)
+PUT http://localhost:8080/invitations/{invitation_id}/invitationStatus
+Content-Type: application/json
+{
+  "inv_status": "Accepted"
+}
+
+# Delete invitation
+DELETE http://localhost:8080/invitations/{invitation_id}
+
+***USER ENDPOINTS
+
+# Get all users
+GET http://localhost:8080/users/all
+
+# Get user by ID
+GET http://localhost:8080/users/{id}
+
+# Get user by username
+GET http://localhost:8080/users/username/{userName}
+
+# Create user / Sign up
+POST http://localhost:8080/users/signup
+Content-Type: application/json
+{
+  "userName": "testuser",
+  "password": "password123",
+  "userEmail": "test@example.com"
+}
+
+# Update user
+PUT http://localhost:8080/users/{id}
+Content-Type: application/json
+{
+  "userName": "updatedname",
+  "password": "newpass",
+  "userEmail": "newemail@example.com"
+}
+
+# Delete user
+DELETE http://localhost:8080/users/{id}
+
+***GROUP ENDPOINTS
+
+# Get all groups
+GET http://localhost:8080/groups
+
+# Get group by ID
+GET http://localhost:8080/groups/{id}
+
+# Create group
+POST http://localhost:8080/groups
+Content-Type: application/json
+{
+  "group_name": "My Group",
+  "description": "Group description"
+}
+
+# Update group
+PUT http://localhost:8080/groups/{id}
+Content-Type: application/json
+{
+  "group_name": "Updated Name",
+  "description": "Updated description"
+}
+
+# Delete group
+DELETE http://localhost:8080/groups/{id}
+
+***USERGROUP (Group Membership) ENDPOINTS
+
+# Get all user-group relationships
+GET http://localhost:8080/usergroups
+
+# Get specific user-group relationship
+GET http://localhost:8080/usergroups/{id}
+
+# Get all members of a group
+GET http://localhost:8080/groups/{groupId}/members
+
+# Add user to group
+POST http://localhost:8080/usergroups
+Content-Type: application/json
+{
+  "user": {
+    "id": 1
+  },
+  "group": {
+    "id": 1
+  },
+  "role": "MEMBER"  # or "ADMIN", "OWNER"
+}
+
+# Update user role in group
+PUT http://localhost:8080/usergroups/{id}
+Content-Type: application/json
+{
+  "role": "ADMIN"
+}
+
+# Remove user from group
+DELETE http://localhost:8080/usergroups/{id}
+
+

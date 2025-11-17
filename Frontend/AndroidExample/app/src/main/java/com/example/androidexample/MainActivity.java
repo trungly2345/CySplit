@@ -2,8 +2,7 @@ package com.example.androidexample;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-
-import android.content.Intent;
+import androidx.preference.PreferenceManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -12,59 +11,72 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class MainActivity extends AppCompatActivity {
 
     private BottomNavigationView bottomNav;
+    private int selectedNavItemId = R.id.nav_home; // default
 
     private final HomeFragment homeFragment = new HomeFragment();
     private final GroupFragment groupFragment = new GroupFragment();
     private final ProfileFragment profileFragment = new ProfileFragment();
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String theme = prefs.getString("theme_preference", "system");
+
+        switch (theme) {
+            case "light":
+                setTheme(R.style.ThemeOverlay_App_Light);
+                break;
+            case "dark":
+                setTheme(R.style.ThemeOverlay_App_Dark);
+                break;
+            case "system":
+            default:
+                setTheme(R.style.ThemeOverlay_App_Light);
+                break;
+        }
+
         setContentView(R.layout.activity_main);
 
         bottomNav = findViewById(R.id.bottom_navigation);
 
-        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
-        boolean isLoggedIn = prefs.getBoolean("isLoggedIn", false);
-
-        if (!isLoggedIn) {
-            startActivity(new Intent(MainActivity.this, LoginActivity.class));
-            finish();
-            return;
+        if (savedInstanceState != null) {
+            selectedNavItemId = savedInstanceState.getInt("SELECTED_NAV_ID", R.id.nav_home);
         }
 
+        bottomNav.setSelectedItemId(selectedNavItemId);
+        loadFragmentForMenuItem(selectedNavItemId);
+
         bottomNav.setOnItemSelectedListener(item -> {
-            Fragment selectedFragment = null;
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.nav_home) {
-                selectedFragment = homeFragment;
-            } else if (itemId == R.id.nav_groups) {
-                selectedFragment = groupFragment;
-            } else if (itemId == R.id.nav_profile) {
-                selectedFragment = profileFragment;
-            }
-
-            if (selectedFragment != null) {
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.fragment_container, selectedFragment)
-                        .commit();
-            }
-
+            selectedNavItemId = item.getItemId();
+            loadFragmentForMenuItem(selectedNavItemId);
             return true;
         });
+    }
 
-        String openFragment = getIntent().getStringExtra("openFragment");
-        if ("profile".equals(openFragment)) {
-            bottomNav.setSelectedItemId(R.id.nav_profile);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, profileFragment)
-                    .commit();
-        } else {
-            bottomNav.setSelectedItemId(R.id.nav_home);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_container, homeFragment)
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("SELECTED_NAV_ID", selectedNavItemId);
+    }
+
+    private void loadFragmentForMenuItem(int itemId) {
+        Fragment selectedFragment = null;
+
+        if (itemId == R.id.nav_home) {
+            selectedFragment = new HomeFragment();
+        } else if (itemId == R.id.nav_groups) {
+            selectedFragment = new GroupFragment();
+        } else if (itemId == R.id.nav_profile) {
+            selectedFragment = new ProfileFragment();
+        }
+
+        if (selectedFragment != null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, selectedFragment)
                     .commit();
         }
     }

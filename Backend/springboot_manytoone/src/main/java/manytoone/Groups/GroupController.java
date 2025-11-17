@@ -1,0 +1,68 @@
+package manytoone.Groups;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+
+/**
+ *
+ * @author Vivek Bengre
+ *
+ */
+
+@RestController
+public class GroupController {
+
+    @Autowired
+    GroupRepository groupRepository;
+
+
+    private String success = "{\"message\":\"success\"}";
+    private String failure = "{\"message\":\"failure\"}";
+
+    @GetMapping("/groups/{group_id}")
+    public Group getGroupById(@PathVariable int group_id) {
+        return groupRepository.findById(group_id);
+    }
+
+    @PostMapping("/groups")
+    public ResponseEntity <Group> createGroup(@RequestBody Group req) {
+     Group newGroup = groupRepository.save(req);
+      return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
+    }
+
+
+
+   @PutMapping("/groups/{group_id}")
+    public ResponseEntity <Group> updateGroup(@PathVariable int group_id, @RequestBody Group request){
+       Group updateGroup = groupRepository.findById(group_id);
+       if (updateGroup == null){
+           return null;
+       }
+       updateGroup.setGroup_name(request.getGroup_name());
+       updateGroup.setCapacity(request.getCapacity());
+       updateGroup.setId(request.getId());
+       groupRepository.save(updateGroup);
+       return ResponseEntity.ok(updateGroup);
+   }
+
+
+   @DeleteMapping("/groups/{group_id}")
+    public ResponseEntity <Group> deleteGroupById(@PathVariable int group_id){
+     Group group = groupRepository.findById(group_id);
+     if (group == null){
+         return ResponseEntity.notFound().build();
+     }
+     groupRepository.deleteById(group_id);
+       return ResponseEntity.noContent().build();
+   }
+}

@@ -4,125 +4,90 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-
-import org.json.JSONException;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-public class  GroupFragment extends Fragment {
+public class GroupFragment extends Fragment {
 
-    private TextView groupStatusTextView;
-    private static final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/groups";
+    private RecyclerView groupRecyclerView;
+    private final List<JSONObject> groupList = new ArrayList<>();
+    private GroupAdapter adapter;
+    private GroupService groupService;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
         View view = inflater.inflate(R.layout.fragment_group, container, false);
-        groupStatusTextView = view.findViewById(R.id.groupStatusTextView);
+        groupRecyclerView = view.findViewById(R.id.groupRecyclerView);
+        groupRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        //getGroup(8);
-        postGroup(1, "Hells Kitchen Las Vegas Summer 2027", 6);
-        //postGroup(9, "Gas Money", 5);
-        //deleteGroup(23);
+        adapter = new GroupAdapter(groupList, this::onGroupClick);
+        groupRecyclerView.setAdapter(adapter);
+
+        // initialize service
+        groupService = RetrofitClient.getRemoteClient().create(GroupService.class);
+
+        // load group from server
+        loadGroupFromServer(3); // You can change 3 to dynamic later
 
         return view;
     }
 
-    private void getGroup(int id) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = BASE_URL + "/" + id;
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.GET,
-                url,
-                null,
-                response -> {
+    private void loadGroupFromServer(int groupId) {
+        groupService.getGroupById(groupId).enqueue(new Callback<Group>() {
+            @Override
+            public void onResponse(@NonNull Call<Group> call, @NonNull Response<Group> response) {
+                if (response.isSuccessful() && response.body() != null) {
                     try {
-                        String groupName = response.getString("group_name");
-                        int capacity = response.getInt("capacity");
-                        groupStatusTextView.setText("GET: " + groupName + " (Capacity: " + capacity + ")");
-                    } catch (JSONException e) {
-                        groupStatusTextView.setText("Failed to parse GET response");
+                        Group group = response.body();
+                        JSONObject obj = new JSONObject();
+                        obj.put("id", group.getId());
+                        obj.put("group_name", group.getGroupName());
+                        obj.put("capacity", group.getCapacity());
+
+                        groupList.clear();
+                        groupList.add(obj);
+                        adapter.notifyDataSetChanged();
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
-                },
-                error -> groupStatusTextView.setText("GET failed: " + error.getMessage())
-        );
+                } else {
+                    System.out.println("Server returned error: " + response.code());
+                }
+            }
 
-        queue.add(request);
+            @Override
+            public void onFailure(@NonNull Call<Group> call, @NonNull Throwable t) {
+                t.printStackTrace();
+                System.out.println("Network error: " + t.getMessage());
+            }
+        });
     }
 
-    private void putGroup(int id, String name, int capacity) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = BASE_URL + "/" + id;
-
-        JSONObject putData = new JSONObject();
+    private void onGroupClick(JSONObject group) {
         try {
-            putData.put("group_name", name);
-            putData.put("capacity", capacity);
-            putData.put("id", id);
-        } catch (JSONException e) {
+            int groupId = group.getInt("id");
+            GroupDetailFragment fragment = new GroupDetailFragment();
+
+            Bundle bundle = new Bundle();
+            bundle.putInt("groupId", groupId);
+            fragment.setArguments(bundle);
+
+            requireActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.PUT,
-                url,
-                putData,
-                response -> groupStatusTextView.setText("PUT: Updated to " + name),
-                error -> groupStatusTextView.setText("PUT failed: " + error.getMessage())
-        );
-
-        queue.add(request);
-    }
-
-    private void postGroup(int id, String name, int capacity) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = BASE_URL + "/" + id;
-
-        JSONObject postData = new JSONObject();
-        try {
-            postData.put("group_name", name);
-            postData.put("capacity", capacity);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.POST,
-                url,
-                postData,
-                response -> groupStatusTextView.setText("POST: " + name),
-                error -> groupStatusTextView.setText("POST failed: " + error.getMessage())
-        );
-
-        queue.add(request);
-    }
-
-
-
-    private void deleteGroup(int id) {
-        RequestQueue queue = Volley.newRequestQueue(getContext());
-        String url = BASE_URL + "/" + id;
-
-        JsonObjectRequest request = new JsonObjectRequest(
-                Request.Method.DELETE,
-                url,
-                null,
-                response -> groupStatusTextView.setText("DELETE: Removed group " + id),
-                error -> groupStatusTextView.setText("DELETE failed: " + error.getMessage())
-        );
-
-        queue.add(request);
     }
 }
