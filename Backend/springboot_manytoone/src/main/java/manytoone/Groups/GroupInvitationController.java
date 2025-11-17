@@ -73,22 +73,27 @@ public class GroupInvitationController {
         return ResponseEntity.ok(invitations);
     }
 
-    @PostMapping("/groups/{group_id}/invitations")
+    // Invite a specific user to a specific group
+    @PostMapping("/groups/{user_id}/{group_id}/invitations")
     public ResponseEntity<GroupInvitation> createInvitation(
-            @RequestBody GroupInvitation req, 
-            @PathVariable("group_id") int groupId) {
-        
+            @PathVariable("group_id") int groupId,
+            @PathVariable("user_id") int userId) {
+
+
+        // find group
         Group group = groupRepository.findById(groupId);
         if (group == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
-        
-        User recipient = userRepository.findByUserName(req.getUserName());
+
+
+        // find user
+        User recipient = userRepository.findById(userId);
         if (recipient == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         
-        if (invitationRepository.existsByGroup_IdAndUserName(groupId, req.getUserName())) {
+        if (invitationRepository.existsByGroup_IdAndUserId(groupId, userId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         
@@ -96,10 +101,11 @@ public class GroupInvitationController {
         if (inviter == null) {
             System.out.println("WARNING: No users exist in database. Create a user first.");
         }
-        
-        req.setGroup(group);
-        req.setInv_status(GroupInvitation.invitationStatus.Pending);
-        GroupInvitation saved = invitationRepository.save(req);
+
+        GroupInvitation invitation = new GroupInvitation(group, recipient);
+        invitation.setInv_status(GroupInvitation.invitationStatus.Pending);
+        GroupInvitation saved = invitationRepository.save(invitation);
+
         
         if (inviter != null) {
             notificationService.notifyGroupInvitation(recipient, group, inviter);
@@ -117,15 +123,21 @@ public class GroupInvitationController {
             return ResponseEntity.notFound().build();
         }
         GroupInvitation invitation = currentInv.get();
-        invitation.setUserName(req.getUserName());
-        invitation.setDateCreated(req.getDateCreated());
+        if (req.getInv_status() == null){
+            invitation.setInv_status(req.getInv_status());
+        }
+
+        if (req.getDateCreated() == null){
+            invitation.setDateCreated(req.getDateCreated());
+        }
 
         GroupInvitation updated = invitationRepository.save(invitation);
-
         return ResponseEntity.ok(updated);
 
 
     }
+
+
 
     @PutMapping("invitations/{invitation_id}/invitationStatus")
     public ResponseEntity<GroupInvitation> updateInvitationStatus(

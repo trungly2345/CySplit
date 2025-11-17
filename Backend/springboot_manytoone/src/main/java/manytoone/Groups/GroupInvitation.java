@@ -2,6 +2,8 @@ package manytoone.Groups;
 
 import jakarta.persistence.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import manytoone.Users.User;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -9,7 +11,7 @@ import java.time.LocalDateTime;
         name = "group_invitation",
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_group_user",
-                columnNames = {"group_id", "user_name"}
+                columnNames = {"group_id", "user_id"}
         )
 )
 public class GroupInvitation {
@@ -34,13 +36,19 @@ public class GroupInvitation {
             foreignKey = @ForeignKey(name = "fk_group_invitation_group")
 
     )
-
-
     @JsonIgnore
     private Group group;
 
-    @Column(name = "user_name", nullable = false)
-    private String userName;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = "user_id",
+            nullable = false,
+            foreignKey = @ForeignKey(name = "fk_group_invitation_user")
+
+    )
+    @JsonIgnore
+    private User user;
 
     @Column(name = "date_created", nullable = false)
     private LocalDateTime dateCreated = LocalDateTime.now();
@@ -51,9 +59,9 @@ public class GroupInvitation {
 
     public GroupInvitation() {}
 
-    public GroupInvitation(Group group, String userName) {
+    public GroupInvitation(Group group, User user) {
         this.group = group;
-        this.userName = userName;
+        this.user = user;
     }
 
     public invitationStatus getInv_status() { return inv_status; }
@@ -64,8 +72,11 @@ public class GroupInvitation {
     public void setId(Integer id) { this.id = id; }
     public Group getGroup() { return group; }
     public void setGroup(Group group) { this.group = group; }
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
+    @Transient
+    public String getUserName() { return user != null ? user.getUserName() : null;}
+
+    public User getUser (){ return user; }
+    public void setUserName(User user) { this.user = user; }
     public LocalDateTime getDateCreated() { return dateCreated; }
     public void setDateCreated(LocalDateTime dateCreated) { this.dateCreated = dateCreated; }
 }

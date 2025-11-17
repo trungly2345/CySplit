@@ -8,7 +8,6 @@ public interface GroupInvitationRepository extends JpaRepository<GroupInvitation
 
     GroupInvitation findById(int id);
     List<GroupInvitation> findAllByGroup_Id(Integer groupId);
-    List<GroupInvitation> findAllByUserName(String userName);
     boolean existsByGroup_IdAndUserName(Integer groupId, String userName);
 
 }
