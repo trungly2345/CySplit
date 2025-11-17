@@ -58,7 +58,7 @@ public class GroupInvitationController {
             return ResponseEntity.notFound().build();
         }
         
-        List<GroupInvitation> invitations = invitationRepository.findAllByUserName(userName);
+        List<GroupInvitation> invitations = invitationRepository.findAllByUser_Id(user.getId());
         return ResponseEntity.ok(invitations);
     }
 
@@ -93,7 +93,7 @@ public class GroupInvitationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
         
-        if (invitationRepository.existsByGroup_IdAndUserId(groupId, userId)) {
+        if (invitationRepository.existsByGroup_IdAndUser_Id(groupId, userId)) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         
