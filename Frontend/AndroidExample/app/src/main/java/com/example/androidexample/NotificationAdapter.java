@@ -20,12 +20,17 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, message, timestamp;
+        View messageContainer;
+        View card;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.notification_title);
             message = itemView.findViewById(R.id.notification_message);
             timestamp = itemView.findViewById(R.id.notification_timestamp);
+
+            messageContainer = itemView.findViewById(R.id.message_container);
+            card = itemView.findViewById(R.id.notification_card); // the whole row
         }
     }
 
@@ -38,11 +43,20 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull NotificationAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         NotificationItem item = notifications.get(position);
+
         holder.title.setText(item.getTitle());
         holder.message.setText(item.getMessage());
         holder.timestamp.setText(item.getTimestamp());
+
+        boolean expanded = item.isExpanded();
+        holder.messageContainer.setVisibility(expanded ? View.VISIBLE : View.GONE);
+
+        holder.card.setOnClickListener(v -> {
+            item.setExpanded(!item.isExpanded());
+            notifyItemChanged(position);
+        });
     }
 
     @Override
