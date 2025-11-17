@@ -24,6 +24,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+//CI/CD test
+
 public class NotificationsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
