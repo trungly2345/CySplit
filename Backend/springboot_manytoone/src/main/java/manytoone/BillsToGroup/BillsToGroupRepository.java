@@ -8,6 +8,4 @@ import java.util.List;
 
 public interface BillsToGroupRepository extends JpaRepository<BillToGroup, Integer> {
     List<BillToGroup> findByGroupAndAssignedBy(Group group, User user);
-
-
 }
