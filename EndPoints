@@ -60,11 +60,26 @@ GET http://localhost:8080/invitations
 # Get specific invitation
 GET http://localhost:8080/invitations/{invitation_id}
 
+# Get invitations for a specific user
+GET http://localhost:8080/invitations/user/{userName}
+
+# Get invitations for a specific group
+GET http://localhost:8080/groups/{group_id}/invitations
+
 # Create invitation (sends notification automatically)
-POST http://localhost:8080/groups/{group_id}/invitations
+POST http://localhost:8080/groups/{user_id}/{group_id}/invitations
 Content-Type: application/json
 {
-  "userName": "testuser"
+  "userName": "testuser",
+  "group_name": "Group Name"
+}
+
+# Update invitation
+PUT http://localhost:8080/invitations/{invitation_id}
+Content-Type: application/json
+{
+  "userName": "newuser",
+  "group_name": "New Group Name"
 }
 
 # Update invitation status (sends notification on accept)
@@ -138,36 +153,53 @@ DELETE http://localhost:8080/groups/{id}
 
 ***USERGROUP (Group Membership) ENDPOINTS
 
-# Get all user-group relationships
-GET http://localhost:8080/usergroups
+# Get all groups for a user
+GET http://localhost:8080/users/{userId}/groups
 
-# Get specific user-group relationship
-GET http://localhost:8080/usergroups/{id}
+# Get active groups for a user
+GET http://localhost:8080/users/{userId}/groups/active
 
 # Get all members of a group
 GET http://localhost:8080/groups/{groupId}/members
 
+# Get active members of a group
+GET http://localhost:8080/groups/{groupId}/members/active
+
+# Get admins of a group
+GET http://localhost:8080/groups/{groupId}/admins
+
+# Get member count for a group
+GET http://localhost:8080/groups/{groupId}/members/count
+
 # Add user to group
-POST http://localhost:8080/usergroups
+POST http://localhost:8080/groups/{groupId}/members
 Content-Type: application/json
 {
-  "user": {
-    "id": 1
-  },
-  "group": {
-    "id": 1
-  },
-  "role": "MEMBER"  # or "ADMIN", "OWNER"
+  "userId": 1,
+  "role": "MEMBER"
 }
 
-# Update user role in group
-PUT http://localhost:8080/usergroups/{id}
+# Accept invitation (adds user to group, sends notification)
+POST http://localhost:8080/invitations/{invitationId}/accept
+
+# Update user role in group (sends notification)
+PUT http://localhost:8080/groups/{groupId}/members/{userId}/role
 Content-Type: application/json
 {
   "role": "ADMIN"
 }
 
-# Remove user from group
-DELETE http://localhost:8080/usergroups/{id}
+# Update user contribution score
+PUT http://localhost:8080/groups/{groupId}/members/{userId}/contribution
+Content-Type: application/json
+{
+  "contributionScore": 100.5
+}
+
+# Remove user from group (sends notification)
+DELETE http://localhost:8080/groups/{groupId}/members/{userId}
+
+# Leave group (sends notification)
+PUT http://localhost:8080/groups/{groupId}/members/{userId}/leave
 
 
