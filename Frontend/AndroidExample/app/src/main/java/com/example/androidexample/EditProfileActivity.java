@@ -137,7 +137,7 @@ public class EditProfileActivity extends AppCompatActivity {
                 json,
                 response -> {
                     updateLocalProfile(name, email, phone, password, payment);
-                    sendProfileUpdatedBroadcast();
+                    //sendProfileUpdatedBroadcast();
                     Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
                     finish();
                 },
