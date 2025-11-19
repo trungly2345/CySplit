@@ -1,5 +1,6 @@
 package com.example.androidexample;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +12,8 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageRequest;
@@ -27,25 +29,29 @@ import com.android.volley.toolbox.Volley;
 
 public class ProfileFragment extends Fragment {
 
-    private ImageView profileImageView;
-    private TextView userNameTextView;
-    private TextView userEmailTextView;
-    private TextView userPhoneNumber;
+    private ImageView profileImageView, notificationsIcon, settingsIcon;
+    private TextView userNameTextView, userEmailTextView, userPhoneNumber;
     private Button editProfileButton;
-    private ImageView settingsIcon;
-    private ImageView notificationsIcon;
 
     private BroadcastReceiver profileUpdateReceiver;
 
     private static final String DEFAULT_PROFILE_IMAGE = "";
 
-    public ProfileFragment() {
-    }
+    public ProfileFragment() {}
 
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile, container, false);
+
+//        LinearLayout paymentsLayout = view.findViewById(R.id.editPayment);
+//
+//        paymentsLayout.setOnClickListener(v -> {
+//            Intent intent = new Intent(getActivity(), com.example.EditPaymentActivity.class);
+//            startActivity(intent);
+//        });
+
+        return view;
     }
 
     @Override
@@ -60,45 +66,26 @@ public class ProfileFragment extends Fragment {
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
         settingsIcon = view.findViewById(R.id.imageViewSettings);
 
-        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
-        String email = prefs.getString("email", "user@example.com");
-        String name = prefs.getString("name", "User");
-        String phoneNumber = prefs.getString("phone", "");
+        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
 
-        userNameTextView.setText(name);
-        userEmailTextView.setText(email);
-        userPhoneNumber.setText(phoneNumber);
-
-
-
+        userNameTextView.setText(prefs.getString("name", "User"));
+        userEmailTextView.setText(prefs.getString("email", "user@example.com"));
+        userPhoneNumber.setText(prefs.getString("phone", ""));
 
         loadProfileData();
 
-        notificationsIcon.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), NotificationsActivity.class);
-            startActivity(intent);
-        });
+        notificationsIcon.setOnClickListener(v -> startActivity(
+                new Intent(requireActivity(), NotificationsActivity.class)));
 
-        settingsIcon.setOnClickListener(v -> {
-            try {
-                SettingsFragment fragment = new SettingsFragment();
+        settingsIcon.setOnClickListener(v -> requireActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment_container, new SettingsFragment())
+                .addToBackStack(null)
+                .commit());
 
-                Bundle bundle = new Bundle();
-                fragment.setArguments(bundle);
-
-                requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        editProfileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), EditProfileActivity.class);
-            startActivity(intent);
-        });
+        editProfileButton.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
     }
 
     @Override
@@ -114,8 +101,13 @@ public class ProfileFragment extends Fragment {
                 }
             };
         }
-        requireActivity().registerReceiver(profileUpdateReceiver,
-                new IntentFilter("com.example.androidexample.PROFILE_UPDATED"));
+
+        ContextCompat.registerReceiver(
+                requireActivity(),
+                profileUpdateReceiver,
+                new IntentFilter("com.example.androidexample.PROFILE_UPDATED"),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
     }
 
     @Override
@@ -129,41 +121,35 @@ public class ProfileFragment extends Fragment {
     private void loadProfileData() {
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
 
-        String name = prefs.getString("name", "User");
-        String email = prefs.getString("email", "user@example.com");
-        String profileImageBase64 = prefs.getString("profileImage", null);
-        String profileImageUrl = prefs.getString("profileImageUrl", DEFAULT_PROFILE_IMAGE);
+        userNameTextView.setText(prefs.getString("name", "User"));
+        userEmailTextView.setText(prefs.getString("email", "user@example.com"));
 
-        if (userNameTextView != null) userNameTextView.setText(name);
-        if (userEmailTextView != null) userEmailTextView.setText(email);
+        String base64Image = prefs.getString("profileImage", null);
+        String imageUrl = prefs.getString("profileImageUrl", DEFAULT_PROFILE_IMAGE);
 
-        if (profileImageBase64 != null && !profileImageBase64.isEmpty()) {
+        if (base64Image != null && !base64Image.isEmpty()) {
             try {
-                byte[] bytes = Base64.decode(profileImageBase64, Base64.DEFAULT);
+                byte[] bytes = Base64.decode(base64Image, Base64.DEFAULT);
                 Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                if (profileImageView != null && bmp != null) profileImageView.setImageBitmap(bmp);
-                return;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                if (bmp != null) {
+                    profileImageView.setImageBitmap(bmp);
+                    return;
+                }
+            } catch (Exception e) { e.printStackTrace(); }
         }
 
-        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-            ImageRequest imageRequest = new ImageRequest(
-                    profileImageUrl,
-                    bitmap -> {
-                        if (profileImageView != null) profileImageView.setImageBitmap(bitmap);
-                    },
+        if (imageUrl != null && !imageUrl.isEmpty()) {
+            ImageRequest request = new ImageRequest(
+                    imageUrl,
+                    bitmap -> profileImageView.setImageBitmap(bitmap),
                     0, 0,
                     ImageView.ScaleType.CENTER_CROP,
                     Bitmap.Config.ARGB_8888,
-                    error -> {
-                        if (profileImageView != null) profileImageView.setImageResource(R.drawable.baseline_person_24);
-                    }
+                    error -> profileImageView.setImageResource(R.drawable.baseline_person_24)
             );
-            Volley.newRequestQueue(requireContext()).add(imageRequest);
+            Volley.newRequestQueue(requireContext()).add(request);
         } else {
-            if (profileImageView != null) profileImageView.setImageResource(R.drawable.baseline_person_24);
+            profileImageView.setImageResource(R.drawable.baseline_person_24);
         }
     }
 }
