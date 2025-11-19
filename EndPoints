@@ -52,6 +52,38 @@ DELETE http://localhost:8080/notifications/expired
 # Real-time notification delivery
 ws://localhost:8080/NotificationServer/{userId}
 
+***MESSAGE/CHAT ENDPOINTS
+
+# Get all messages
+GET http://localhost:8080/messages
+
+# Get message by ID
+GET http://localhost:8080/messages/{id}
+
+# Get messages in a conversation
+GET http://localhost:8080/messages/conversation/{conversationId}
+
+# Send a message (triggers @mention notifications automatically)
+POST http://localhost:8080/messages
+Content-Type: application/json
+{
+  "conversationId": 1,
+  "senderId": 2,
+  "content": "Hello @username, how are you?"
+}
+
+# Mark message as read
+POST http://localhost:8080/messages/{messageId}/read?userId={userId}
+
+# Get unread message count in a conversation
+GET http://localhost:8080/messages/conversation/{conversationId}/unread/count?userId={userId}
+
+# Notify user about unread messages (triggers GROUP_CHAT_NEW_MESSAGE notification)
+POST http://localhost:8080/messages/conversation/{conversationId}/notify-unread?userId={userId}
+
+# Delete a message
+DELETE http://localhost:8080/messages/{id}
+
 ***GROUP INVITATION
 
 # Get all invitations
