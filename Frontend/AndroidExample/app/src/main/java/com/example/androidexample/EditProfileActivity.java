@@ -235,10 +235,10 @@ public class EditProfileActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void sendProfileUpdatedBroadcast() {
-        Intent intent = new Intent("com.example.androidexample.PROFILE_UPDATED");
-        sendBroadcast(intent);
-    }
+//    private void sendProfileUpdatedBroadcast() {
+//        Intent intent = new Intent("com.example.androidexample.PROFILE_UPDATED");
+//        sendBroadcast(intent);
+//    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
