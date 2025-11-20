@@ -1,0 +1,14 @@
+[init]
+	defaultBranch = none
+[fetch]
+	recurseSubmodules = false
+[credential]
+	interactive = never
+[gc]
+	autoDetach = false
+[http]
+	extraHeader = X-Gitaly-Correlation-ID: 01KAFBWANZ5WDVERPBAVSBVVDS
+[transfer]
+	bundleURI = true
+[http "https://git.las.iastate.edu"]
+	sslCAInfo = /Users/trungquocly/3_hosen_3/builds/MsMZH1wyz/0/cs309/2025fall/3_hosen_3.tmp/CI_SERVER_TLS_CA_FILE
