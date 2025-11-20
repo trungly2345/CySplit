@@ -37,15 +37,15 @@ maven-test:
 auto-deploy:
   stage: mavendeploy    # one of the stages listed above
   tags:
-  - springboot_tag      # change to your runner's tag
+  - shell     # change to your runner's tag
   script:               # script to run the deployment service you created
-    - cd Backend        # change 'Backend' to to where you have the pom.xml (do not add / in the beginning)
+    - cd Backend/springboot-manytoone      # change 'Backend' to to where you have the pom.xml (do not add / in the beginning)
     - sudo mv target/*.jar /target/web-demo.jar 
     - sudo systemctl stop system-web-demo
     - sudo systemctl start system-web-demo
   only:
     refs:
-      - main            # only to trigger the pipeline when changes are pushed to 'main'
+      - branches           # only to trigger the pipeline when changes are pushed to 'main'
     changes:
       - Backend/**/*    # more specifically - only when changes are made inside the 'Backend' folder
 
