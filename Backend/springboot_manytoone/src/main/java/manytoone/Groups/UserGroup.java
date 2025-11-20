@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 
 
 
-// Test for CI / CD pipe line 
+// Test for CI / CD pipe line
 @Entity
 @Table(
     name = "user_groups",
