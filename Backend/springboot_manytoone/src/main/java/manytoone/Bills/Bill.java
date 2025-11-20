@@ -10,7 +10,7 @@ import java.util.Date;
     @Entity
     @Table(name = "bills")
     public class Bill {
-        // Test for pipeline test, delete later 
+        // Testing for pipeline test, please delete later
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "bill_id" , nullable = false)

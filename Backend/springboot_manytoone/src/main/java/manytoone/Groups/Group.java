@@ -11,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+
+// TEst TEst TEst
 @Entity
 @Table(name = "groups")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
