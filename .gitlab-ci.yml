@@ -37,7 +37,7 @@ maven-test:
 auto-deploy:
   stage: mavendeploy    # one of the stages listed above
   tags:
-  - shell     # change to your runner's tag
+  - springboot_tag     # change to your runner's tag
   script:               # script to run the deployment service you created
     - cd Backend/springboot_manytoone      # change 'Backend' to to where you have the pom.xml (do not add / in the beginning)
     - sudo mv target/*.jar /target/web-demo.jar 
