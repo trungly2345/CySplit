@@ -26,18 +26,54 @@ import java.util.List;
 
 //CI/CD test
 
+/**
+ * Activity to display user notifications in a RecyclerView.
+ * Fetches notifications from the server and allows viewing them.
+ * Includes a test notification for demonstration purposes.
+ */
 public class NotificationsActivity extends AppCompatActivity {
 
+    /**
+     * RecyclerView displaying the list of notifications.
+     */
     private RecyclerView recyclerView;
+
+    /**
+     * ProgressBar displayed while loading notifications.
+     */
     private ProgressBar progressBar;
+
+    /**
+     * TextView shown when there are no notifications.
+     */
     private TextView emptyText;
+
+    /**
+     * Adapter for the RecyclerView to display notifications.
+     */
     private NotificationAdapter adapter;
+
+    /**
+     * List storing the notifications.
+     */
     private final List<NotificationItem> notifications = new ArrayList<>();
 
+    /**
+     * Volley RequestQueue for network requests.
+     */
     private RequestQueue requestQueue;
 
+    /**
+     * Base URL for fetching notifications from the server.
+     */
     private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/groups";
 
+    /**
+     * Called when the activity is first created.
+     * Initializes the RecyclerView, adapter, network queue, and starts fetching notifications.
+     *
+     * @param savedInstanceState Saved state bundle.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +96,9 @@ public class NotificationsActivity extends AppCompatActivity {
         addTestNotification();
     }
 
+    /**
+     * Adds a test notification to the top of the notification list.
+     */
     private void addTestNotification() {
         NotificationItem test = new NotificationItem(
                 "Test Notification",
@@ -71,6 +110,11 @@ public class NotificationsActivity extends AppCompatActivity {
     }
 
 
+    /**
+     * Fetches notifications for the currently logged-in user from the server.
+     * Updates the RecyclerView when the notifications are received.
+     * Shows a progress bar while loading and handles errors.
+     */
     private void fetchNotifications() {
         progressBar.setVisibility(View.VISIBLE);
 

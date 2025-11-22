@@ -27,23 +27,47 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.Volley;
 
+/**
+ * ProfileFragment is responsible for displaying the user's profile information,
+ * including profile picture, name, email, and phone number.
+ * <p>
+ * It provides options to edit the profile, navigate to settings, and view notifications.
+ * The fragment listens for updates via a BroadcastReceiver and refreshes the displayed data accordingly.
+ */
 public class ProfileFragment extends Fragment {
 
+    /** ImageView for displaying the user's profile picture. */
     private ImageView profileImageView, notificationsIcon, settingsIcon;
+
+    /** TextViews for displaying the user's name, email, and phone number. */
     private TextView userNameTextView, userEmailTextView, userPhoneNumber;
+
+    /** Button to edit the user's profile. */
     private Button editProfileButton;
 
+    /** Receiver to listen for profile updates. */
     private BroadcastReceiver profileUpdateReceiver;
 
+    /** Default image used if no profile image is available. */
     private static final String DEFAULT_PROFILE_IMAGE = "";
 
+    /** Default constructor. */
     public ProfileFragment() {}
 
+    /**
+     * Inflates the layout for this fragment.
+     *
+     * @param inflater           LayoutInflater to inflate views in the fragment.
+     * @param container          The parent ViewGroup that the fragment's UI should attach to.
+     * @param savedInstanceState Bundle containing saved state of the fragment.
+     * @return The root view of the fragment layout.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        // Uncommented layout click listener example for future payment edit feature
 //        LinearLayout paymentsLayout = view.findViewById(R.id.editPayment);
 //
 //        paymentsLayout.setOnClickListener(v -> {
@@ -54,6 +78,13 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Called immediately after onCreateView. Initializes UI elements and sets up
+     * listeners for buttons and icons.
+     *
+     * @param view               The View returned by onCreateView.
+     * @param savedInstanceState Bundle containing saved state of the fragment.
+     */
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -88,6 +119,10 @@ public class ProfileFragment extends Fragment {
                 startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
     }
 
+    /**
+     * Called when the fragment becomes visible. Registers the BroadcastReceiver
+     * to listen for profile updates and reloads profile data.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -110,6 +145,10 @@ public class ProfileFragment extends Fragment {
         );
     }
 
+    /**
+     * Called when the fragment is no longer visible. Unregisters the
+     * BroadcastReceiver to prevent memory leaks.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -118,6 +157,11 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Loads the user's profile data from SharedPreferences, including name, email,
+     * and profile image (base64 string or URL). If no image is available, a default
+     * placeholder is used.
+     */
     private void loadProfileData() {
         SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
 

@@ -10,14 +10,29 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+/**
+ * RecyclerView Adapter for displaying a list of notifications.
+ * <p>
+ * Each notification can be expanded or collapsed by tapping on it, showing or hiding the full message content.
+ * </p>
+ */
 public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapter.ViewHolder> {
 
+    /** List of notifications to display. */
     private final List<NotificationItem> notifications;
 
+    /**
+     * Constructs a new NotificationAdapter.
+     *
+     * @param notifications the list of notifications to display
+     */
     public NotificationAdapter(List<NotificationItem> notifications) {
         this.notifications = notifications;
     }
 
+    /**
+     * ViewHolder class for a single notification item.
+     */
     public static class ViewHolder extends RecyclerView.ViewHolder {
         TextView title, message, timestamp;
         View messageContainer;
@@ -28,9 +43,8 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
             title = itemView.findViewById(R.id.notification_title);
             message = itemView.findViewById(R.id.notification_message);
             timestamp = itemView.findViewById(R.id.notification_timestamp);
-
             messageContainer = itemView.findViewById(R.id.message_container);
-            card = itemView.findViewById(R.id.notification_card); // the whole row
+            card = itemView.findViewById(R.id.notification_card);
         }
     }
 

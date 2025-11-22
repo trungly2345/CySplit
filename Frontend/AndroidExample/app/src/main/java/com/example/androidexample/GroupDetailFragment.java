@@ -18,16 +18,51 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Fragment that displays detailed information about a specific group.
+ * <p>
+ * Shows group name, capacity, and the most recent bill.
+ * Provides buttons to view all bills, view transactions, and navigate to bill details.
+ * Group and bill data are fetched via Retrofit from remote and local servers.
+ * </p>
+ */
 public class GroupDetailFragment extends Fragment {
 
+    /** ID of the group being displayed. */
     private int groupId;
-    private TextView groupNameTextView, groupDescriptionTextView;
-    private CardView recentBillContainer;
-    private TextView recentBillTitle, recentBillAmount;
-    private Button buttonViewAllBills, buttonViewTransactions, backButton;
 
+    /** TextView displaying the group name. */
+    private TextView groupNameTextView;
+
+    /** TextView displaying group description (e.g., capacity). */
+    private TextView groupDescriptionTextView;
+
+    /** Container for the most recent bill card. */
+    private CardView recentBillContainer;
+
+    /** TextView displaying the title/name of the most recent bill. */
+    private TextView recentBillTitle;
+
+    /** TextView displaying the amount of the most recent bill. */
+    private TextView recentBillAmount;
+
+    /** Button to view all bills in the group. */
+    private Button buttonViewAllBills;
+
+    /** Button to view all transactions related to the group. */
+    private Button buttonViewTransactions;
+
+    /** ID of the most recent bill. */
     private int recentBillId;
 
+    /**
+     * Called to create the fragment view.
+     *
+     * @param inflater LayoutInflater to inflate views
+     * @param container Parent view that fragment UI will attach to
+     * @param savedInstanceState Bundle containing saved state (if any)
+     * @return the root view for the fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -35,7 +70,7 @@ public class GroupDetailFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_group_detail, container, false);
 
-        // UI references
+        // Initialize UI elements
         groupNameTextView = view.findViewById(R.id.groupNameTextView);
         groupDescriptionTextView = view.findViewById(R.id.groupDescriptionTextView);
         recentBillContainer = view.findViewById(R.id.recentBillContainer);
@@ -47,13 +82,11 @@ public class GroupDetailFragment extends Fragment {
         // Get groupId from arguments
         groupId = getArguments() != null ? getArguments().getInt("groupId") : -1;
 
-        // Load group info from live server
+        // Load group and recent bill data
         loadGroupInfo();
-
-        // Load most recent bill from local server
         loadRecentBill();
 
-        // Click listeners
+        // Set click listeners
         recentBillContainer.setOnClickListener(v -> openBillDetail(recentBillId, groupId));
         buttonViewAllBills.setOnClickListener(v -> openAllBills());
         buttonViewTransactions.setOnClickListener(v -> openTransactions());
@@ -61,6 +94,9 @@ public class GroupDetailFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Fetches group information from the server and updates UI.
+     */
     private void loadGroupInfo() {
         GroupService groupService = RetrofitClient.getRemoteClient().create(GroupService.class);
         Call<Group> call = groupService.getGroupById(groupId);
@@ -88,9 +124,12 @@ public class GroupDetailFragment extends Fragment {
         });
     }
 
+    /**
+     * Fetches the most recent bill from the local server and updates the UI.
+     */
     private void loadRecentBill() {
         BillService billService = RetrofitClient.getLocalClient().create(BillService.class);
-        Call<Bill> call = billService.getBillById(1); // for now, always bill 1
+        Call<Bill> call = billService.getBillById(1); // Placeholder for now
 
         call.enqueue(new Callback<Bill>() {
             @Override
@@ -114,12 +153,21 @@ public class GroupDetailFragment extends Fragment {
         });
     }
 
+    /**
+     * Sets fallback values for the most recent bill in case of network failure.
+     */
     private void setRecentBillFallback() {
         recentBillId = 1;
         recentBillTitle.setText("Bill 1");
         recentBillAmount.setText("$0.00");
     }
 
+    /**
+     * Opens the BillDetailFragment for a specific bill and group.
+     *
+     * @param billId  the ID of the bill to view
+     * @param groupId the ID of the group the bill belongs to
+     */
     private void openBillDetail(int billId, int groupId) {
         BillDetailFragment fragment = new BillDetailFragment();
         Bundle bundle = new Bundle();
@@ -133,6 +181,9 @@ public class GroupDetailFragment extends Fragment {
                 .commit();
     }
 
+    /**
+     * Opens the BillsListFragment to view all bills in the group.
+     */
     private void openAllBills() {
         BillsListFragment fragment = new BillsListFragment();
         Bundle bundle = new Bundle();
@@ -145,6 +196,9 @@ public class GroupDetailFragment extends Fragment {
                 .commit();
     }
 
+    /**
+     * Opens the TransactionFragment to view all transactions for the group.
+     */
     private void openTransactions() {
         TransactionFragment fragment = new TransactionFragment();
         Bundle bundle = new Bundle();

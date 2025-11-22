@@ -2,7 +2,6 @@ package com.example.androidexample;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -35,28 +34,70 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+/**
+ * Activity that allows the user to edit their profile information.
+ * <p>
+ * Users can update their name, email, phone number, password, payment method, and profile picture.
+ * Changes are stored locally in SharedPreferences and sent to the server via a PUT request using Volley.
+ * Handles image selection from gallery or camera with proper permission handling.
+ * </p>
+ */
 public class EditProfileActivity extends AppCompatActivity {
 
+    /** Request code for camera permission. */
     private static final int CAMERA_PERMISSION_CODE = 100;
+
+    /** Base URL for the user API endpoint. */
     private static final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/users/";
 
-    private EditText nameField, emailField, phoneField, passwordField, paymentField;
-    private Button saveButton, changePicButton;
+    /** EditText field for user's name. */
+    private EditText nameField;
+
+    /** EditText field for user's email. */
+    private EditText emailField;
+
+    /** EditText field for user's phone number. */
+    private EditText phoneField;
+
+    /** EditText field for user's password. */
+    private EditText passwordField;
+
+    /** EditText field for user's payment method. */
+    private EditText paymentField;
+
+    /** Button to save profile changes. */
+    private Button saveButton;
+
+    /** Button to change profile picture. */
+    private Button changePicButton;
+
+    /** ImageView displaying the user's profile picture. */
     private ImageView profileImageView;
 
+    /** Bitmap representing the currently selected profile picture. */
     private Bitmap selectedImageBitmap;
+
+    /** Volley request queue for network requests. */
     private RequestQueue requestQueue;
 
+    /** ActivityResultLauncher for picking images from gallery. */
     private ActivityResultLauncher<Intent> galleryLauncher;
+
+    /** ActivityResultLauncher for taking pictures with the camera. */
     private ActivityResultLauncher<Intent> cameraLauncher;
 
+    /**
+     * Called when the activity is created.
+     *
+     * @param savedInstanceState saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_profile);
 
+        // Initialize views and request queue
         requestQueue = Volley.newRequestQueue(this);
-
         profileImageView = findViewById(R.id.edit_profile_image);
         nameField = findViewById(R.id.edit_name);
         emailField = findViewById(R.id.edit_email);
@@ -66,6 +107,21 @@ public class EditProfileActivity extends AppCompatActivity {
         changePicButton = findViewById(R.id.change_pic_button);
         saveButton = findViewById(R.id.save_button);
 
+        // Load saved profile data from SharedPreferences
+        loadLocalProfile();
+
+        // Setup gallery and camera launchers
+        setupActivityResultLaunchers();
+
+        // Set button click listeners
+        changePicButton.setOnClickListener(v -> openImagePicker());
+        saveButton.setOnClickListener(v -> saveProfileChanges());
+    }
+
+    /**
+     * Loads profile data from SharedPreferences and displays it in the UI.
+     */
+    private void loadLocalProfile() {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         nameField.setText(prefs.getString("name", ""));
         emailField.setText(prefs.getString("email", ""));
@@ -79,12 +135,11 @@ public class EditProfileActivity extends AppCompatActivity {
             Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(decoded, 0, decoded.length);
             profileImageView.setImageBitmap(bitmap);
         }
-
-        setupActivityResultLaunchers();
-        changePicButton.setOnClickListener(v -> openImagePicker());
-        saveButton.setOnClickListener(v -> saveProfileChanges());
     }
 
+    /**
+     * Saves the changes made to the profile, updating both local storage and server data.
+     */
     private void saveProfileChanges() {
         String newName = nameField.getText().toString().trim();
         String newEmail = emailField.getText().toString().trim();
@@ -115,7 +170,20 @@ public class EditProfileActivity extends AppCompatActivity {
         }
     }
 
-    private void updateProfileOnServer(int userId, String username, String name, String email, String phone, String payment, String password) throws JSONException {
+    /**
+     * Sends a PUT request to update the user's profile on the server.
+     *
+     * @param userId   the user's ID
+     * @param username the user's username
+     * @param name     updated name
+     * @param email    updated email
+     * @param phone    updated phone number
+     * @param payment  updated payment method
+     * @param password updated password
+     * @throws JSONException if JSON construction fails
+     */
+    private void updateProfileOnServer(int userId, String username, String name, String email,
+                                       String phone, String payment, String password) throws JSONException {
         JSONObject json = new JSONObject();
         json.put("userName", username);
         if (!password.isEmpty()) json.put("userPassword", password);
@@ -137,7 +205,6 @@ public class EditProfileActivity extends AppCompatActivity {
                 json,
                 response -> {
                     updateLocalProfile(name, email, phone, password, payment);
-                    //sendProfileUpdatedBroadcast();
                     Toast.makeText(this, "Profile updated successfully!", Toast.LENGTH_SHORT).show();
                     finish();
                 },
@@ -162,6 +229,9 @@ public class EditProfileActivity extends AppCompatActivity {
         requestQueue.add(request);
     }
 
+    /**
+     * Sets up ActivityResultLaunchers for handling gallery and camera results.
+     */
     private void setupActivityResultLaunchers() {
         galleryLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -190,6 +260,9 @@ public class EditProfileActivity extends AppCompatActivity {
         );
     }
 
+    /**
+     * Opens a dialog to pick a profile picture from gallery or camera.
+     */
     private void openImagePicker() {
         String[] options = {"Gallery", "Camera"};
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this);
@@ -211,6 +284,12 @@ public class EditProfileActivity extends AppCompatActivity {
         builder.show();
     }
 
+    /**
+     * Converts a Bitmap to a Base64-encoded string.
+     *
+     * @param bitmap the Bitmap to convert
+     * @return Base64 string or null if bitmap is null
+     */
     private String bitmapToBase64(Bitmap bitmap) {
         if (bitmap == null) return null;
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -219,6 +298,15 @@ public class EditProfileActivity extends AppCompatActivity {
         return Base64.encodeToString(imageBytes, Base64.DEFAULT);
     }
 
+    /**
+     * Updates the local SharedPreferences with profile changes.
+     *
+     * @param name     updated name
+     * @param email    updated email
+     * @param phone    updated phone
+     * @param password updated password
+     * @param payment  updated payment method
+     */
     private void updateLocalProfile(String name, String email, String phone, String password, String payment) {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -235,11 +323,13 @@ public class EditProfileActivity extends AppCompatActivity {
         editor.apply();
     }
 
-//    private void sendProfileUpdatedBroadcast() {
-//        Intent intent = new Intent("com.example.androidexample.PROFILE_UPDATED");
-//        sendBroadcast(intent);
-//    }
-
+    /**
+     * Handles permission results for the camera.
+     *
+     * @param requestCode  request code
+     * @param permissions  requested permissions
+     * @param grantResults grant results
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
