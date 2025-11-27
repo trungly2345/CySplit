@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="#F5F5F5"
     android:orientation="vertical"
-    tools:context=".ProfileFragment">
+    tools:context=".EditProfileActivity">
 
     <ScrollView
         android:layout_width="match_parent"
@@ -134,7 +134,7 @@
                                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                                 <TextView
-                                    android:id="@+id/textView3"
+                                    android:id="@+id/payments"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginBottom="8dp"
@@ -172,7 +172,7 @@
                                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                                 <TextView
-                                    android:id="@+id/textView3"
+                                    android:id="@+id/settings"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:layout_marginBottom="8dp"
@@ -264,7 +264,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/textView6"
+                                android:id="@+id/mobile"
                                 android:layout_width="34dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -296,7 +296,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/textView6"
+                                android:id="@+id/rating"
                                 android:layout_width="34dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -328,7 +328,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/textView6"
+                                android:id="@+id/address"
                                 android:layout_width="34dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
@@ -360,7 +360,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/textView6"
+                                android:id="@+id/pincode"
                                 android:layout_width="34dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"

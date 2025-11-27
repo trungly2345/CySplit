@@ -7,12 +7,11 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Base64;
 import android.view.LayoutInflater;
@@ -27,20 +26,14 @@ import com.android.volley.toolbox.Volley;
 
 public class ProfileFragment extends Fragment {
 
-    private ImageView profileImageView;
-    private TextView userNameTextView;
-    private TextView userEmailTextView;
-    private TextView userPhoneNumber;
+    private ImageView profileImageView, notificationsIcon, settingsIcon, paymentsIcon;
+    private TextView userNameTextView, userEmailTextView, userPhoneNumber;
     private Button editProfileButton;
-    private ImageView settingsIcon;
-    private ImageView notificationsIcon;
 
     private BroadcastReceiver profileUpdateReceiver;
+    private SharedPreferences prefs;
 
-    private static final String DEFAULT_PROFILE_IMAGE = "";
-
-    public ProfileFragment() {
-    }
+    private static final String PREFS_NAME = "UserPrefs";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -52,60 +45,60 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+
+        bindViews(view);
+        loadProfileData();
+        setupListeners();
+    }
+
+    private void bindViews(View view) {
         profileImageView = view.findViewById(R.id.imageView2);
         userNameTextView = view.findViewById(R.id.textView);
         userEmailTextView = view.findViewById(R.id.textView2);
-        userPhoneNumber = view.findViewById(R.id.textView7);
-        editProfileButton = view.findViewById(R.id.button2);
+        userPhoneNumber = view.findViewById(R.id.textViewMobileValue);
+
         notificationsIcon = view.findViewById(R.id.imageViewNotifications);
         settingsIcon = view.findViewById(R.id.imageViewSettings);
+        paymentsIcon = view.findViewById(R.id.imageViewPayments);
 
-        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", getActivity().MODE_PRIVATE);
-        String email = prefs.getString("email", "user@example.com");
-        String name = prefs.getString("name", "User");
-        String phoneNumber = prefs.getString("phone", "");
+        editProfileButton = view.findViewById(R.id.button2);
+    }
 
-        userNameTextView.setText(name);
-        userEmailTextView.setText(email);
-        userPhoneNumber.setText(phoneNumber);
-
-
-
-
-        loadProfileData();
-
-        notificationsIcon.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), NotificationsActivity.class);
-            startActivity(intent);
-        });
+    private void setupListeners() {
+        notificationsIcon.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), NotificationsActivity.class)));
 
         settingsIcon.setOnClickListener(v -> {
-            try {
-                SettingsFragment fragment = new SettingsFragment();
-
-                Bundle bundle = new Bundle();
-                fragment.setArguments(bundle);
-
-                requireActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.fragment_container, fragment)
-                        .addToBackStack(null)
-                        .commit();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            SettingsFragment fragment = new SettingsFragment();
+            requireActivity().getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.fragment_container, fragment)
+                    .addToBackStack(null)
+                    .commit();
         });
 
-        editProfileButton.setOnClickListener(v -> {
-            Intent intent = new Intent(requireActivity(), EditProfileActivity.class);
-            startActivity(intent);
-        });
+        paymentsIcon.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), PaymentsActivity.class)));
+
+        editProfileButton.setOnClickListener(v ->
+                startActivity(new Intent(requireActivity(), EditProfileActivity.class)));
     }
 
     @Override
     public void onResume() {
         super.onResume();
         loadProfileData();
+        registerProfileReceiver();
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterProfileReceiver();
+    }
+
+    private void registerProfileReceiver() {
         if (profileUpdateReceiver == null) {
             profileUpdateReceiver = new BroadcastReceiver() {
                 @Override
@@ -114,56 +107,49 @@ public class ProfileFragment extends Fragment {
                 }
             };
         }
-        requireActivity().registerReceiver(profileUpdateReceiver,
-                new IntentFilter("com.example.androidexample.PROFILE_UPDATED"));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            requireActivity().registerReceiver(
+                    profileUpdateReceiver,
+                    new IntentFilter("com.example.androidexample.PROFILE_UPDATED"),
+                    Context.RECEIVER_NOT_EXPORTED
+            );
+        }
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (profileUpdateReceiver != null) {
+    private void unregisterProfileReceiver() {
+        try {
             requireActivity().unregisterReceiver(profileUpdateReceiver);
-        }
+        } catch (IllegalArgumentException ignored) {}
     }
 
     private void loadProfileData() {
-        SharedPreferences prefs = requireActivity().getSharedPreferences("UserPrefs", Context.MODE_PRIVATE);
-
         String name = prefs.getString("name", "User");
         String email = prefs.getString("email", "user@example.com");
+        String phone = prefs.getString("phoneNumber", "N/A"); // FIXED (was wrong previously)
         String profileImageBase64 = prefs.getString("profileImage", null);
-        String profileImageUrl = prefs.getString("profileImageUrl", DEFAULT_PROFILE_IMAGE);
 
-        if (userNameTextView != null) userNameTextView.setText(name);
-        if (userEmailTextView != null) userEmailTextView.setText(email);
+        userNameTextView.setText(name);
+        userEmailTextView.setText(email);
+        userPhoneNumber.setText(phone);
 
-        if (profileImageBase64 != null && !profileImageBase64.isEmpty()) {
+        loadProfileImage(profileImageBase64);
+    }
+
+    private void loadProfileImage(String base64) {
+        if (base64 != null && !base64.isEmpty()) {
             try {
-                byte[] bytes = Base64.decode(profileImageBase64, Base64.DEFAULT);
+                byte[] bytes = Base64.decode(base64, Base64.DEFAULT);
                 Bitmap bmp = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                if (profileImageView != null && bmp != null) profileImageView.setImageBitmap(bmp);
-                return;
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+
+                if (bmp != null) {
+                    profileImageView.setImageBitmap(bmp);
+                    return;
+                }
+            } catch (Exception ignored) {}
         }
 
-        if (profileImageUrl != null && !profileImageUrl.isEmpty()) {
-            ImageRequest imageRequest = new ImageRequest(
-                    profileImageUrl,
-                    bitmap -> {
-                        if (profileImageView != null) profileImageView.setImageBitmap(bitmap);
-                    },
-                    0, 0,
-                    ImageView.ScaleType.CENTER_CROP,
-                    Bitmap.Config.ARGB_8888,
-                    error -> {
-                        if (profileImageView != null) profileImageView.setImageResource(R.drawable.baseline_person_24);
-                    }
-            );
-            Volley.newRequestQueue(requireContext()).add(imageRequest);
-        } else {
-            if (profileImageView != null) profileImageView.setImageResource(R.drawable.baseline_person_24);
-        }
+        profileImageView.setImageResource(R.drawable.baseline_person_24);
     }
 }
+
