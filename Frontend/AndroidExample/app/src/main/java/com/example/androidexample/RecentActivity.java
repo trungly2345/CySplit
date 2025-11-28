@@ -7,6 +7,6 @@ public class RecentActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recent); // This assumes activity_recent.xml exists
+        setContentView(R.layout.activity_recent);
     }
 }

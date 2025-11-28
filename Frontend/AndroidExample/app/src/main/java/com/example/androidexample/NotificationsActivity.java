@@ -41,39 +41,31 @@ public class NotificationsActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     private WebSocket webSocket;
 
-    // Replace this with the actual base URL for your API
     private final String BASE_URL = "http://localhost:3004";
-    private final String WEBSOCKET_URL = "ws://localhost:8081/NotificationServer/";  // WebSocket URL (use actual WebSocket server URL)
+    private final String WEBSOCKET_URL = "ws://localhost:8081/NotificationServer/";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifications);
 
-        // Initialize views
         ImageView backArrow = findViewById(R.id.back_arrow);
         recyclerView = findViewById(R.id.notifications_recycler);
         progressBar = findViewById(R.id.progress_bar);
         emptyText = findViewById(R.id.empty_text);
 
-        // Set up RecyclerView
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         adapter = new NotificationAdapter(notifications);
         recyclerView.setAdapter(adapter);
 
-        // Initialize Volley RequestQueue
         requestQueue = Volley.newRequestQueue(this);
 
-        // Set back arrow click listener
         backArrow.setOnClickListener(v -> onBackPressed());
 
-        // Fetch initial notifications (this will display notifications on the page)
         fetchNotifications();
 
-        // Add a test notification to simulate a new notification (for testing UI)
         addTestNotification();
 
-        // Set up WebSocket connection
         setUpWebSocket();
     }
 
@@ -85,7 +77,7 @@ public class NotificationsActivity extends AppCompatActivity {
                 "Just now"
         );
         notifications.add(0, test);
-        adapter.notifyItemInserted(0);  // Notify the adapter that a new item has been added at position 0
+        adapter.notifyItemInserted(0);
     }
 
     private void fetchNotifications() {
@@ -111,7 +103,6 @@ public class NotificationsActivity extends AppCompatActivity {
                     notifications.clear();
 
                     try {
-                        // Parse the response and add notifications to the list
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject obj = response.getJSONObject(i);
                             notifications.add(new NotificationItem(
@@ -121,7 +112,6 @@ public class NotificationsActivity extends AppCompatActivity {
                             ));
                         }
 
-                        // Log the notifications for debugging
                         Log.d("NotificationsActivity", "Notifications fetched: " + notifications.size());
 
                         adapter.notifyDataSetChanged();
@@ -144,9 +134,7 @@ public class NotificationsActivity extends AppCompatActivity {
         requestQueue.add(jsonArrayRequest);
     }
 
-    // WebSocket setup for real-time notifications
     private void setUpWebSocket() {
-        // Get user ID for WebSocket connection
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
 
@@ -157,18 +145,14 @@ public class NotificationsActivity extends AppCompatActivity {
 
         String websocketUrl = WEBSOCKET_URL + userId;
 
-        // Set up WebSocket client
         OkHttpClient client = new OkHttpClient();
         okhttp3.Request request = new okhttp3.Request.Builder().url(websocketUrl).build();
 
-        // Create WebSocket connection
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onMessage(WebSocket webSocket, String text) {
                 super.onMessage(webSocket, text);
-                // Handle incoming message (notification)
                 runOnUiThread(() -> {
-                    // Parse the incoming message as a notification and add to the list
                     try {
                         JSONObject notificationObj = new JSONObject(text);
                         String title = notificationObj.optString("title");
@@ -202,7 +186,6 @@ public class NotificationsActivity extends AppCompatActivity {
             }
         });
 
-        // Close WebSocket when activity is destroyed
         client.dispatcher().executorService().shutdown();
     }
 

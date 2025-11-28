@@ -126,7 +126,7 @@ public class ProfileFragment extends Fragment {
     private void loadProfileData() {
         String name = prefs.getString("name", "User");
         String email = prefs.getString("email", "user@example.com");
-        String phone = prefs.getString("phoneNumber", "N/A"); // FIXED (was wrong previously)
+        String phone = prefs.getString("phoneNumber", "N/A");
         String profileImageBase64 = prefs.getString("profileImage", null);
 
         userNameTextView.setText(name);

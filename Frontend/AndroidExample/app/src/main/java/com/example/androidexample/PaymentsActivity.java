@@ -17,7 +17,6 @@ public class PaymentsActivity extends AppCompatActivity {
         buttonRecentActivity.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Navigate to Recent Activity screen
                 Intent intent = new Intent(PaymentsActivity.this, RecentActivity.class);
                 startActivity(intent);
             }
