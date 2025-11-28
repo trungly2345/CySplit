@@ -35,6 +35,23 @@
         android:layout_marginEnd="24dp"
         android:layout_marginTop="16dp"/>
 
+    <Button
+        android:id="@+id/buttonRecentActivity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="View Recent Activity"
+        android:textColor="@color/white"
+        android:background="@color/tango"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintTop_toBottomOf="@id/buttonAddPayment"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginTop="16dp"/>
+
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewPayments"
         android:layout_width="0dp"
