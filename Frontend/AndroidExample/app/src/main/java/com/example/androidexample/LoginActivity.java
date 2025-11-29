@@ -18,6 +18,14 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Activity for handling user login.
+ * <p>
+ * Provides UI for entering username and password, sending login requests to the backend,
+ * and managing user session data via SharedPreferences. Also includes a redirect to
+ * the signup screen and a simple "forgot password" placeholder.
+ * </p>
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText usernameEditText, passwordEditText;
@@ -26,6 +34,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private RequestQueue requestQueue;
 
+    /** Endpoint URL for login requests. */
     private final String LOGIN_URL = "http://coms-3090-039.class.las.iastate.edu:8080/users/login";
 
     @Override
@@ -35,12 +44,14 @@ public class LoginActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
+        // Initialize UI elements
         usernameEditText = findViewById(R.id.login_username);
         passwordEditText = findViewById(R.id.login_password);
         loginButton = findViewById(R.id.login_button);
         forgotPassword = findViewById(R.id.forgot_password);
         signUpRedirect = findViewById(R.id.signUpRedirectText);
 
+        // Login button click handler
         loginButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString().trim();
             String password = passwordEditText.getText().toString().trim();
@@ -50,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
+            // Hardcoded login for testing
             if (username.equals("hi") && password.equals("hi")) {
                 saveSession(1, "hi", "hi@example.com");
                 Toast.makeText(LoginActivity.this, "Welcome, hi!", Toast.LENGTH_SHORT).show();
@@ -58,14 +70,22 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
+            // Send request to server
             sendLoginRequest(username, password);
         });
 
+        // Redirect to signup activity
         signUpRedirect.setOnClickListener(v ->
                 startActivity(new Intent(LoginActivity.this, SignupActivity.class))
         );
     }
 
+    /**
+     * Sends a login request to the backend server using Volley.
+     *
+     * @param username the username entered by the user
+     * @param password the password entered by the user
+     */
     private void sendLoginRequest(String username, String password) {
         JSONObject json = new JSONObject();
         try {
@@ -112,6 +132,13 @@ public class LoginActivity extends AppCompatActivity {
         requestQueue.add(jsonObjectRequest);
     }
 
+    /**
+     * Saves user session data to SharedPreferences.
+     *
+     * @param userId   the unique ID of the user
+     * @param username the username
+     * @param email    the user's email
+     */
     private void saveSession(int userId, String username, String email) {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();

@@ -18,13 +18,36 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/**
+ * Fragment for displaying a list of bills associated with a specific group.
+ * <p>
+ * This fragment uses a RecyclerView with a {@link BillsAdapter} to display
+ * all bills retrieved from the backend API. Clicking a bill opens the detailed
+ * bill view in {@link BillDetailFragment}.
+ * </p>
+ */
 public class BillsListFragment extends Fragment {
 
+    /** The ID of the group whose bills are displayed. */
     private int groupId;
+
+    /** RecyclerView for displaying bills. */
     private RecyclerView recyclerView;
+
+    /** Adapter for binding bills to the RecyclerView. */
     private BillsAdapter adapter;
+
+    /** List of bills to display. */
     private List<Bill> billList = new ArrayList<>();
 
+    /**
+     * Called to create the fragment's view hierarchy.
+     *
+     * @param inflater           LayoutInflater to inflate views
+     * @param container          Parent container
+     * @param savedInstanceState Saved state bundle
+     * @return The root view of the fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -47,6 +70,9 @@ public class BillsListFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Loads all bills from the backend API and updates the RecyclerView.
+     */
     private void loadBills() {
         BillService billService = RetrofitClient.getLocalClient().create(BillService.class);
         Call<List<Bill>> call = billService.getAllBills();
@@ -59,7 +85,6 @@ public class BillsListFragment extends Fragment {
                     billList.addAll(response.body());
                     adapter.notifyDataSetChanged();
                 } else {
-                    // Optional: handle API errors or empty list
                     System.out.println("Failed to load bills: " + response.code());
                 }
             }
@@ -71,6 +96,12 @@ public class BillsListFragment extends Fragment {
         });
     }
 
+    /**
+     * Opens the detailed view for a specific bill.
+     *
+     * @param billId  The ID of the bill to open
+     * @param groupId The ID of the group the bill belongs to
+     */
     private void openBillDetail(int billId, int groupId) {
         BillDetailFragment fragment = new BillDetailFragment();
         Bundle bundle = new Bundle();

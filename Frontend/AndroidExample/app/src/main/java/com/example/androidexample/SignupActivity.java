@@ -9,8 +9,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.material.button.MaterialButton;
@@ -19,15 +17,34 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * SignupActivity provides the user interface for creating a new user account.
+ * <p>
+ * Users can enter their username, email, password, full name, phone number, and payment method.
+ * This activity handles form validation, sending signup requests to the backend server,
+ * and navigation to the login screen upon successful signup.
+ */
 public class SignupActivity extends AppCompatActivity {
 
+    /** TextInputEditText for username, email, password, name, phone, and payment input fields. */
     private TextInputEditText usernameEditText, emailEditText, passwordEditText;
     private TextInputEditText nameEditText, phoneEditText, paymentEditText;
+
+    /** MaterialButton to trigger signup process. */
     private MaterialButton signupButton;
+
+    /** Volley RequestQueue for network requests. */
     private RequestQueue requestQueue;
 
+    /** Backend endpoint URL for creating new users. */
     private final String SIGNUP_URL = "http://coms-3090-039.class.las.iastate.edu:8080/users";
 
+    /**
+     * Initializes the activity, sets the content view, initializes input fields,
+     * sets listeners for signup button and login redirect, and initializes the Volley request queue.
+     *
+     * @param savedInstanceState Bundle containing saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +60,7 @@ public class SignupActivity extends AppCompatActivity {
         paymentEditText = findViewById(R.id.signup_payment);
         signupButton = findViewById(R.id.signup_button);
 
+        // Signup button click listener
         signupButton.setOnClickListener(v -> {
             String username = usernameEditText.getText().toString().trim();
             String email = emailEditText.getText().toString().trim();
@@ -59,6 +77,7 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
 
+        // Login redirect listener
         TextView loginRedirectText = findViewById(R.id.loginRedirectText);
         loginRedirectText.setOnClickListener(v -> {
             Intent intent = new Intent(SignupActivity.this, LoginActivity.class);
@@ -66,6 +85,16 @@ public class SignupActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sends a signup POST request to the backend with the user's input data.
+     *
+     * @param username Username entered by the user.
+     * @param email    Email entered by the user.
+     * @param password Password entered by the user.
+     * @param name     Full name entered by the user.
+     * @param phone    Phone number entered by the user.
+     * @param payment  Payment method entered by the user.
+     */
     private void sendSignupRequest(String username, String email, String password,
                                    String name, String phone, String payment) {
         JSONObject json = new JSONObject();

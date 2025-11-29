@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/groupCard"
     android:layout_width="match_parent"
@@ -18,8 +19,7 @@
         android:padding="16dp"
         android:gravity="center_vertical"
         android:layout_width="match_parent"
-        android:layout_height="75dp"
-        android:background="@drawable/group_card_bg">
+        android:layout_height="75dp">
 
         <ImageView
             android:layout_width="48dp"
@@ -40,8 +40,8 @@
                 android:text="Trip to Paris"
                 android:textStyle="bold"
                 android:textSize="18sp"
-                android:layout_height="match_parent"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="?android:textColorPrimary"/>
 
             <TextView
@@ -49,9 +49,11 @@
                 android:text="3 members"
                 android:textSize="14sp"
                 android:layout_marginTop="2dp"
-                android:layout_height="match_parent"
                 android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:textColor="?android:textColorSecondary"/>
         </LinearLayout>
+
     </LinearLayout>
+
 </com.google.android.material.card.MaterialCardView>
