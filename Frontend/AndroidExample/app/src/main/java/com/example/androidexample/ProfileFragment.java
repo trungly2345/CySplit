@@ -67,13 +67,7 @@ public class ProfileFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
-        // Uncommented layout click listener example for future payment edit feature
-//        LinearLayout paymentsLayout = view.findViewById(R.id.editPayment);
-//
-//        paymentsLayout.setOnClickListener(v -> {
-//            Intent intent = new Intent(getActivity(), com.example.EditPaymentActivity.class);
-//            startActivity(intent);
-//        });
+
 
         return view;
     }
