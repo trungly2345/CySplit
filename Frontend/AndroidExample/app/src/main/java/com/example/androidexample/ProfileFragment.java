@@ -38,15 +38,13 @@ public class ProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-<<<<<<< HEAD
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
 
 
         return view;
-=======
-        return inflater.inflate(R.layout.fragment_profile, container, false);
->>>>>>> 06292dccbe2542ce5447279e165db202bd91bff1
+
+
     }
 
     @Override
