@@ -1,15 +1,27 @@
 package manytoone.Bills;
 
-import manytoone.Groups.Group;
-import manytoone.Groups.GroupRepository;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-
-import java.util.List;
-import java.util.Optional;
+import manytoone.BillsToGroup.BillToGroup;
+import manytoone.BillsToGroup.BillsToGroupRepository;
+import manytoone.Groups.Group;
+import manytoone.Groups.UserGroup;
+import manytoone.Groups.UserGroupRepository;
+import manytoone.Notifications.NotificationService;
+import manytoone.Users.User;
 
 @RestController
 @RequestMapping("/bill")
@@ -17,6 +29,15 @@ public class BillController {
 
     @Autowired
     private BillRepository billRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private BillsToGroupRepository billsToGroupRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
 
 
     @GetMapping
@@ -60,6 +81,30 @@ public class BillController {
 
 
         billRepository.save(updateBill);
+
+        // ========== NOTIFICATION: Notify group members about bill update ==========
+        // Find all groups this bill is assigned to
+        List<BillToGroup> groupLinks = billsToGroupRepository.findByBill(updateBill);
+        for (BillToGroup link : groupLinks) {
+            Group group = link.getGroup();
+            User updatedBy = link.getAssignedBy(); // Use the person who assigned the bill
+            
+            if (group != null) {
+                // Notify all group members except the person who updated it
+                List<UserGroup> members = userGroupRepository.findByGroupId(group.getId());
+                for (UserGroup member : members) {
+                    if (updatedBy == null || member.getUser().getId() != updatedBy.getId()) {
+                        notificationService.notifyBillUpdated(
+                            member.getUser(),
+                            group,
+                            updatedBy != null ? updatedBy : member.getUser(), // Fallback to member if updatedBy is null
+                            updateBill.getBill_name()
+                        );
+                    }
+                }
+            }
+        }
+
         return ResponseEntity.ok(updateBill);
     }
 
@@ -69,7 +114,27 @@ public class BillController {
         if (!billRepository.existsById(bill_id)) {
             return ResponseEntity.notFound().build();
         }
+        
+        // ========== NOTIFICATION: Get bill info before deleting ==========
+        Bill bill = billRepository.findById(bill_id).get();
+        String billName = bill.getBill_name();
+        
+        // Find all groups this bill was assigned to
+        List<BillToGroup> groupLinks = billsToGroupRepository.findByBill(bill);
+        
+        // Delete the bill
         billRepository.deleteById(bill_id);
+        
+        // Send notifications after successful deletion
+        for (BillToGroup link : groupLinks) {
+            Group group = link.getGroup();
+            User deletedBy = link.getAssignedBy();
+            
+            if (group != null && deletedBy != null) {
+                notificationService.notifyBillDeleted(group, deletedBy, billName);
+            }
+        }
+        
         return ResponseEntity.noContent().build();
     }
 }

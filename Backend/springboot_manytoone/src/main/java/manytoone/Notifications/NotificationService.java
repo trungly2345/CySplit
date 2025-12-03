@@ -402,6 +402,35 @@ public class NotificationService {
         }
     }
 
+    /**
+     * Notify group members about deleted bill
+     */
+    @Transactional
+    public void notifyBillDeleted(Group group, User deletedBy, String billTitle) {
+        List<UserGroup> members = userGroupRepository.findByGroupId(group.getId());
+        
+        String title = "Bill Deleted";
+        String message = String.format("%s deleted the bill '%s' from group '%s'", 
+            deletedBy.getUserName(), billTitle, group.getGroup_name());
+        
+        for (UserGroup member : members) {
+            if (member.getUser().getId() != deletedBy.getId()) {
+                Notification notification = new Notification(
+                    member.getUser(),
+                    Notification.NotificationType.BILL_DELETED,
+                    title,
+                    message
+                );
+                notification.setRelatedGroup(group);
+                notification.setTriggeredBy(deletedBy);
+                notification.setPriority(1); // Low priority
+                
+                Notification saved = notificationRepository.save(notification);
+                sendNotificationToUser(member.getUser().getId(), saved);
+            }
+        }
+    }
+
     // ========== Cleanup Methods ==========
 
     /**
