@@ -52,7 +52,7 @@ public class User {
     private Integer laptopId;
 
     @JsonIgnore
-    protected User() {}  // Required no-args constructor
+    public User() {}  // Required no-args constructor
 
     public User(String userName, String userPassword, String phoneNumber, String paymentMethod) {
         this.userName = userName;
