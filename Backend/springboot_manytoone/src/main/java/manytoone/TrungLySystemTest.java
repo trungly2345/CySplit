@@ -40,7 +40,7 @@ public class TrungLySystemTest {
     void createBill_success_returns201AndPersists() {
         Map<String, Object> payload = new HashMap<>();
         payload.put("bill_name", "Test bill #1");
-        payload.put("bill_amount", "4000");
+        payload.put("bill_amount", "2000");
         payload.put("dueTime", "2025-12-07T12:14:00");
         payload.put("dueCreated", "2025-12-04T01:00:00");
         payload.put("paid", false);
@@ -54,7 +54,7 @@ public class TrungLySystemTest {
                 .statusCode(201)
                 .body("bill_id", notNullValue())
                 .body("bill_name", equalTo("Test bill #1"))
-                .body("bill_amount", equalTo("4000"))
+                .body("bill_amount", equalTo("2000"))
                 .body("paid", equalTo(false));
     }
 
