@@ -29,6 +29,7 @@ manytoone/Notifications/Notification.class
 manytoone/Notifications/NotificationRepository.class
 manytoone/websocket/WebSocketConfig.class
 manytoone/Groups/UserGroup.class
+manytoone/Groups/UserGroup$Role.class
 manytoone/Users/UserSearchResponse.class
 manytoone/Notifications/NotificationWebSocket.class
 manytoone/Main.class

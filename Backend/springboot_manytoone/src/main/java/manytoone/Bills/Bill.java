@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 
-        protected Bill() {
+        public Bill() {
             this.paid = false;
         }              
 
@@ -38,6 +38,7 @@ import java.util.Date;
                 this.bill_name = bill_name;
                 this.bill_amount = bill_amount;
                 this.dueTime = dueTime;
+                this.dueCreated = dueCreated;
                 this.paid = paid;
         }
 

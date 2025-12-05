@@ -31,9 +31,7 @@ public class Group {
 
 
     @JsonIgnore
-
-
-    protected Group() {}                 // <-- required no-args ctor
+    public Group() {}                 // <-- required no-args ctor
 
 
     public Group(String group_name, int capacity){
