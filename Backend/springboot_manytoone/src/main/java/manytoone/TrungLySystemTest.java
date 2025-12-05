@@ -118,7 +118,7 @@ public class TrungLySystemTest {
                 .body("paid", equalTo(true));
     }
 
-   
+
     @Test
     void updateBill_nonExistingId_returns404() {
         Map<String, Object> updatePayload = new HashMap<>();
