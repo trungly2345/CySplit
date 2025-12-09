@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="10dp"
+        android:padding="24dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Enter Restaurant Code"
+                android:textAlignment="center"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                android:textColor="@color/orange"
+                android:layout_marginBottom="20dp" />
+
+            <EditText
+                android:id="@+id/group_code_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Enter Code"
+                android:inputType="text"
+                android:padding="12dp"
+                 />
+
+            <Button
+                android:id="@+id/join_group_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Join Group"
+                android:layout_marginTop="24dp"
+                android:backgroundTint="@color/orange"
+                android:padding="12dp" />
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
