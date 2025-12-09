@@ -77,4 +77,23 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
     public int getItemCount() {
         return notifications.size();
     }
+
+    /**
+     * Clears all notifications from the adapter.
+     */
+    public void clearAll() {
+        notifications.clear();
+        notifyDataSetChanged();
+    }
+
+    /**
+     * Removes a single notification at a specific position.
+     * (Optional but useful if you later add swipe-to-delete)
+     */
+    public void removeAt(int position) {
+        if (position >= 0 && position < notifications.size()) {
+            notifications.remove(position);
+            notifyItemRemoved(position);
+        }
+    }
 }
