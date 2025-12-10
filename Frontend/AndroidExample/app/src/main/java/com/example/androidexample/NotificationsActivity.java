@@ -41,8 +41,9 @@ public class NotificationsActivity extends AppCompatActivity {
     private RequestQueue requestQueue;
     private WebSocket webSocket;
 
-    private final String BASE_URL = "http://10.0.2.2:3004";
-    private final String WEBSOCKET_URL = "ws://10.0.2.2:8081/NotificationServer/";
+    private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080";
+    private final String WEBSOCKET_URL = "ws://coms-3090-039.class.las.iastate.edu:8080/NotificationServer/";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,14 @@ public class NotificationsActivity extends AppCompatActivity {
                         }
 
                         adapter.notifyDataSetChanged();
-                        emptyText.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+
+                        if (notifications.isEmpty()) {
+                            recyclerView.setVisibility(View.GONE);
+                            emptyText.setVisibility(View.VISIBLE);
+                        } else {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            emptyText.setVisibility(View.GONE);
+                        }
 
                     } catch (JSONException e) {
                         Toast.makeText(this, "Parse error", Toast.LENGTH_SHORT).show();
@@ -119,10 +127,14 @@ public class NotificationsActivity extends AppCompatActivity {
                 },
                 error -> {
                     progressBar.setVisibility(View.GONE);
-                    String msg = (error.networkResponse != null)
-                            ? "Error " + error.networkResponse.statusCode
-                            : "Network error";
-                    Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+                    Log.e("VOLLEY", "Volley error", error);
+
+                    if (error.networkResponse != null) {
+                        Log.e("VOLLEY", "Status Code = " + error.networkResponse.statusCode);
+                        Log.e("VOLLEY", "Body = " + new String(error.networkResponse.data));
+                    }
+
+                    Toast.makeText(this, error.toString(), Toast.LENGTH_LONG).show();
                 }
         );
 
@@ -167,7 +179,6 @@ public class NotificationsActivity extends AppCompatActivity {
 
             @Override
             public void onMessage(WebSocket webSocket, ByteString bytes) {
-                // Ignored (binary messages)
             }
 
             @Override

@@ -1,9 +1,17 @@
 package manytoone.Conversations;
 
-import jakarta.persistence.*;
-import manytoone.Users.User;
-
 import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import manytoone.Groups.Group;
+import manytoone.Users.User;
 
 @Entity
 @Table(name = "conversations")
@@ -21,6 +29,11 @@ public class Conversation {
         // for group chats, can be null for DMs
         @Column(name = "name")
         private String name;
+
+        // Link to Group for group conversations
+        @ManyToOne
+        @JoinColumn(name = "group_id")
+        private Group group;
 
         @ManyToOne
         @JoinColumn(name = "created_by")
@@ -56,6 +69,14 @@ public class Conversation {
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        public Group getGroup() {
+            return group;
+        }
+
+        public void setGroup(Group group) {
+            this.group = group;
         }
 
         public User getCreatedBy() {

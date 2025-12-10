@@ -78,6 +78,10 @@ public class LoginActivity extends AppCompatActivity {
         signUpRedirect.setOnClickListener(v ->
                 startActivity(new Intent(LoginActivity.this, SignupActivity.class))
         );
+
+        forgotPassword.setOnClickListener(v ->
+                startActivity(new Intent(LoginActivity.this, EnterGroupCodeActivity.class))
+        );
     }
 
     /**
