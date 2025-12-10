@@ -8,8 +8,21 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceManager;
 
+/**
+ * SettingsFragment provides a user interface for modifying application settings.
+ * <p>
+ * It uses a PreferenceFragmentCompat to display settings defined in XML
+ * and handles theme changes as well as logout functionality.
+ */
 public class SettingsFragment extends PreferenceFragmentCompat {
 
+    /**
+     * Initializes the preferences screen and sets up listeners for theme changes
+     * and logout actions.
+     *
+     * @param savedInstanceState Bundle containing saved state of the fragment.
+     * @param rootKey            Optional key to display a specific PreferenceScreen.
+     */
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
@@ -33,6 +46,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         }
     }
 
+    /**
+     * Applies the selected theme to the application and refreshes the activity.
+     *
+     * @param themeValue The new theme value ("light", "dark", or "system").
+     */
     private void applyTheme(String themeValue) {
         // Update the app theme instantly
         switch (themeValue) {
@@ -52,6 +70,10 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         requireActivity().recreate();
     }
 
+    /**
+     * Performs logout by clearing stored user session data and navigating
+     * back to the login activity.
+     */
     private void performLogout() {
         // Example: clear user session (depends on how you store login)
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());

@@ -21,13 +21,36 @@ import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Fragment that displays detailed information about a specific bill.
+ * <p>
+ * The fragment fetches bill data asynchronously from a remote server based on a given transaction ID.
+ * The bill details are displayed in a TextView. Networking is handled using a background ExecutorService,
+ * and UI updates are posted to the main thread via a Handler.
+ * </p>
+ */
 public class BillFragment extends Fragment {
 
+    /** The ID of the transaction to fetch the bill for. */
     private int transactionId;
+
+    /** TextView used to display the bill information. */
     private TextView billTextView;
+
+    /** ExecutorService for performing network requests on a background thread. */
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    /** Handler for posting UI updates to the main thread. */
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
+    /**
+     * Called to create the fragment's view hierarchy.
+     *
+     * @param inflater           LayoutInflater to inflate views
+     * @param container          Parent view that the fragment's UI should attach to
+     * @param savedInstanceState Saved state bundle
+     * @return The root view of the fragment
+     */
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
@@ -43,6 +66,9 @@ public class BillFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Fetches bill data from the server asynchronously and updates the UI with the result.
+     */
     private void fetchBill() {
         executor.execute(() -> {
             try {
@@ -74,9 +100,13 @@ public class BillFragment extends Fragment {
         });
     }
 
+    /**
+     * Cleans up resources when the fragment's view is destroyed.
+     * Shuts down the ExecutorService to prevent memory leaks.
+     */
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        executor.shutdownNow(); // clean up the executor
+        executor.shutdownNow();
     }
 }

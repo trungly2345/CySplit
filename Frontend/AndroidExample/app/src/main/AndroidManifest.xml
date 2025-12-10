@@ -31,9 +31,10 @@
             android:usesCleartextTraffic="true"
             android:theme="@style/Theme.Material3.Light.NoActionBar"
             android:exported="false" />
-        <!--activity android:name=".ProfileActivity" android:exported="false" /-->
+
         <activity android:name=".NotificationsActivity" android:exported="false" />
         <activity android:name=".EditProfileActivity" android:exported="false" />
+        <activity android:name=".EnterGroupCodeActivity" android:exported="false" />
 
     </application>
 

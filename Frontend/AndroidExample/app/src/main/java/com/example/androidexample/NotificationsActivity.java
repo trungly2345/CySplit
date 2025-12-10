@@ -2,6 +2,7 @@ package com.example.androidexample;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -24,6 +25,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import okhttp3.OkHttpClient;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
+import okio.ByteString;
+
 public class NotificationsActivity extends AppCompatActivity {
 
     private RecyclerView recyclerView;
@@ -33,8 +39,11 @@ public class NotificationsActivity extends AppCompatActivity {
     private final List<NotificationItem> notifications = new ArrayList<>();
 
     private RequestQueue requestQueue;
+    private WebSocket webSocket;
 
-    private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080/notifications/user/";
+    private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080";
+    private final String WEBSOCKET_URL = "ws://coms-3090-039.class.las.iastate.edu:8080/NotificationServer/";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +64,18 @@ public class NotificationsActivity extends AppCompatActivity {
         backArrow.setOnClickListener(v -> onBackPressed());
 
         fetchNotifications();
+        addTestNotification();
+        setUpWebSocket();
+    }
+
+    private void addTestNotification() {
+        NotificationItem test = new NotificationItem(
+                "Test Notification",
+                "This is a test notification",
+                "Just now"
+        );
+        notifications.add(0, test);
+        adapter.notifyItemInserted(0);
     }
 
     private void fetchNotifications() {
@@ -69,9 +90,9 @@ public class NotificationsActivity extends AppCompatActivity {
             return;
         }
 
-        String url = BASE_URL + userId;
+        String url = BASE_URL + "/notifications/user/" + userId;
 
-        JsonArrayRequest jsonArrayRequest = new JsonArrayRequest(
+        JsonArrayRequest request = new JsonArrayRequest(
                 Request.Method.GET,
                 url,
                 null,
@@ -82,6 +103,7 @@ public class NotificationsActivity extends AppCompatActivity {
                     try {
                         for (int i = 0; i < response.length(); i++) {
                             JSONObject obj = response.getJSONObject(i);
+
                             notifications.add(new NotificationItem(
                                     obj.optString("title"),
                                     obj.optString("message"),
@@ -90,22 +112,91 @@ public class NotificationsActivity extends AppCompatActivity {
                         }
 
                         adapter.notifyDataSetChanged();
-                        emptyText.setVisibility(notifications.isEmpty() ? View.VISIBLE : View.GONE);
+
+                        if (notifications.isEmpty()) {
+                            recyclerView.setVisibility(View.GONE);
+                            emptyText.setVisibility(View.VISIBLE);
+                        } else {
+                            recyclerView.setVisibility(View.VISIBLE);
+                            emptyText.setVisibility(View.GONE);
+                        }
 
                     } catch (JSONException e) {
-                        Toast.makeText(NotificationsActivity.this, "Parse error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Parse error", Toast.LENGTH_SHORT).show();
                     }
                 },
                 error -> {
                     progressBar.setVisibility(View.GONE);
-                    String errorMsg = error.getMessage();
+                    Log.e("VOLLEY", "Volley error", error);
+
                     if (error.networkResponse != null) {
-                        errorMsg = "Error " + error.networkResponse.statusCode;
+                        Log.e("VOLLEY", "Status Code = " + error.networkResponse.statusCode);
+                        Log.e("VOLLEY", "Body = " + new String(error.networkResponse.data));
                     }
-                    Toast.makeText(NotificationsActivity.this, "Failed: " + errorMsg, Toast.LENGTH_SHORT).show();
+
+                    Toast.makeText(this, error.toString(), Toast.LENGTH_LONG).show();
                 }
         );
 
-        requestQueue.add(jsonArrayRequest);
+        requestQueue.add(request);
+    }
+
+    private void setUpWebSocket() {
+        SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(this, "User not logged in for WebSocket", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String websocketUrl = WEBSOCKET_URL + userId;
+
+        OkHttpClient client = new OkHttpClient();
+        okhttp3.Request request = new okhttp3.Request.Builder().url(websocketUrl).build();
+
+        webSocket = client.newWebSocket(request, new WebSocketListener() {
+            @Override
+            public void onMessage(WebSocket webSocket, String text) {
+                runOnUiThread(() -> {
+                    try {
+                        JSONObject obj = new JSONObject(text);
+
+                        NotificationItem item = new NotificationItem(
+                                obj.optString("title"),
+                                obj.optString("message"),
+                                obj.optString("timestamp")
+                        );
+
+                        notifications.add(0, item);
+                        adapter.notifyItemInserted(0);
+
+                    } catch (JSONException e) {
+                        Log.e("WebSocket", "JSON parse error", e);
+                    }
+                });
+            }
+
+            @Override
+            public void onMessage(WebSocket webSocket, ByteString bytes) {
+            }
+
+            @Override
+            public void onClosed(WebSocket ws, int code, String reason) {
+                Log.d("WebSocket", "Closed: " + reason);
+            }
+
+            @Override
+            public void onFailure(WebSocket ws, Throwable t, okhttp3.Response resp) {
+                Log.e("WebSocket", "Failure: " + t.getMessage());
+            }
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (webSocket != null)
+            webSocket.close(1000, "Closing");
     }
 }

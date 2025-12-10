@@ -11,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+
+// TEst TEst TEst
 @Entity
 @Table(name = "groups")
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
@@ -29,9 +31,7 @@ public class Group {
 
 
     @JsonIgnore
-
-
-    protected Group() {}                 // <-- required no-args ctor
+    public Group() {}                 // <-- required no-args ctor
 
 
     public Group(String group_name, int capacity){

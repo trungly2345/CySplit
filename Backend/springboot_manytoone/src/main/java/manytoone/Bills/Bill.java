@@ -10,7 +10,7 @@ import java.util.Date;
     @Entity
     @Table(name = "bills")
     public class Bill {
-
+        // Testing for pipeline test, please delete later
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "bill_id" , nullable = false)
@@ -28,7 +28,7 @@ import java.util.Date;
 
 
 
-        protected Bill() {
+        public Bill() {
             this.paid = false;
         }              
 
@@ -38,6 +38,7 @@ import java.util.Date;
                 this.bill_name = bill_name;
                 this.bill_amount = bill_amount;
                 this.dueTime = dueTime;
+                this.dueCreated = dueCreated;
                 this.paid = paid;
         }
 
