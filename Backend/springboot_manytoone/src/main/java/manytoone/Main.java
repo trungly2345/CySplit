@@ -1,9 +1,10 @@
 package manytoone;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
+
 import manytoone.Users.User;
 import manytoone.Users.UserRepository;
 
@@ -37,7 +38,7 @@ public class Main {
                 System.out.println("Test user created with ID: " + savedUser.getId());
             } else {
                 System.out.println("Test user already exists");
-            }
+            } 
         };
     }
 }
