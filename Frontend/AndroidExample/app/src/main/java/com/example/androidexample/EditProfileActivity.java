@@ -75,6 +75,7 @@ public class EditProfileActivity extends AppCompatActivity {
         saveButton.setOnClickListener(v -> saveProfileChanges());
     }
 
+
     private void loadLocalProfile() {
         SharedPreferences prefs = getSharedPreferences("UserPrefs", MODE_PRIVATE);
 
