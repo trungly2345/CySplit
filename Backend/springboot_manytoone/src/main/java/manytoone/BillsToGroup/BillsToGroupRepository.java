@@ -1,11 +1,16 @@
 package manytoone.BillsToGroup;
 
-import manytoone.Groups.Group;
-import manytoone.Users.User;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
+import manytoone.Bills.Bill;
+import manytoone.Groups.Group;
+import manytoone.Users.User;
 
 public interface BillsToGroupRepository extends JpaRepository<BillToGroup, Integer> {
     List<BillToGroup> findByGroupAndAssignedBy(Group group, User user);
+    
+    // Find all groups a bill is assigned to
+    List<BillToGroup> findByBill(Bill bill);
 }
