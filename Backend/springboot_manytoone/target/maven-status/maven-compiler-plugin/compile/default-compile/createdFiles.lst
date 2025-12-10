@@ -7,6 +7,7 @@ manytoone/Users/UserController.class
 manytoone/websocket/GroupServer.class
 manytoone/Users/UserRepository.class
 manytoone/Conversations/ConversationController.class
+manytoone/Refunds/RefundsReimbursement.class
 manytoone/BillsToGroup/BillToGroup.class
 manytoone/Messages/MessageAttachment.class
 manytoone/Messages/MessageRequest.class
@@ -39,6 +40,7 @@ manytoone/Groups/UserGroup.class
 manytoone/Groups/UserGroup$Role.class
 manytoone/Users/UserSearchResponse.class
 manytoone/Notifications/NotificationService.class
+manytoone/BillsToGroup/BillsToGroupController.class
 manytoone/Messages/Message.class
 manytoone/Groups/GroupInvitation.class
 manytoone/BillsToGroup/BillsToGroupRepository.class
