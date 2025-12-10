@@ -44,7 +44,6 @@ public class NotificationsActivity extends AppCompatActivity {
     private final String BASE_URL = "http://coms-3090-039.class.las.iastate.edu:8080";
     private final String WEBSOCKET_URL = "ws://coms-3090-039.class.las.iastate.edu:8080/NotificationServer/";
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +61,13 @@ public class NotificationsActivity extends AppCompatActivity {
         requestQueue = Volley.newRequestQueue(this);
 
         backArrow.setOnClickListener(v -> onBackPressed());
+
+        ImageView clearButton = findViewById(R.id.clear_notifications);
+        clearButton.setOnClickListener(v -> {
+            adapter.clearAll();
+            recyclerView.setVisibility(View.GONE);
+            emptyText.setVisibility(View.VISIBLE);
+        });
 
         fetchNotifications();
         addTestNotification();
