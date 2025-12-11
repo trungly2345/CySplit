@@ -9,7 +9,10 @@ public interface GroupRepository extends JpaRepository<Group, Integer> {
     @Transactional
     Group deleteById(int id);
 
+    // Find group by join code
+    Group findByJoinCode(String joinCode);
 
-
+    // Check if join code exists
+    boolean existsByJoinCode(String joinCode);
 
 }

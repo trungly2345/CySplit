@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import manytoone.BillsToGroup.BillToGroup;
 import manytoone.BillsToGroup.BillsToGroupRepository;
 import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
 import manytoone.Groups.UserGroup;
 import manytoone.Groups.UserGroupRepository;
 import manytoone.Notifications.NotificationService;
@@ -38,6 +39,9 @@ public class BillController {
 
     @Autowired
     private UserGroupRepository userGroupRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
 
 
     @GetMapping
@@ -102,6 +106,12 @@ public class BillController {
                         );
                     }
                 }
+                
+                // ========== AUTO-DELETE: Check if temporary group should be deleted ==========
+                // TODO: Enable this when receipt interface is ready
+                // if (updateBill.isPaid() && group.isTemporary()) {
+                //     checkAndDeleteTemporaryGroup(group);
+                // }
             }
         }
 
@@ -136,5 +146,28 @@ public class BillController {
         }
         
         return ResponseEntity.noContent().build();
+    }
+
+    // ========== HELPER METHOD: Check and delete temporary group if all bills are paid ==========
+    private void checkAndDeleteTemporaryGroup(Group group) {
+        // Get all bills for this group
+        List<BillToGroup> allGroupBills = billsToGroupRepository.findByGroup(group);
+        
+        // Check if all bills are paid
+        boolean allPaid = true;
+        for (BillToGroup link : allGroupBills) {
+            if (!link.getBill().isPaid()) {
+                allPaid = false;
+                break;
+            }
+        }
+        
+        // If all bills are paid, delete the group
+        if (allPaid) {
+            System.out.println("All bills paid for temporary group '" + group.getGroup_name() 
+                + "' (ID: " + group.getId() + "). Auto-deleting group...");
+            groupRepository.deleteById(group.getId());
+            System.out.println("Temporary group '" + group.getGroup_name() + "' deleted successfully.");
+        }
     }
 }
