@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:gravity="top">
+
+    <TextView
+        android:id="@+id/group_lobby_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Group Name"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:paddingBottom="12dp" />
+
+    <TextView
+        android:id="@+id/group_members_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Members joined: 0"
+        android:textSize="16sp"
+        android:paddingBottom="8dp" />
+
+    <TextView
+        android:id="@+id/waiting_for_bill_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Waiting for bill to be created..."
+        android:textSize="16sp"
+        android:paddingBottom="16dp" />
+
+    <ProgressBar
+        android:id="@+id/group_lobby_spinner"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        style="?android:attr/progressBarStyleLarge" />
+
+    <Button
+        android:id="@+id/group_open_bills_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Open Bills"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
