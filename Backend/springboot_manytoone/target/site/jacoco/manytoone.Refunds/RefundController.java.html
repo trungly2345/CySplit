@@ -2,6 +2,8 @@
 
 import manytoone.Bills.Bill;
 import manytoone.Bills.BillRepository;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,7 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping(&quot;/bills/{bill_id}/refunds&quot;)
-<span class="fc" id="L15">public class RefundController {</span>
+<span class="fc" id="L17">public class RefundController {</span>
 
     @Autowired
     private RefundRepository refundRepository;
@@ -20,20 +22,23 @@ import java.util.Optional;
     @Autowired
     private BillRepository billRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
 
     @GetMapping
     public ResponseEntity&lt;?&gt; getRefundsForBill(@PathVariable int bill_id) {
 
-<span class="fc" id="L27">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
-<span class="pc bpc" id="L28" title="1 of 2 branches missed.">        if (billOpt.isEmpty()) {</span>
-<span class="nc" id="L29">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="nc" id="L30">                    .body(&quot;{\&quot;message\&quot;: \&quot;Bill not found\&quot;}&quot;);</span>
+<span class="fc" id="L32">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="pc bpc" id="L33" title="1 of 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L34">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L35">                    .body(&quot;{\&quot;message\&quot;: \&quot;Bill not found\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L33">        Bill bill = billOpt.get();</span>
-<span class="fc" id="L34">        List&lt;Refund&gt; refunds = refundRepository.findByBill(bill);</span>
+<span class="fc" id="L38">        Bill bill = billOpt.get();</span>
+<span class="fc" id="L39">        List&lt;Refund&gt; refunds = refundRepository.findByBill(bill);</span>
 
-<span class="fc" id="L36">        return ResponseEntity.ok(refunds);</span>
+<span class="fc" id="L41">        return ResponseEntity.ok(refunds);</span>
     }
 
 
@@ -41,21 +46,21 @@ import java.util.Optional;
     public ResponseEntity&lt;?&gt; getRefundById(@PathVariable int bill_id,
                                            @PathVariable int refund_id) {
 
-<span class="fc" id="L44">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
-<span class="fc bfc" id="L45" title="All 2 branches covered.">        if (refundOpt.isEmpty()) {</span>
-<span class="fc" id="L46">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="fc" id="L47">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
+<span class="fc" id="L49">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (refundOpt.isEmpty()) {</span>
+<span class="fc" id="L51">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L52">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L50">        Refund refund = refundOpt.get();</span>
+<span class="fc" id="L55">        Refund refund = refundOpt.get();</span>
 
 
-<span class="pc bpc" id="L53" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {</span>
-<span class="nc" id="L54">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
-<span class="nc" id="L55">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
+<span class="pc bpc" id="L58" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {</span>
+<span class="nc" id="L59">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L60">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L58">        return ResponseEntity.ok(refund);</span>
+<span class="fc" id="L63">        return ResponseEntity.ok(refund);</span>
     }
 
 
@@ -63,68 +68,80 @@ import java.util.Optional;
     public ResponseEntity&lt;?&gt; createRefund(@PathVariable int bill_id,
                                           @RequestBody Refund req) {
 
-<span class="fc" id="L66">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
-<span class="pc bpc" id="L67" title="1 of 2 branches missed.">        if (billOpt.isEmpty()) {</span>
-<span class="nc" id="L68">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="nc" id="L69">                    .body(&quot;{\&quot;message\&quot;: \&quot;Bill not found\&quot;}&quot;);</span>
+<span class="fc" id="L71">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="pc bpc" id="L72" title="1 of 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L73">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L74">                    .body(&quot;{\&quot;message\&quot;: \&quot;Bill not found\&quot;}&quot;);</span>
+        }
+<span class="fc" id="L76">        Bill bill = billOpt.get();</span>
+
+
+<span class="pc bpc" id="L79" title="2 of 4 branches missed.">        if (req.getRefundedTo() == null || req.getRefundedTo().getId() == 0) {</span>
+<span class="nc" id="L80">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L81">                    .body(&quot;{\&quot;message\&quot;: \&quot;refundedTo user is required\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L72">        Bill bill = billOpt.get();</span>
+<span class="fc" id="L84">        int userId = req.getRefundedTo().getId();</span>
+<span class="fc" id="L85">        User refundedTo = userRepository.findById(userId);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (refundedTo == null) {</span>
+<span class="nc" id="L87">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L88">                    .body(&quot;{\&quot;message\&quot;: \&quot;User to refund not found for id &quot; + userId + &quot;\&quot;}&quot;);</span>
+        }
 
-<span class="fc" id="L74">        req.setBill(bill);</span>
+<span class="fc" id="L91">        req.setBill(bill);</span>
+<span class="fc" id="L92">        req.setRefundedTo(refundedTo);</span>
 
-<span class="fc" id="L76">        Refund saved = refundRepository.save(req);</span>
-<span class="fc" id="L77">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+<span class="fc" id="L94">        Refund saved = refundRepository.save(req);</span>
+<span class="fc" id="L95">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
     }
-
 
     @PutMapping(&quot;/{refund_id}&quot;)
     public ResponseEntity&lt;?&gt; editRefund(@PathVariable int bill_id,
                                         @PathVariable int refund_id,
                                         @RequestBody Refund req) {
 
-<span class="fc" id="L86">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
-<span class="pc bpc" id="L87" title="1 of 2 branches missed.">        if (refundOpt.isEmpty()) {</span>
-<span class="nc" id="L88">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="nc" id="L89">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
+<span class="fc" id="L103">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
+<span class="pc bpc" id="L104" title="1 of 2 branches missed.">        if (refundOpt.isEmpty()) {</span>
+<span class="nc" id="L105">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L106">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L92">        Refund refund = refundOpt.get();</span>
+<span class="fc" id="L109">        Refund refund = refundOpt.get();</span>
 
-<span class="pc bpc" id="L94" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {</span>
-<span class="nc" id="L95">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
-<span class="nc" id="L96">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
+<span class="pc bpc" id="L111" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {</span>
+<span class="nc" id="L112">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L113">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
         }
 
         // Update fields
-<span class="fc" id="L100">        refund.setRefund_name(req.getRefund_name());</span>
-<span class="fc" id="L101">        refund.setRefund_amount(req.getRefund_amount());</span>
+<span class="fc" id="L117">        refund.setRefund_name(req.getRefund_name());</span>
+<span class="fc" id="L118">        refund.setRefund_amount(req.getRefund_amount());</span>
 
-<span class="fc" id="L103">        refundRepository.save(refund);</span>
+<span class="fc" id="L120">        refundRepository.save(refund);</span>
 
-<span class="fc" id="L105">        return ResponseEntity.ok(refund);</span>
+<span class="fc" id="L122">        return ResponseEntity.ok(refund);</span>
     }
 
     @DeleteMapping(&quot;/{refund_id}&quot;)
     public ResponseEntity&lt;?&gt; deleteRefund(@PathVariable int bill_id,
                                           @PathVariable int refund_id) {
 
-<span class="fc" id="L112">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
-<span class="pc bpc" id="L113" title="1 of 2 branches missed.">        if (refundOpt.isEmpty()) {</span>
-<span class="nc" id="L114">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
-<span class="nc" id="L115">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
+<span class="fc" id="L129">        Optional&lt;Refund&gt; refundOpt = refundRepository.findById(refund_id);</span>
+<span class="pc bpc" id="L130" title="1 of 2 branches missed.">        if (refundOpt.isEmpty()) {</span>
+<span class="nc" id="L131">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L132">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund not found\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L118">        Refund refund = refundOpt.get();</span>
+<span class="fc" id="L135">        Refund refund = refundOpt.get();</span>
 
-<span class="pc bpc" id="L120" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {</span>
-<span class="nc" id="L121">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
-<span class="nc" id="L122">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
+<span class="pc bpc" id="L137" title="2 of 4 branches missed.">        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {</span>
+<span class="nc" id="L138">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L139">                    .body(&quot;{\&quot;message\&quot;: \&quot;Refund does not belong to this bill\&quot;}&quot;);</span>
         }
 
-<span class="fc" id="L125">        refundRepository.delete(refund);</span>
+<span class="fc" id="L142">        refundRepository.delete(refund);</span>
 
-<span class="fc" id="L127">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L144">        return ResponseEntity.noContent().build();</span>
     }
 
 }

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PaymentController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Payments</a> &gt; <span class="el_source">PaymentController.java</span></div><h1>PaymentController.java</h1><pre class="source lang-java linenums">package manytoone.Payments;
+
+import manytoone.Bills.Bill;
+import manytoone.Bills.BillRepository;
+
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@RequestMapping(&quot;bills/{bill_id}/payments&quot;)
+@RestController
+<span class="fc" id="L23">public class PaymentController {</span>
+
+    @Autowired
+    BillRepository billRepository;
+
+   @Autowired
+   PaymentRepository paymentRepository;
+
+   @Autowired
+   GroupRepository groupRepository;
+
+   @Autowired
+    UserRepository userRepository;
+
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Payment&gt;&gt; getPaymentsForBill(
+            @PathVariable(&quot;bill_id&quot;) int bill_id
+    ) {
+<span class="fc" id="L42">        List&lt;Payment&gt; payments = paymentRepository.findAll()</span>
+<span class="fc" id="L43">                .stream()</span>
+<span class="pc bpc" id="L44" title="1 of 4 branches missed.">                .filter(p -&gt; p.getBill() != null &amp;&amp; p.getBill().getBillId() == bill_id)</span>
+<span class="fc" id="L45">                .toList();</span>
+<span class="fc" id="L46">        return ResponseEntity.ok(payments);</span>
+    }
+
+    @GetMapping(&quot;/{payment_id}&quot;)
+    public ResponseEntity&lt;?&gt; getPaymentById(
+            @PathVariable(&quot;bill_id&quot;) int billId,
+            @PathVariable(&quot;payment_id&quot;) int paymentId
+<span class="fc" id="L53">    ) {   Optional&lt;Payment&gt; paymentOpt = paymentRepository.findById(paymentId);</span>
+<span class="fc bfc" id="L54" title="All 2 branches covered.">        if (paymentOpt.isEmpty()) {</span>
+<span class="fc" id="L55">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L56">                    .body(&quot;{\&quot;message\&quot;: \&quot;Payment not found\&quot;}&quot;);</span>
+        }
+
+<span class="fc" id="L59">        Payment payment = paymentOpt.get();</span>
+
+
+<span class="pc bpc" id="L62" title="2 of 4 branches missed.">        if (payment.getBill()  == null || payment.getBill().getBillId() != billId) {</span>
+<span class="nc" id="L63">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L64">                    .body(&quot;{\&quot;message\&quot;: \&quot;Payment does not belong to this bill\&quot;}&quot;);</span>
+        }
+
+<span class="fc" id="L67">        return ResponseEntity.ok(payment);</span>
+    }
+
+    @PostMapping(&quot;/{group_id}&quot;)
+    public ResponseEntity&lt;?&gt; createPayment(
+            @PathVariable(&quot;bill_id&quot;) int billId,
+            @PathVariable(&quot;group_id&quot;) int groupId,
+            @RequestBody Payment req
+    ) {
+
+<span class="fc" id="L77">        Optional&lt;Bill&gt; billOpt = billRepository.findById(billId);</span>
+<span class="pc bpc" id="L78" title="1 of 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L79">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L80">                    .body(Map.of(&quot;message&quot;, &quot;Bill not found&quot;));</span>
+        }
+<span class="fc" id="L82">        Bill bill = billOpt.get();</span>
+
+
+<span class="fc" id="L85">        Group group = groupRepository.findById(groupId);</span>
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L87">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L88">                    .body(Map.of(&quot;message&quot;, &quot;Group not found&quot;));</span>
+        }
+
+
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        if (req.getPayer() == null) {</span>
+<span class="nc" id="L93">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L94">                    .body(Map.of(&quot;message&quot;, &quot;payer is required&quot;));</span>
+        }
+
+
+<span class="fc" id="L98">        int payerId = req.getPayer().getId();</span>
+<span class="fc" id="L99">        System.out.println(&quot;DEBUG payerId from JSON = &quot; + payerId);</span>
+
+<span class="fc" id="L101">        User payer = userRepository.findById(payerId);</span>
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">        if (payer == null) {</span>
+<span class="nc" id="L103">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L104">                    .body(Map.of(&quot;message&quot;, &quot;Payer not found for id &quot; + payerId));</span>
+        }
+
+        // 5. Resolve payee if provided (optional)
+<span class="fc" id="L108">        User payee = null;</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (req.getPayee() != null) {</span>
+<span class="fc" id="L110">            int payeeId = req.getPayee().getId();</span>
+<span class="fc" id="L111">            System.out.println(&quot;DEBUG payeeId from JSON = &quot; + payeeId);</span>
+
+<span class="fc" id="L113">            payee = userRepository.findById(payeeId);</span>
+<span class="pc bpc" id="L114" title="1 of 2 branches missed.">            if (payee == null) {</span>
+<span class="nc" id="L115">                return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L116">                        .body(Map.of(&quot;message&quot;, &quot;Payee not found for id &quot; + payeeId));</span>
+            }
+        }
+
+        // 6. Attach relations
+<span class="fc" id="L121">        req.setBill(bill);</span>
+<span class="fc" id="L122">        req.setGroup(group);</span>
+<span class="fc" id="L123">        req.setPayer(payer);</span>
+<span class="fc" id="L124">        req.setPayee(payee);</span>
+
+        // 7. Default date
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">        if (req.getDate() == null) {</span>
+<span class="fc" id="L128">            req.setDate(LocalDateTime.now());</span>
+        }
+
+<span class="fc" id="L131">        Payment saved = paymentRepository.save(req);</span>
+<span class="fc" id="L132">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+
+    @DeleteMapping(&quot;/{payment_id}&quot;)
+    public ResponseEntity&lt;?&gt; deletePayment(@PathVariable int bill_id,
+                                          @PathVariable int payment_id) {
+
+<span class="fc" id="L139">        Optional&lt;Payment&gt; paymentOpt = paymentRepository.findById(payment_id);</span>
+<span class="fc bfc" id="L140" title="All 2 branches covered.">        if (paymentOpt.isEmpty()) {</span>
+<span class="fc" id="L141">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="fc" id="L142">                    .body(&quot;{\&quot;message\&quot;: \&quot;Payment not found\&quot;}&quot;);</span>
+        }
+
+<span class="fc" id="L145">        Payment payment = paymentOpt.get();</span>
+
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (payment.getBill() == null || payment.getBill().getBillId() != bill_id) {</span>
+<span class="nc" id="L148">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L149">                    .body(&quot;{\&quot;message\&quot;: \&quot;Payment does not belong to this bill\&quot;}&quot;);</span>
+        }
+
+<span class="fc" id="L152">        paymentRepository.delete(payment);</span>
+
+<span class="fc" id="L154">        return ResponseEntity.noContent().build();</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

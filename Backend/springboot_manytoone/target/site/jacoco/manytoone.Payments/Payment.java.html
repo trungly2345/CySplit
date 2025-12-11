@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Payment.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Payments</a> &gt; <span class="el_source">Payment.java</span></div><h1>Payment.java</h1><pre class="source lang-java linenums">package manytoone.Payments;
+
+import jakarta.persistence.*;
+import manytoone.Bills.Bill;
+import manytoone.Groups.Group;
+import manytoone.Users.User;
+
+import java.time.LocalDateTime;
+
+/**
+ * #### Payments (Main Feature)
+ * - [ ] Create `Payment` entity (fields: amount, date, note, bill, payer)
+ * - [ ] Create `PaymentRepository`
+ * - [ ] Implement `PaymentController`:
+ *   - [ ] `POST /bills/{billId}/payments`
+ *   - [ ] `GET /bills/{billId}/payments`
+ * - [ ] Add system tests for Payment endpoints
+ * - [ ] Add Payment requests to Postman collection
+ */
+@Entity
+@Table(name = &quot;payments&quot;)
+<span class="fc" id="L22">public class Payment {</span>
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int paymentId;
+
+    @Column(nullable = false)
+    private String amount;
+
+    @Column(nullable = false)
+    private LocalDateTime paidAt;
+
+    private String note;
+
+
+
+    @ManyToOne
+    @JoinColumn(name = &quot;bill_id&quot;, nullable = false)
+    private Bill bill;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;payee_id&quot;)
+    private User payee; // bill creator
+
+    @ManyToOne
+    @JoinColumn(name = &quot;payer_id&quot;)
+    private User payer; // bill payer
+
+    @ManyToOne
+    @JoinColumn(name = &quot;group_id&quot;, nullable = false)
+    private Group group;
+
+
+
+
+    public int getPaymentId() {
+<span class="fc" id="L58">        return paymentId;</span>
+    }
+
+    public void setPaymentId(int paymentId) {
+<span class="nc" id="L62">        this.paymentId = paymentId;</span>
+<span class="nc" id="L63">    }</span>
+
+    public String getAmount() {
+<span class="fc" id="L66">        return amount;</span>
+    }
+
+    public void setAmount(String amount) {
+<span class="fc" id="L70">        this.amount = amount;</span>
+<span class="fc" id="L71">    }</span>
+
+    public LocalDateTime getDate() {
+<span class="fc" id="L74">        return paidAt;</span>
+    }
+
+    public void setDate(LocalDateTime paidAt) {
+<span class="fc" id="L78">        this.paidAt = paidAt;</span>
+<span class="fc" id="L79">    }</span>
+
+    public String getNote() {
+<span class="fc" id="L82">        return note;</span>
+    }
+
+    public void setNote(String note) {
+<span class="fc" id="L86">        this.note = note;</span>
+<span class="fc" id="L87">    }</span>
+
+    public Bill getBill() {
+<span class="fc" id="L90">        return bill;</span>
+    }
+
+    public void setBill(Bill bill) {
+<span class="fc" id="L94">        this.bill = bill;</span>
+<span class="fc" id="L95">    }</span>
+
+    public User getPayee() {
+<span class="fc" id="L98">        return payee;</span>
+    }
+
+    public void setPayee(User payee) {
+<span class="fc" id="L102">        this.payee = payee;</span>
+<span class="fc" id="L103">    }</span>
+
+    public Group getGroup() {
+<span class="fc" id="L106">        return group;</span>
+    }
+
+    public void setGroup(Group group) {
+<span class="fc" id="L110">        this.group = group;</span>
+<span class="fc" id="L111">    }</span>
+
+    public User getPayer() {
+<span class="fc" id="L114">        return payer;</span>
+    }
+
+    public void setPayer(User payer) {
+<span class="fc" id="L118">        this.payer = payer;</span>
+<span class="fc" id="L119">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

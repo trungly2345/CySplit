@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BillItemController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Bills</a> &gt; <span class="el_source">BillItemController.java</span></div><h1>BillItemController.java</h1><pre class="source lang-java linenums">package manytoone.Bills;
+
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+@RestController
+@RequestMapping(&quot;/billitems&quot;)
+<span class="fc" id="L16">public class BillItemController {</span>
+
+    @Autowired
+    private BillItemRepository billItemRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+
+    // ========== GET ALL ITEMS FOR A GROUP ==========
+    @GetMapping(&quot;/group/{groupId}&quot;)
+    public ResponseEntity&lt;List&lt;BillItem&gt;&gt; getItemsForGroup(@PathVariable int groupId) {
+<span class="nc" id="L28">        List&lt;BillItem&gt; items = billItemRepository.findByGroupId(groupId);</span>
+<span class="nc" id="L29">        return ResponseEntity.ok(items);</span>
+    }
+
+
+    // ========== GET UNPAID ITEMS FOR A GROUP ==========
+    @GetMapping(&quot;/group/{groupId}/unpaid&quot;)
+    public ResponseEntity&lt;List&lt;BillItem&gt;&gt; getUnpaidItemsForGroup(@PathVariable int groupId) {
+<span class="nc" id="L36">        List&lt;BillItem&gt; items = billItemRepository.findUnpaidItemsByGroupId(groupId);</span>
+<span class="nc" id="L37">        return ResponseEntity.ok(items);</span>
+    }
+
+
+    // ========== GET PAID ITEMS FOR A GROUP ==========
+    @GetMapping(&quot;/group/{groupId}/paid&quot;)
+    public ResponseEntity&lt;List&lt;BillItem&gt;&gt; getPaidItemsForGroup(@PathVariable int groupId) {
+<span class="nc" id="L44">        List&lt;BillItem&gt; items = billItemRepository.findPaidItemsByGroupId(groupId);</span>
+<span class="nc" id="L45">        return ResponseEntity.ok(items);</span>
+    }
+
+
+    // ========== GET SINGLE ITEM BY ID ==========
+    @GetMapping(&quot;/{itemId}&quot;)
+    public ResponseEntity&lt;BillItem&gt; getItemById(@PathVariable int itemId) {
+<span class="nc" id="L52">        Optional&lt;BillItem&gt; item = billItemRepository.findById(itemId);</span>
+<span class="nc" id="L53">        return item.map(ResponseEntity::ok)</span>
+<span class="nc" id="L54">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
+    }
+
+
+    // ========== CREATE NEW ITEM ==========
+    @PostMapping(&quot;/group/{groupId}&quot;)
+    public ResponseEntity&lt;?&gt; createItem(
+            @PathVariable int groupId,
+            @RequestBody Map&lt;String, Object&gt; body) {
+        
+        // Validate required fields
+<span class="nc bnc" id="L65" title="All 4 branches missed.">        if (!body.containsKey(&quot;itemName&quot;) || !body.containsKey(&quot;itemPrice&quot;)) {</span>
+<span class="nc" id="L66">            return ResponseEntity.badRequest()</span>
+<span class="nc" id="L67">                    .body(&quot;{\&quot;message\&quot;:\&quot;itemName and itemPrice are required\&quot;}&quot;);</span>
+        }
+
+        // Find group
+<span class="nc" id="L71">        Group group = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L73">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L74">                    .body(&quot;{\&quot;message\&quot;:\&quot;Group not found\&quot;}&quot;);</span>
+        }
+
+        // Extract fields
+<span class="nc" id="L78">        String itemName = body.get(&quot;itemName&quot;).toString();</span>
+<span class="nc" id="L79">        String itemPrice = body.get(&quot;itemPrice&quot;).toString();</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        int quantity = body.containsKey(&quot;quantity&quot;) </span>
+<span class="nc" id="L81">                ? Integer.parseInt(body.get(&quot;quantity&quot;).toString()) </span>
+<span class="nc" id="L82">                : 1;</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        String notes = body.containsKey(&quot;notes&quot;) ? body.get(&quot;notes&quot;).toString() : null;</span>
+
+        // Create item
+<span class="nc" id="L86">        BillItem item = new BillItem(group, itemName, itemPrice, quantity);</span>
+<span class="nc" id="L87">        item.setNotes(notes);</span>
+
+<span class="nc" id="L89">        BillItem savedItem = billItemRepository.save(item);</span>
+<span class="nc" id="L90">        return ResponseEntity.status(HttpStatus.CREATED).body(savedItem);</span>
+    }
+
+
+    // ========== UPDATE ITEM ==========
+    @PutMapping(&quot;/{itemId}&quot;)
+    public ResponseEntity&lt;?&gt; updateItem(
+            @PathVariable int itemId,
+            @RequestBody Map&lt;String, Object&gt; body) {
+        
+<span class="nc" id="L100">        Optional&lt;BillItem&gt; itemOpt = billItemRepository.findById(itemId);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (itemOpt.isEmpty()) {</span>
+<span class="nc" id="L102">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="nc" id="L105">        BillItem item = itemOpt.get();</span>
+
+        // Update fields if provided
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        if (body.containsKey(&quot;itemName&quot;)) {</span>
+<span class="nc" id="L109">            item.setItemName(body.get(&quot;itemName&quot;).toString());</span>
+        }
+<span class="nc bnc" id="L111" title="All 2 branches missed.">        if (body.containsKey(&quot;itemPrice&quot;)) {</span>
+<span class="nc" id="L112">            item.setItemPrice(body.get(&quot;itemPrice&quot;).toString());</span>
+        }
+<span class="nc bnc" id="L114" title="All 2 branches missed.">        if (body.containsKey(&quot;quantity&quot;)) {</span>
+<span class="nc" id="L115">            item.setQuantity(Integer.parseInt(body.get(&quot;quantity&quot;).toString()));</span>
+        }
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (body.containsKey(&quot;isPaid&quot;)) {</span>
+<span class="nc" id="L118">            item.setPaid(Boolean.parseBoolean(body.get(&quot;isPaid&quot;).toString()));</span>
+        }
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (body.containsKey(&quot;notes&quot;)) {</span>
+<span class="nc" id="L121">            item.setNotes(body.get(&quot;notes&quot;).toString());</span>
+        }
+
+<span class="nc" id="L124">        BillItem updatedItem = billItemRepository.save(item);</span>
+<span class="nc" id="L125">        return ResponseEntity.ok(updatedItem);</span>
+    }
+
+
+    // ========== MARK ITEM AS PAID ==========
+    @PutMapping(&quot;/{itemId}/pay&quot;)
+    public ResponseEntity&lt;BillItem&gt; markItemAsPaid(@PathVariable int itemId) {
+<span class="nc" id="L132">        Optional&lt;BillItem&gt; itemOpt = billItemRepository.findById(itemId);</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">        if (itemOpt.isEmpty()) {</span>
+<span class="nc" id="L134">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="nc" id="L137">        BillItem item = itemOpt.get();</span>
+<span class="nc" id="L138">        item.setPaid(true);</span>
+<span class="nc" id="L139">        BillItem updatedItem = billItemRepository.save(item);</span>
+        
+<span class="nc" id="L141">        return ResponseEntity.ok(updatedItem);</span>
+    }
+
+
+    // ========== DELETE ITEM ==========
+    @DeleteMapping(&quot;/{itemId}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteItem(@PathVariable int itemId) {
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (!billItemRepository.existsById(itemId)) {</span>
+<span class="nc" id="L149">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="nc" id="L152">        billItemRepository.deleteById(itemId);</span>
+<span class="nc" id="L153">        return ResponseEntity.noContent().build();</span>
+    }
+
+
+    // ========== GET TOTAL AMOUNT FOR GROUP (UNPAID ITEMS) ==========
+    @GetMapping(&quot;/group/{groupId}/total&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getTotalForGroup(@PathVariable int groupId) {
+<span class="nc" id="L160">        List&lt;BillItem&gt; unpaidItems = billItemRepository.findUnpaidItemsByGroupId(groupId);</span>
+        
+<span class="nc" id="L162">        double total = 0.0;</span>
+<span class="nc bnc" id="L163" title="All 2 branches missed.">        for (BillItem item : unpaidItems) {</span>
+            try {
+<span class="nc" id="L165">                double price = Double.parseDouble(item.getItemPrice());</span>
+<span class="nc" id="L166">                total += price * item.getQuantity();</span>
+<span class="nc" id="L167">            } catch (NumberFormatException e) {</span>
+                // Skip invalid prices
+<span class="nc" id="L169">            }</span>
+<span class="nc" id="L170">        }</span>
+
+<span class="nc" id="L172">        return ResponseEntity.ok(Map.of(</span>
+<span class="nc" id="L173">            &quot;groupId&quot;, groupId,</span>
+<span class="nc" id="L174">            &quot;unpaidItemsCount&quot;, unpaidItems.size(),</span>
+<span class="nc" id="L175">            &quot;totalAmount&quot;, total</span>
+        ));
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
