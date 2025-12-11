@@ -51,7 +51,7 @@ public class TrungLySystemTest {
                 .post("/bill")
                 .then()
                 .statusCode(201)
-                .body("bill_id", notNullValue())
+                .body("billId", notNullValue())
                 .body("bill_name", equalTo("Test bill #1"))
                 .body("bill_amount", equalTo("2000"))
                 .body("paid", equalTo(false));

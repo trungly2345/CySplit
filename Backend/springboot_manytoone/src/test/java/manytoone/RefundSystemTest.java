@@ -144,7 +144,7 @@ public class RefundSystemTest {
         Map<String, Object> updatePayload = new HashMap<>();
         updatePayload.put("refund_name", "Updated Refund");
         updatePayload.put("refund_amount", "7.00");
-        // controller's PUT only updates name + amount, so no need to send refundedTo again
+
 
 
         given()
