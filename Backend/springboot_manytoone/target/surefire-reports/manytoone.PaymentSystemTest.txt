@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: manytoone.RefundSystemTest
+Test set: manytoone.PaymentSystemTest
 -------------------------------------------------------------------------------
-Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 14.877 s - in manytoone.RefundSystemTest
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 7.373 s - in manytoone.PaymentSystemTest

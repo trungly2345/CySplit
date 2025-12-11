@@ -101,5 +101,141 @@ import manytoone.Users.UserRepository;
 
 <span class="nc" id="L102">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
     }
+
+    /**
+     * GET /groupbill/{groupId}/bills
+     * List all bills assigned to a group.
+     */
+    @GetMapping(&quot;/{groupId}/bills&quot;)
+    public ResponseEntity&lt;?&gt; getBillsForGroup(@PathVariable Integer groupId) {
+<span class="nc" id="L111">        Optional&lt;Group&gt; groupOpt = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (groupOpt.isEmpty()) {</span>
+<span class="nc" id="L113">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L114">                    .body(Map.of(&quot;message&quot;, &quot;Group not found&quot;));</span>
+        }
+<span class="nc" id="L116">        Group group = groupOpt.get();</span>
+
+<span class="nc" id="L118">        List&lt;BillToGroup&gt; links = billsToGroupRepository.findByGroup(group);</span>
+<span class="nc" id="L119">        return ResponseEntity.ok(links);</span>
+    }
+
+    /**
+     * GET /groupbill/{groupId}/bills/{billId}
+     * Get the BillToGroup link for a specific bill in a group.
+     */
+    @GetMapping(&quot;/{groupId}/bills/{billId}&quot;)
+    public ResponseEntity&lt;?&gt; getGroupBill(
+            @PathVariable Integer groupId,
+            @PathVariable Integer billId
+    ) {
+<span class="nc" id="L131">        Optional&lt;Group&gt; groupOpt = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">        if (groupOpt.isEmpty()) {</span>
+<span class="nc" id="L133">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L134">                    .body(Map.of(&quot;message&quot;, &quot;Group not found&quot;));</span>
+        }
+<span class="nc" id="L136">        Group group = groupOpt.get();</span>
+
+<span class="nc" id="L138">        Optional&lt;Bill&gt; billOpt = billRepository.findById(billId);</span>
+<span class="nc bnc" id="L139" title="All 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L140">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L141">                    .body(Map.of(&quot;message&quot;, &quot;Bill not found&quot;));</span>
+        }
+<span class="nc" id="L143">        Bill bill = billOpt.get();</span>
+
+<span class="nc" id="L145">        Optional&lt;BillToGroup&gt; linkOpt = billsToGroupRepository.findByGroupAndBill(group, bill);</span>
+<span class="nc bnc" id="L146" title="All 2 branches missed.">        if (linkOpt.isEmpty()) {</span>
+<span class="nc" id="L147">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L148">                    .body(Map.of(&quot;message&quot;, &quot;Bill is not assigned to this group&quot;));</span>
+        }
+
+<span class="nc" id="L151">        return ResponseEntity.ok(linkOpt.get());</span>
+    }
+
+    /**
+     * PUT /groupbill/{groupId}/bills/{billId}
+     * Update notes or resolved flag for a group-bill link.
+     *
+     * Example body:
+     * {
+     *   &quot;notes&quot;: &quot;Paid back by everyone&quot;,
+     *   &quot;resolved&quot;: true
+     * }
+     */
+    @PutMapping(&quot;/{groupId}/bills/{billId}&quot;)
+    public ResponseEntity&lt;?&gt; updateGroupBill(
+            @PathVariable Integer groupId,
+            @PathVariable Integer billId,
+            @RequestBody Map&lt;String, Object&gt; body
+    ) {
+<span class="nc" id="L170">        Optional&lt;Group&gt; groupOpt = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L171" title="All 2 branches missed.">        if (groupOpt.isEmpty()) {</span>
+<span class="nc" id="L172">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L173">                    .body(Map.of(&quot;message&quot;, &quot;Group not found&quot;));</span>
+        }
+<span class="nc" id="L175">        Group group = groupOpt.get();</span>
+
+<span class="nc" id="L177">        Optional&lt;Bill&gt; billOpt = billRepository.findById(billId);</span>
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L179">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L180">                    .body(Map.of(&quot;message&quot;, &quot;Bill not found&quot;));</span>
+        }
+<span class="nc" id="L182">        Bill bill = billOpt.get();</span>
+
+<span class="nc" id="L184">        Optional&lt;BillToGroup&gt; linkOpt = billsToGroupRepository.findByGroupAndBill(group, bill);</span>
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        if (linkOpt.isEmpty()) {</span>
+<span class="nc" id="L186">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L187">                    .body(Map.of(&quot;message&quot;, &quot;Bill is not assigned to this group&quot;));</span>
+        }
+
+<span class="nc" id="L190">        BillToGroup link = linkOpt.get();</span>
+
+<span class="nc bnc" id="L192" title="All 2 branches missed.">        if (body.containsKey(&quot;notes&quot;)) {</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">            String notes = body.get(&quot;notes&quot;) != null ? body.get(&quot;notes&quot;).toString() : null;</span>
+<span class="nc" id="L194">            link.setNotes(notes);</span>
+        }
+
+<span class="nc bnc" id="L197" title="All 2 branches missed.">        if (body.containsKey(&quot;resolved&quot;)) {</span>
+<span class="nc" id="L198">            Object resolvedObj = body.get(&quot;resolved&quot;);</span>
+<span class="nc bnc" id="L199" title="All 2 branches missed.">            if (resolvedObj instanceof Boolean boolVal) {</span>
+<span class="nc" id="L200">                link.setResolved(boolVal);</span>
+            }
+        }
+
+<span class="nc" id="L204">        BillToGroup updated = billsToGroupRepository.save(link);</span>
+<span class="nc" id="L205">        return ResponseEntity.ok(updated);</span>
+    }
+
+    /**
+     * DELETE /groupbill/{groupId}/bills/{billId}
+     * Remove the bill assignment from the group.
+     */
+    @DeleteMapping(&quot;/{groupId}/bills/{billId}&quot;)
+    public ResponseEntity&lt;?&gt; removeBillFromGroup(
+            @PathVariable Integer groupId,
+            @PathVariable Integer billId
+    ) {
+<span class="nc" id="L217">        Optional&lt;Group&gt; groupOpt = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L218" title="All 2 branches missed.">        if (groupOpt.isEmpty()) {</span>
+<span class="nc" id="L219">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L220">                    .body(Map.of(&quot;message&quot;, &quot;Group not found&quot;));</span>
+        }
+<span class="nc" id="L222">        Group group = groupOpt.get();</span>
+
+<span class="nc" id="L224">        Optional&lt;Bill&gt; billOpt = billRepository.findById(billId);</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">        if (billOpt.isEmpty()) {</span>
+<span class="nc" id="L226">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L227">                    .body(Map.of(&quot;message&quot;, &quot;Bill not found&quot;));</span>
+        }
+<span class="nc" id="L229">        Bill bill = billOpt.get();</span>
+
+<span class="nc" id="L231">        Optional&lt;BillToGroup&gt; linkOpt = billsToGroupRepository.findByGroupAndBill(group, bill);</span>
+<span class="nc bnc" id="L232" title="All 2 branches missed.">        if (linkOpt.isEmpty()) {</span>
+<span class="nc" id="L233">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L234">                    .body(Map.of(&quot;message&quot;, &quot;Bill is not assigned to this group&quot;));</span>
+        }
+
+<span class="nc" id="L237">        billsToGroupRepository.delete(linkOpt.get());</span>
+<span class="nc" id="L238">        return ResponseEntity.noContent().build();</span>
+    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
