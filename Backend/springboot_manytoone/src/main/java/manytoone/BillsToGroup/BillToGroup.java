@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "group_bills")
 public class BillToGroup {
 
-    // Test for springboot pipe line test
+    // Test 3 for testing pipeline 
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
