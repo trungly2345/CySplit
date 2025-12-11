@@ -73,7 +73,7 @@ public class TrungLySystemTest {
                 .get("/bill/" + saved.getBillId())
                 .then()
                 .statusCode(200)
-                .body("bill_id", equalTo(saved.getBillId()))
+                .body("billId", equalTo(saved.getBillId()))
                 .body("bill_name", equalTo("Single bill"));
     }
 
