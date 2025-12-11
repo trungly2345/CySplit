@@ -48,7 +48,6 @@ public class RefundSystemTest {
     void createRefund_andListRefundsForBill_success() {
         // ---------- Arrange: create a Bill ----------
         Bill bill = new Bill();
-        // TODO: adjust these setters to match your actual Bill entity
 
         bill.setBill_name("Test Bill For Refund");
         bill.setBill_amount("42.50");
@@ -58,7 +57,7 @@ public class RefundSystemTest {
         bill.setDueCreated(LocalDateTime.now());
 
         bill = billRepository.save(bill);
-        int billId = bill.getBill_id();  // adjust getter name if different
+        int billId = bill.getBillId();  // adjust getter name if different
 
         // ---------- Arrange: payload for Refund ----------
         Map<String, Object> payload = new HashMap<>();
@@ -101,7 +100,7 @@ public class RefundSystemTest {
         bill.setDueTime(LocalDateTime.now().plusDays(3));
         bill.setDueCreated(LocalDateTime.now());
         bill = billRepository.save(bill);
-        int billId = bill.getBill_id();
+        int billId = bill.getBillId();
 
 
         Map<String, Object> payload = new HashMap<>();

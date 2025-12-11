@@ -1,6 +1,7 @@
 package manytoone.BillsToGroup;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import manytoone.Bills.Bill;
 import manytoone.Groups.Group;
@@ -71,6 +72,12 @@ public class BillToGroup {
         return group;
     }
 
+    @JsonProperty("groupName")
+    public String getGroupByGroupName() {
+        return group != null ? group.getGroup_name() : null;
+    }
+
+
     public void setGroup(Group group) {
         this.group = group;
     }
@@ -105,6 +112,11 @@ public class BillToGroup {
 
     public void setAssignedBy(User assignedBy) {
         this.assignedBy = assignedBy;
+    }
+
+    @JsonProperty("assignedByUserName")
+    public String getAssignedByUserName() {
+        return assignedBy != null ? assignedBy.getUserName() : null;
     }
 
     public String getNotes() {

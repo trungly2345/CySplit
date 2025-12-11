@@ -42,11 +42,11 @@ import java.util.Date;
                 this.paid = paid;
         }
 
-    public int getBill_id() {
+    public int getBillId() {
         return bill_id;
     }
 
-    public void setBill_id(int bill_id) {
+    public void setBillId(int bill_id) {
         this.bill_id = bill_id;
     }
 

@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 
 
 /**
@@ -20,50 +24,108 @@ import org.springframework.web.bind.annotation.RestController;
  */
 
 @RestController
-<span class="fc" id="L23">public class GroupController {</span>
+<span class="fc" id="L27">public class GroupController {</span>
 
     @Autowired
     GroupRepository groupRepository;
 
+    @Autowired
+    UserRepository userRepository;
 
-<span class="fc" id="L29">    private String success = &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</span>
-<span class="fc" id="L30">    private String failure = &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</span>
+    @Autowired
+    UserGroupRepository userGroupRepository;
+    // re testing before deploy jar file
+<span class="fc" id="L38">    private String success = &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</span>
+<span class="fc" id="L39">    private String failure = &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</span>
 
     @GetMapping(&quot;/groups/{group_id}&quot;)
     public Group getGroupById(@PathVariable int group_id) {
-<span class="nc" id="L34">        return groupRepository.findById(group_id);</span>
+<span class="nc" id="L43">        return groupRepository.findById(group_id);</span>
     }
 
     @PostMapping(&quot;/groups&quot;)
     public ResponseEntity &lt;Group&gt; createGroup(@RequestBody Group req) {
-<span class="nc" id="L39">     Group newGroup = groupRepository.save(req);</span>
-<span class="nc" id="L40">      return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);</span>
+        // If this is a temporary group and no join code provided, generate one
+<span class="nc bnc" id="L49" title="All 6 branches missed.">        if (req.isTemporary() &amp;&amp; (req.getJoinCode() == null || req.getJoinCode().isEmpty())) {</span>
+<span class="nc" id="L50">            String uniqueCode = JoinCodeGenerator.generateUniqueCode(groupRepository);</span>
+<span class="nc" id="L51">            req.setJoinCode(uniqueCode);</span>
+        }
+<span class="nc" id="L53">        Group newGroup = groupRepository.save(req);</span>
+<span class="nc" id="L54">        return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);</span>
     }
 
 
 
    @PutMapping(&quot;/groups/{group_id}&quot;)
     public ResponseEntity &lt;Group&gt; updateGroup(@PathVariable int group_id, @RequestBody Group request){
-<span class="nc" id="L47">       Group updateGroup = groupRepository.findById(group_id);</span>
-<span class="nc bnc" id="L48" title="All 2 branches missed.">       if (updateGroup == null){</span>
-<span class="nc" id="L49">           return null;</span>
+<span class="nc" id="L61">       Group updateGroup = groupRepository.findById(group_id);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">       if (updateGroup == null){</span>
+<span class="nc" id="L63">           return null;</span>
        }
-<span class="nc" id="L51">       updateGroup.setGroup_name(request.getGroup_name());</span>
-<span class="nc" id="L52">       updateGroup.setCapacity(request.getCapacity());</span>
-<span class="nc" id="L53">       updateGroup.setId(request.getId());</span>
-<span class="nc" id="L54">       groupRepository.save(updateGroup);</span>
-<span class="nc" id="L55">       return ResponseEntity.ok(updateGroup);</span>
+<span class="nc" id="L65">       updateGroup.setGroup_name(request.getGroup_name());</span>
+<span class="nc" id="L66">       updateGroup.setCapacity(request.getCapacity());</span>
+<span class="nc" id="L67">       updateGroup.setId(request.getId());</span>
+<span class="nc" id="L68">       groupRepository.save(updateGroup);</span>
+<span class="nc" id="L69">       return ResponseEntity.ok(updateGroup);</span>
    }
 
 
    @DeleteMapping(&quot;/groups/{group_id}&quot;)
     public ResponseEntity &lt;Group&gt; deleteGroupById(@PathVariable int group_id){
-<span class="nc" id="L61">     Group group = groupRepository.findById(group_id);</span>
-<span class="nc bnc" id="L62" title="All 2 branches missed.">     if (group == null){</span>
-<span class="nc" id="L63">         return ResponseEntity.notFound().build();</span>
+<span class="nc" id="L75">     Group group = groupRepository.findById(group_id);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">     if (group == null){</span>
+<span class="nc" id="L77">         return ResponseEntity.notFound().build();</span>
      }
-<span class="nc" id="L65">     groupRepository.deleteById(group_id);</span>
-<span class="nc" id="L66">       return ResponseEntity.noContent().build();</span>
+<span class="nc" id="L79">     groupRepository.deleteById(group_id);</span>
+<span class="nc" id="L80">       return ResponseEntity.noContent().build();</span>
+   }
+
+   // ========== JOIN BY CODE ENDPOINT ==========
+   @PostMapping(&quot;/groups/join/{code}&quot;)
+   public ResponseEntity&lt;?&gt; joinGroupByCode(
+           @PathVariable String code,
+           @RequestParam int userId) {
+       
+       // Find group by join code
+<span class="nc" id="L90">       Group group = groupRepository.findByJoinCode(code.toUpperCase());</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">       if (group == null) {</span>
+<span class="nc" id="L92">           return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L93">                   .body(&quot;{\&quot;message\&quot;:\&quot;Invalid join code\&quot;}&quot;);</span>
+       }
+       
+       // Find user
+<span class="nc" id="L97">       User user = userRepository.findById(userId);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">       if (user == null) {</span>
+<span class="nc" id="L99">           return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L100">                   .body(&quot;{\&quot;message\&quot;:\&quot;User not found\&quot;}&quot;);</span>
+       }
+       
+       // Check if user is already in the group
+<span class="nc bnc" id="L104" title="All 2 branches missed.">       if (userGroupRepository.existsByUserIdAndGroupId(userId, group.getId())) {</span>
+<span class="nc" id="L105">           return ResponseEntity.status(HttpStatus.CONFLICT)</span>
+<span class="nc" id="L106">                   .body(&quot;{\&quot;message\&quot;:\&quot;User already in group\&quot;}&quot;);</span>
+       }
+       
+       // Add user to group as MEMBER
+<span class="nc" id="L110">       UserGroup userGroup = new UserGroup(user, group, UserGroup.Role.MEMBER);</span>
+<span class="nc" id="L111">       UserGroup savedUserGroup = userGroupRepository.save(userGroup);</span>
+       
+       // Force initialization
+<span class="nc" id="L114">       savedUserGroup.getUser().getUserName();</span>
+<span class="nc" id="L115">       savedUserGroup.getGroup().getId();</span>
+       
+<span class="nc" id="L117">       return ResponseEntity.status(HttpStatus.CREATED).body(savedUserGroup);</span>
+   }
+
+   // ========== GET GROUP BY CODE ENDPOINT ==========
+   @GetMapping(&quot;/groups/code/{code}&quot;)
+   public ResponseEntity&lt;?&gt; getGroupByCode(@PathVariable String code) {
+<span class="nc" id="L123">       Group group = groupRepository.findByJoinCode(code.toUpperCase());</span>
+<span class="nc bnc" id="L124" title="All 2 branches missed.">       if (group == null) {</span>
+<span class="nc" id="L125">           return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L126">                   .body(&quot;{\&quot;message\&quot;:\&quot;Invalid join code\&quot;}&quot;);</span>
+       }
+<span class="nc" id="L128">       return ResponseEntity.ok(group);</span>
    }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

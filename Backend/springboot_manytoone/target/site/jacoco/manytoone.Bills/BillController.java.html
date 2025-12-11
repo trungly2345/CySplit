@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import manytoone.BillsToGroup.BillToGroup;
 import manytoone.BillsToGroup.BillsToGroupRepository;
 import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
 import manytoone.Groups.UserGroup;
 import manytoone.Groups.UserGroupRepository;
 import manytoone.Notifications.NotificationService;
@@ -25,7 +26,7 @@ import manytoone.Users.User;
 
 @RestController
 @RequestMapping(&quot;/bill&quot;)
-<span class="fc" id="L28">public class BillController {</span>
+<span class="fc" id="L29">public class BillController {</span>
 
     @Autowired
     private BillRepository billRepository;
@@ -39,103 +40,135 @@ import manytoone.Users.User;
     @Autowired
     private UserGroupRepository userGroupRepository;
 
+    @Autowired
+    private GroupRepository groupRepository;
+
 
     @GetMapping
     public ResponseEntity&lt;List&lt;Bill&gt;&gt; getAllBills() {
-<span class="nc" id="L45">        List&lt;Bill&gt; bills = billRepository.findAll();</span>
-<span class="nc" id="L46">        return ResponseEntity.ok(bills);</span>
+<span class="nc" id="L49">        List&lt;Bill&gt; bills = billRepository.findAll();</span>
+<span class="nc" id="L50">        return ResponseEntity.ok(bills);</span>
     }
 
     // GET /bill/{bill_id}
     @GetMapping(&quot;/{bill_id}&quot;)
     public ResponseEntity&lt;Bill&gt; getBillById(@PathVariable int bill_id) {
-<span class="fc" id="L52">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
-<span class="fc" id="L53">        return billOpt.map(ResponseEntity::ok)</span>
-<span class="fc" id="L54">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
+<span class="fc" id="L56">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="fc" id="L57">        return billOpt.map(ResponseEntity::ok)</span>
+<span class="fc" id="L58">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
     }
 
     // POST /bill
     // create a new bill
     @PostMapping
     public ResponseEntity&lt;Bill&gt; createBill(@RequestBody Bill req) {
-<span class="fc" id="L61">        Bill newBill = billRepository.save(req);</span>
-<span class="fc" id="L62">        return ResponseEntity.status(HttpStatus.CREATED).body(newBill);</span>
+<span class="fc" id="L65">        Bill newBill = billRepository.save(req);</span>
+<span class="fc" id="L66">        return ResponseEntity.status(HttpStatus.CREATED).body(newBill);</span>
     }
 
     // PUT /bill/{bill_id}
     // update existing bill
     @PutMapping(&quot;/{bill_id}&quot;)
     public ResponseEntity&lt;Bill&gt; updateBill(@PathVariable int bill_id, @RequestBody Bill request) {
-<span class="fc" id="L69">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
-<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (billOpt.isEmpty()) {</span>
-<span class="fc" id="L71">            return ResponseEntity.notFound().build();</span>
+<span class="fc" id="L73">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (billOpt.isEmpty()) {</span>
+<span class="fc" id="L75">            return ResponseEntity.notFound().build();</span>
         }
 
-<span class="fc" id="L74">        Bill updateBill = billOpt.get();</span>
+<span class="fc" id="L78">        Bill updateBill = billOpt.get();</span>
 
-<span class="fc" id="L76">        updateBill.setBill_name(request.getBill_name());</span>
-<span class="fc" id="L77">        updateBill.setBill_amount(request.getBill_amount());</span>
-<span class="fc" id="L78">        updateBill.setDueCreated(request.getDueCreated());</span>
-<span class="fc" id="L79">        updateBill.setDueTime(request.getDueTime());</span>
-<span class="fc" id="L80">        updateBill.setPaid(request.isPaid());</span>
+<span class="fc" id="L80">        updateBill.setBill_name(request.getBill_name());</span>
+<span class="fc" id="L81">        updateBill.setBill_amount(request.getBill_amount());</span>
+<span class="fc" id="L82">        updateBill.setDueCreated(request.getDueCreated());</span>
+<span class="fc" id="L83">        updateBill.setDueTime(request.getDueTime());</span>
+<span class="fc" id="L84">        updateBill.setPaid(request.isPaid());</span>
 
 
-<span class="fc" id="L83">        billRepository.save(updateBill);</span>
+<span class="fc" id="L87">        billRepository.save(updateBill);</span>
 
         // ========== NOTIFICATION: Notify group members about bill update ==========
         // Find all groups this bill is assigned to
-<span class="fc" id="L87">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(updateBill);</span>
-<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
-<span class="nc" id="L89">            Group group = link.getGroup();</span>
-<span class="nc" id="L90">            User updatedBy = link.getAssignedBy(); // Use the person who assigned the bill</span>
+<span class="fc" id="L91">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(updateBill);</span>
+<span class="pc bpc" id="L92" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
+<span class="nc" id="L93">            Group group = link.getGroup();</span>
+<span class="nc" id="L94">            User updatedBy = link.getAssignedBy(); // Use the person who assigned the bill</span>
             
-<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (group != null) {</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">            if (group != null) {</span>
                 // Notify all group members except the person who updated it
-<span class="nc" id="L94">                List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
-<span class="nc bnc" id="L95" title="All 2 branches missed.">                for (UserGroup member : members) {</span>
-<span class="nc bnc" id="L96" title="All 4 branches missed.">                    if (updatedBy == null || member.getUser().getId() != updatedBy.getId()) {</span>
-<span class="nc" id="L97">                        notificationService.notifyBillUpdated(</span>
-<span class="nc" id="L98">                            member.getUser(),</span>
+<span class="nc" id="L98">                List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">                for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L100" title="All 4 branches missed.">                    if (updatedBy == null || member.getUser().getId() != updatedBy.getId()) {</span>
+<span class="nc" id="L101">                        notificationService.notifyBillUpdated(</span>
+<span class="nc" id="L102">                            member.getUser(),</span>
                             group,
-<span class="nc bnc" id="L100" title="All 2 branches missed.">                            updatedBy != null ? updatedBy : member.getUser(), // Fallback to member if updatedBy is null</span>
-<span class="nc" id="L101">                            updateBill.getBill_name()</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">                            updatedBy != null ? updatedBy : member.getUser(), // Fallback to member if updatedBy is null</span>
+<span class="nc" id="L105">                            updateBill.getBill_name()</span>
                         );
                     }
-<span class="nc" id="L104">                }</span>
+<span class="nc" id="L108">                }</span>
+                
+                // ========== AUTO-DELETE: Check if temporary group should be deleted ==========
+                // TODO: Enable this when receipt interface is ready
+                // if (updateBill.isPaid() &amp;&amp; group.isTemporary()) {
+                //     checkAndDeleteTemporaryGroup(group);
+                // }
             }
-<span class="nc" id="L106">        }</span>
+<span class="nc" id="L116">        }</span>
 
-<span class="fc" id="L108">        return ResponseEntity.ok(updateBill);</span>
+<span class="fc" id="L118">        return ResponseEntity.ok(updateBill);</span>
     }
 
     // DELETE /bill/{bill_id}
     @DeleteMapping(&quot;/{bill_id}&quot;)
     public ResponseEntity&lt;Void&gt; deleteBillById(@PathVariable int bill_id) {
-<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (!billRepository.existsById(bill_id)) {</span>
-<span class="fc" id="L115">            return ResponseEntity.notFound().build();</span>
+<span class="fc bfc" id="L124" title="All 2 branches covered.">        if (!billRepository.existsById(bill_id)) {</span>
+<span class="fc" id="L125">            return ResponseEntity.notFound().build();</span>
         }
         
         // ========== NOTIFICATION: Get bill info before deleting ==========
-<span class="fc" id="L119">        Bill bill = billRepository.findById(bill_id).get();</span>
-<span class="fc" id="L120">        String billName = bill.getBill_name();</span>
+<span class="fc" id="L129">        Bill bill = billRepository.findById(bill_id).get();</span>
+<span class="fc" id="L130">        String billName = bill.getBill_name();</span>
         
         // Find all groups this bill was assigned to
-<span class="fc" id="L123">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(bill);</span>
+<span class="fc" id="L133">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(bill);</span>
         
         // Delete the bill
-<span class="fc" id="L126">        billRepository.deleteById(bill_id);</span>
+<span class="fc" id="L136">        billRepository.deleteById(bill_id);</span>
         
         // Send notifications after successful deletion
-<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
-<span class="nc" id="L130">            Group group = link.getGroup();</span>
-<span class="nc" id="L131">            User deletedBy = link.getAssignedBy();</span>
+<span class="pc bpc" id="L139" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
+<span class="nc" id="L140">            Group group = link.getGroup();</span>
+<span class="nc" id="L141">            User deletedBy = link.getAssignedBy();</span>
             
-<span class="nc bnc" id="L133" title="All 4 branches missed.">            if (group != null &amp;&amp; deletedBy != null) {</span>
-<span class="nc" id="L134">                notificationService.notifyBillDeleted(group, deletedBy, billName);</span>
+<span class="nc bnc" id="L143" title="All 4 branches missed.">            if (group != null &amp;&amp; deletedBy != null) {</span>
+<span class="nc" id="L144">                notificationService.notifyBillDeleted(group, deletedBy, billName);</span>
             }
-<span class="nc" id="L136">        }</span>
+<span class="nc" id="L146">        }</span>
         
-<span class="fc" id="L138">        return ResponseEntity.noContent().build();</span>
+<span class="fc" id="L148">        return ResponseEntity.noContent().build();</span>
     }
+
+    // ========== HELPER METHOD: Check and delete temporary group if all bills are paid ==========
+    private void checkAndDeleteTemporaryGroup(Group group) {
+        // Get all bills for this group
+<span class="nc" id="L154">        List&lt;BillToGroup&gt; allGroupBills = billsToGroupRepository.findByGroup(group);</span>
+        
+        // Check if all bills are paid
+<span class="nc" id="L157">        boolean allPaid = true;</span>
+<span class="nc bnc" id="L158" title="All 2 branches missed.">        for (BillToGroup link : allGroupBills) {</span>
+<span class="nc bnc" id="L159" title="All 2 branches missed.">            if (!link.getBill().isPaid()) {</span>
+<span class="nc" id="L160">                allPaid = false;</span>
+<span class="nc" id="L161">                break;</span>
+            }
+<span class="nc" id="L163">        }</span>
+        
+        // If all bills are paid, delete the group
+<span class="nc bnc" id="L166" title="All 2 branches missed.">        if (allPaid) {</span>
+<span class="nc" id="L167">            System.out.println(&quot;All bills paid for temporary group '&quot; + group.getGroup_name() </span>
+<span class="nc" id="L168">                + &quot;' (ID: &quot; + group.getId() + &quot;). Auto-deleting group...&quot;);</span>
+<span class="nc" id="L169">            groupRepository.deleteById(group.getId());</span>
+<span class="nc" id="L170">            System.out.println(&quot;Temporary group '&quot; + group.getGroup_name() + &quot;' deleted successfully.&quot;);</span>
+        }
+<span class="nc" id="L172">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
