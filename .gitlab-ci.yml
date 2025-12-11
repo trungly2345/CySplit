@@ -32,7 +32,7 @@ maven-test:
     changes:
       - Backend/**/*
 
-maven-deploy:
+auto-deploy:
   stage: mavendeploy
   tags:
     - springboot_tag
