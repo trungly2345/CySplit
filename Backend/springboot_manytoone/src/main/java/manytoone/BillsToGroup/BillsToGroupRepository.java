@@ -13,4 +13,7 @@ public interface BillsToGroupRepository extends JpaRepository<BillToGroup, Integ
     
     // Find all groups a bill is assigned to
     List<BillToGroup> findByBill(Bill bill);
+    
+    // Find all bills assigned to a group
+    List<BillToGroup> findByGroup(Group group);
 }
