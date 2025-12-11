@@ -3,6 +3,7 @@ package manytoone.Refunds;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import manytoone.Bills.Bill;
+import manytoone.Users.User;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -22,6 +23,11 @@ public class Refund {
     private String refund_name;
     @Column(name = "refund_amount", nullable = false)
     private String refund_amount;
+
+    @ManyToOne(optional = true)
+    @JoinColumn(name = "refunded_to", nullable = false)
+    private User refundedTo;
+
     @Column(name = "refund_date", nullable = false)
     private LocalDateTime refundDate;
 
@@ -45,7 +51,7 @@ public class Refund {
     }
 
     public int getBillId(){
-        return (bill != null) ? bill.getBill_id() : 0;
+        return (bill != null) ? bill.getBillId() : 0;
     }
 
     public String getRefund_name() {
@@ -70,5 +76,13 @@ public class Refund {
 
     public void setRefundDate(LocalDateTime refundDate) {
         this.refundDate = refundDate;
+    }
+
+    public User getRefundedTo() {
+        return refundedTo;
+    }
+
+    public void setRefundedTo(User refundedTo) {
+        this.refundedTo = refundedTo;
     }
 }

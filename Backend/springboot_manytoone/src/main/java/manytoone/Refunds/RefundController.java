@@ -2,6 +2,8 @@ package manytoone.Refunds;
 
 import manytoone.Bills.Bill;
 import manytoone.Bills.BillRepository;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +21,9 @@ public class RefundController {
 
     @Autowired
     private BillRepository billRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
 
     @GetMapping
@@ -50,7 +55,7 @@ public class RefundController {
         Refund refund = refundOpt.get();
 
 
-        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"message\": \"Refund does not belong to this bill\"}");
         }
@@ -68,15 +73,27 @@ public class RefundController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("{\"message\": \"Bill not found\"}");
         }
-
         Bill bill = billOpt.get();
 
+
+        if (req.getRefundedTo() == null || req.getRefundedTo().getId() == 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"refundedTo user is required\"}");
+        }
+
+        int userId = req.getRefundedTo().getId();
+        User refundedTo = userRepository.findById(userId);
+        if (refundedTo == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"User to refund not found for id " + userId + "\"}");
+        }
+
         req.setBill(bill);
+        req.setRefundedTo(refundedTo);
 
         Refund saved = refundRepository.save(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
-
 
     @PutMapping("/{refund_id}")
     public ResponseEntity<?> editRefund(@PathVariable int bill_id,
@@ -91,7 +108,7 @@ public class RefundController {
 
         Refund refund = refundOpt.get();
 
-        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"message\": \"Refund does not belong to this bill\"}");
         }
@@ -117,7 +134,7 @@ public class RefundController {
 
         Refund refund = refundOpt.get();
 
-        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+        if (refund.getBill() == null || refund.getBill().getBillId() != bill_id) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("{\"message\": \"Refund does not belong to this bill\"}");
         }

@@ -1,6 +1,7 @@
 package manytoone.BillsToGroup;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -20,4 +21,5 @@ public interface BillsToGroupRepository extends JpaRepository<BillToGroup, Integ
     List<BillToGroup> findByGroup(Group group);
 
 
+    Optional<BillToGroup> findByGroupAndBill(Group group, Bill bill);
 }

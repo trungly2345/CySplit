@@ -70,10 +70,10 @@ public class TrungLySystemTest {
 
         given()
                 .when()
-                .get("/bill/" + saved.getBill_id())
+                .get("/bill/" + saved.getBillId())
                 .then()
                 .statusCode(200)
-                .body("bill_id", equalTo(saved.getBill_id()))
+                .body("bill_id", equalTo(saved.getBillId()))
                 .body("bill_name", equalTo("Single bill"));
     }
 
@@ -109,7 +109,7 @@ public class TrungLySystemTest {
                 .contentType(ContentType.JSON)
                 .body(updatePayload)
                 .when()
-                .put("/bill/" + saved.getBill_id())
+                .put("/bill/" + saved.getBillId())
                 .then()
                 .statusCode(200)
                 .body("bill_name", equalTo("New name"))
@@ -149,7 +149,7 @@ public class TrungLySystemTest {
 
         given()
                 .when()
-                .delete("/bill/" + saved.getBill_id())
+                .delete("/bill/" + saved.getBillId())
                 .then()
                 .statusCode(204);
     }

@@ -3,10 +3,12 @@ manytoone/Groups/GroupInvitationController.class
 manytoone/Conversations/Conversation.class
 manytoone/Groups/GroupController.class
 manytoone/websocket/WebSocketSpringbootApplication.class
+manytoone/Payments/PaymentController.class
 manytoone/Bills/BillShareRepository.class
 manytoone/Users/UserController.class
 manytoone/websocket/GroupServer.class
 manytoone/Users/UserRepository.class
+manytoone/Groups/JoinCodeGenerator.class
 manytoone/Conversations/ConversationController.class
 manytoone/Refunds/RefundsReimbursement.class
 manytoone/BillsToGroup/BillToGroup.class
@@ -27,6 +29,7 @@ manytoone/Messages/MessageAttachmentRepository.class
 manytoone/Groups/UserGroupRepository.class
 manytoone/Groups/Group.class
 manytoone/Refunds/RefundController.class
+manytoone/Payments/Payment.class
 manytoone/Bills/BillShare.class
 manytoone/Notifications/NotificationController.class
 manytoone/Groups/GroupInvitation$invitationStatus.class
@@ -41,6 +44,7 @@ manytoone/websocket/WebSocketConfig.class
 manytoone/Groups/UserGroup.class
 manytoone/Groups/UserGroup$Role.class
 manytoone/Users/UserSearchResponse.class
+manytoone/Payments/PaymentRepository.class
 manytoone/Notifications/NotificationService.class
 manytoone/BillsToGroup/BillsToGroupController.class
 manytoone/Messages/Message.class
