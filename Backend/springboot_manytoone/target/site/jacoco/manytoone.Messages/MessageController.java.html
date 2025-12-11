@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessageController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Messages</a> &gt; <span class="el_source">MessageController.java</span></div><h1>MessageController.java</h1><pre class="source lang-java linenums">package manytoone.Messages;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.Conversations.Conversation;
+import manytoone.Conversations.ConversationRepository;
+import manytoone.Groups.Group;
+import manytoone.Notifications.NotificationService;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+
+@RestController
+@RequestMapping(&quot;/messages&quot;)
+public class MessageController {
+
+    private final MessageRepository messageRepository;
+    private final ConversationRepository conversationRepository;
+    private final UserRepository userRepository;
+    private final NotificationService notificationService;
+    private final MessageReadRepository messageReadRepository;
+
+    public MessageController(MessageRepository messageRepository,
+                             ConversationRepository conversationRepository,
+                             UserRepository userRepository,
+                             NotificationService notificationService,
+<span class="fc" id="L41">                             MessageReadRepository messageReadRepository) {</span>
+<span class="fc" id="L42">        this.messageRepository = messageRepository;</span>
+<span class="fc" id="L43">        this.conversationRepository = conversationRepository;</span>
+<span class="fc" id="L44">        this.userRepository = userRepository;</span>
+<span class="fc" id="L45">        this.notificationService = notificationService;</span>
+<span class="fc" id="L46">        this.messageReadRepository = messageReadRepository;</span>
+<span class="fc" id="L47">    }</span>
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Message&gt;&gt; getAllMessages() {
+<span class="nc" id="L51">        List&lt;Message&gt; messages = messageRepository.findAll();</span>
+<span class="nc" id="L52">        return ResponseEntity.ok(messages);</span>
+    }
+
+
+    @GetMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Message&gt; getMessageById(@PathVariable int id) {
+<span class="nc" id="L58">        return messageRepository.findById(id)</span>
+<span class="nc" id="L59">                .map(ResponseEntity::ok)</span>
+<span class="nc" id="L60">                .orElse(ResponseEntity.notFound().build());</span>
+    }
+
+
+    @GetMapping(&quot;/conversation/{conversationId}&quot;)
+    public ResponseEntity&lt;List&lt;Message&gt;&gt; getMessagesByConversation(@PathVariable int conversationId) {
+<span class="nc" id="L66">        List&lt;Message&gt; messages = messageRepository.findByConversationId(conversationId);</span>
+<span class="nc" id="L67">        return ResponseEntity.ok(messages);</span>
+    }
+
+
+    @PostMapping
+    public ResponseEntity&lt;Message&gt; createMessage(@RequestBody Message req) {
+
+        // Optional: Validate that the conversation and user actually exist
+<span class="nc" id="L75">        boolean convoExists = conversationRepository.existsById(req.getConversationId());</span>
+<span class="nc" id="L76">        boolean senderExists = userRepository.existsById(req.getSenderId());</span>
+
+<span class="nc bnc" id="L78" title="All 4 branches missed.">        if (!convoExists || !senderExists) {</span>
+<span class="nc" id="L79">            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();</span>
+        }
+
+<span class="nc" id="L82">        Message msg = new Message();</span>
+<span class="nc" id="L83">        msg.setConversationId(req.getConversationId());</span>
+<span class="nc" id="L84">        msg.setSenderId(req.getSenderId());</span>
+<span class="nc" id="L85">        msg.setContent(req.getContent());</span>
+<span class="nc" id="L86">        msg.setSentAt(LocalDateTime.now());</span>
+
+<span class="nc" id="L88">        Message saved = messageRepository.save(msg);</span>
+        
+        // Handle notifications for mentions and group messages
+<span class="nc" id="L91">        Optional&lt;Conversation&gt; conversationOpt = conversationRepository.findById(req.getConversationId());</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (conversationOpt.isPresent()) {</span>
+<span class="nc" id="L93">            Conversation conversation = conversationOpt.get();</span>
+<span class="nc" id="L94">            User sender = userRepository.findById(req.getSenderId());</span>
+            
+<span class="nc bnc" id="L96" title="All 4 branches missed.">            if (sender != null &amp;&amp; conversation.getGroup() != null) {</span>
+<span class="nc" id="L97">                Group group = conversation.getGroup();</span>
+                
+                // Check for @mentions in the message
+<span class="nc" id="L100">                detectAndNotifyMentions(saved.getContent(), sender, group);</span>
+            }
+        }
+        
+<span class="nc" id="L104">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+    
+    /**
+     * Detect @username mentions in message and send notifications
+     */
+    private void detectAndNotifyMentions(String content, User sender, Group group) {
+        // Regex to find @username patterns
+<span class="nc" id="L112">        Pattern pattern = Pattern.compile(&quot;@(\\w+)&quot;);</span>
+<span class="nc" id="L113">        Matcher matcher = pattern.matcher(content);</span>
+        
+<span class="nc bnc" id="L115" title="All 2 branches missed.">        while (matcher.find()) {</span>
+<span class="nc" id="L116">            String mentionedUsername = matcher.group(1);</span>
+<span class="nc" id="L117">            User mentionedUser = userRepository.findByUserName(mentionedUsername);</span>
+            
+<span class="nc bnc" id="L119" title="All 2 branches missed.">            if (mentionedUser != null) {</span>
+                // Don't notify if user mentions themselves
+<span class="nc bnc" id="L121" title="All 2 branches missed.">                if (mentionedUser.getId() != sender.getId()) {</span>
+                    // Get message preview (first 50 chars)
+<span class="nc bnc" id="L123" title="All 2 branches missed.">                    String preview = content.length() &gt; 50 </span>
+<span class="nc" id="L124">                        ? content.substring(0, 50) + &quot;...&quot; </span>
+<span class="nc" id="L125">                        : content;</span>
+                    
+<span class="nc" id="L127">                    notificationService.notifyGroupChatMention(</span>
+                        mentionedUser, 
+                        group, 
+                        sender, 
+                        preview
+                    );
+                }
+            }
+<span class="nc" id="L135">        }</span>
+<span class="nc" id="L136">    }</span>
+
+
+    /**
+     * Mark a message as read by a user
+     */
+    @PostMapping(&quot;/{messageId}/read&quot;)
+    public ResponseEntity&lt;String&gt; markMessageAsRead(@PathVariable int messageId, 
+                                                     @RequestParam int userId) {
+<span class="nc" id="L145">        Message message = messageRepository.findById(messageId)</span>
+<span class="nc" id="L146">            .orElse(null);</span>
+<span class="nc" id="L147">        User user = userRepository.findById(userId);</span>
+        
+<span class="nc bnc" id="L149" title="All 4 branches missed.">        if (message == null || user == null) {</span>
+<span class="nc" id="L150">            return ResponseEntity.badRequest().body(&quot;Message or user not found&quot;);</span>
+        }
+        
+        // Don't create duplicate read records
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        if (!messageReadRepository.existsByMessageAndUser(message, user)) {</span>
+<span class="nc" id="L155">            MessageRead messageRead = new MessageRead(message, user);</span>
+<span class="nc" id="L156">            messageReadRepository.save(messageRead);</span>
+        }
+        
+<span class="nc" id="L159">        return ResponseEntity.ok(&quot;Message marked as read&quot;);</span>
+    }
+    
+    /**
+     * Get unread message count for a user in a conversation
+     */
+    @GetMapping(&quot;/conversation/{conversationId}/unread/count&quot;)
+    public ResponseEntity&lt;Integer&gt; getUnreadCount(@PathVariable int conversationId,
+                                                   @RequestParam int userId) {
+<span class="nc" id="L168">        int unreadCount = messageReadRepository.countUnreadMessagesInConversation(conversationId, userId);</span>
+<span class="nc" id="L169">        return ResponseEntity.ok(unreadCount);</span>
+    }
+    
+    /**
+     * Notify user about unread messages in a group conversation
+     * This endpoint can be called periodically or when user logs in
+     */
+    @PostMapping(&quot;/conversation/{conversationId}/notify-unread&quot;)
+    public ResponseEntity&lt;String&gt; notifyUnreadMessages(@PathVariable int conversationId,
+                                                        @RequestParam int userId) {
+<span class="nc" id="L179">        Optional&lt;Conversation&gt; conversationOpt = conversationRepository.findById(conversationId);</span>
+<span class="nc" id="L180">        User user = userRepository.findById(userId);</span>
+        
+<span class="nc bnc" id="L182" title="All 4 branches missed.">        if (!conversationOpt.isPresent() || user == null) {</span>
+<span class="nc" id="L183">            return ResponseEntity.badRequest().body(&quot;Conversation or user not found&quot;);</span>
+        }
+        
+<span class="nc" id="L186">        Conversation conversation = conversationOpt.get();</span>
+        
+        // Only send notification for group conversations
+<span class="nc bnc" id="L189" title="All 2 branches missed.">        if (conversation.getGroup() == null) {</span>
+<span class="nc" id="L190">            return ResponseEntity.ok(&quot;Not a group conversation&quot;);</span>
+        }
+        
+<span class="nc" id="L193">        int unreadCount = messageReadRepository.countUnreadMessagesInConversation(conversationId, userId);</span>
+        
+<span class="nc bnc" id="L195" title="All 2 branches missed.">        if (unreadCount &gt; 0) {</span>
+<span class="nc" id="L196">            notificationService.notifyGroupChatNewMessage(user, conversation.getGroup(), unreadCount);</span>
+<span class="nc" id="L197">            return ResponseEntity.ok(&quot;Notification sent for &quot; + unreadCount + &quot; unread messages&quot;);</span>
+        }
+        
+<span class="nc" id="L200">        return ResponseEntity.ok(&quot;No unread messages&quot;);</span>
+    }
+
+
+    @DeleteMapping(&quot;/{id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteMessage(@PathVariable int id) {
+<span class="nc bnc" id="L206" title="All 2 branches missed.">        if (!messageRepository.existsById(id)) {</span>
+<span class="nc" id="L207">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L209">        messageRepository.deleteById(id);</span>
+<span class="nc" id="L210">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

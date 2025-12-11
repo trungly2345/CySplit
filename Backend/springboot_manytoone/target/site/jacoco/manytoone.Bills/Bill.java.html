@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Bill.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Bills</a> &gt; <span class="el_source">Bill.java</span></div><h1>Bill.java</h1><pre class="source lang-java linenums">package manytoone.Bills;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
+//Bills -&gt; bill (bill_id, bill_amount, dueDate, date_created,paid)
+    @Entity
+    @Table(name = &quot;bills&quot;)
+    public class Bill {
+        // Testing for pipeline test, please delete later
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = &quot;bill_id&quot; , nullable = false)
+        private int bill_id; // Primary key
+        @Column(name = &quot;bill_name&quot; , nullable = false)
+        private String bill_name;
+        @Column(name = &quot;bill_amount&quot; , nullable = false)
+        private String bill_amount;
+        @Column(name = &quot;dueDate&quot;, nullable = false)
+        private LocalDateTime dueTime;
+        @Column(name = &quot;due_created&quot;, nullable = false)
+        private LocalDateTime dueCreated;
+        @Column(name = &quot;paid&quot;, nullable = false)
+        private boolean paid;
+
+
+
+<span class="fc" id="L31">        public Bill() {</span>
+<span class="fc" id="L32">            this.paid = false;</span>
+<span class="fc" id="L33">        }              </span>
+
+
+<span class="nc" id="L36">    public Bill(int bill_id, String bill_name, String bill_amount, LocalDateTime dueTime, LocalDateTime dueCreated, boolean paid){</span>
+<span class="nc" id="L37">                this.bill_id = bill_id;</span>
+<span class="nc" id="L38">                this.bill_name = bill_name;</span>
+<span class="nc" id="L39">                this.bill_amount = bill_amount;</span>
+<span class="nc" id="L40">                this.dueTime = dueTime;</span>
+<span class="nc" id="L41">                this.dueCreated = dueCreated;</span>
+<span class="nc" id="L42">                this.paid = paid;</span>
+<span class="nc" id="L43">        }</span>
+
+    public int getBill_id() {
+<span class="fc" id="L46">        return bill_id;</span>
+    }
+
+    public void setBill_id(int bill_id) {
+<span class="nc" id="L50">        this.bill_id = bill_id;</span>
+<span class="nc" id="L51">    }</span>
+
+    public String getBill_name() {
+<span class="fc" id="L54">        return bill_name;</span>
+    }
+
+    public void setBill_name(String bill_name) {
+<span class="fc" id="L58">        this.bill_name = bill_name;</span>
+<span class="fc" id="L59">    }</span>
+
+    public String getBill_amount() {
+<span class="fc" id="L62">        return bill_amount;</span>
+    }
+
+    public void setBill_amount(String bill_amount) {
+<span class="fc" id="L66">        this.bill_amount = bill_amount;</span>
+<span class="fc" id="L67">    }</span>
+
+    public LocalDateTime getDueTime() {
+<span class="fc" id="L70">        return dueTime;</span>
+    }
+
+    public void setDueTime(LocalDateTime dueTime) {
+<span class="fc" id="L74">        this.dueTime = dueTime;</span>
+<span class="fc" id="L75">    }</span>
+
+    public LocalDateTime getDueCreated() {
+<span class="fc" id="L78">        return dueCreated;</span>
+    }
+
+    public void setDueCreated(LocalDateTime dueCreated) {
+<span class="fc" id="L82">        this.dueCreated = dueCreated;</span>
+<span class="fc" id="L83">    }</span>
+
+    public boolean isPaid() {
+<span class="fc" id="L86">        return paid;</span>
+    }
+
+    public void setPaid(boolean paid) {
+<span class="fc" id="L90">        this.paid = paid;</span>
+<span class="fc" id="L91">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

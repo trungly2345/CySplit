@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotificationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Notifications</a> &gt; <span class="el_source">NotificationController.java</span></div><h1>NotificationController.java</h1><pre class="source lang-java linenums">package manytoone.Notifications;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * REST Controller for managing notifications
+ */
+@RestController
+@RequestMapping(&quot;/notifications&quot;)
+<span class="fc" id="L23">public class NotificationController {</span>
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private GroupRepository groupRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    /**
+     * Get all notifications for a user
+     */
+    @GetMapping(&quot;/user/{userId}&quot;)
+    @Transactional
+    public ResponseEntity&lt;List&lt;Notification&gt;&gt; getUserNotifications(@PathVariable int userId) {
+<span class="nc bnc" id="L43" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L44">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L47">        List&lt;Notification&gt; notifications = notificationRepository.findByRecipientId(userId);</span>
+        
+        // Force initialization of lazy-loaded entities
+<span class="nc" id="L50">        notifications.forEach(n -&gt; {</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">            if (n.getRecipient() != null) n.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">            if (n.getRelatedGroup() != null) n.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">            if (n.getTriggeredBy() != null) n.getTriggeredBy().getUserName();</span>
+<span class="nc" id="L54">        });</span>
+        
+<span class="nc" id="L56">        return ResponseEntity.ok(notifications);</span>
+    }
+
+    /**
+     * Get unread notifications for a user
+     */
+    @GetMapping(&quot;/user/{userId}/unread&quot;)
+    @Transactional
+    public ResponseEntity&lt;List&lt;Notification&gt;&gt; getUnreadNotifications(@PathVariable int userId) {
+<span class="nc bnc" id="L65" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L66">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L69">        List&lt;Notification&gt; notifications = notificationRepository.findUnreadByUserId(userId);</span>
+        
+        // Force initialization
+<span class="nc" id="L72">        notifications.forEach(n -&gt; {</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">            if (n.getRecipient() != null) n.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L74" title="All 2 branches missed.">            if (n.getRelatedGroup() != null) n.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L75" title="All 2 branches missed.">            if (n.getTriggeredBy() != null) n.getTriggeredBy().getUserName();</span>
+<span class="nc" id="L76">        });</span>
+        
+<span class="nc" id="L78">        return ResponseEntity.ok(notifications);</span>
+    }
+
+    /**
+     * Get unread count for a user
+     */
+    @GetMapping(&quot;/user/{userId}/unread/count&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getUnreadCount(@PathVariable int userId) {
+<span class="nc bnc" id="L86" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L87">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L90">        long count = notificationRepository.countUnreadByUserId(userId);</span>
+<span class="nc" id="L91">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L92">        response.put(&quot;userId&quot;, userId);</span>
+<span class="nc" id="L93">        response.put(&quot;unreadCount&quot;, count);</span>
+        
+<span class="nc" id="L95">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Get notifications for a specific group
+     */
+    @GetMapping(&quot;/user/{userId}/group/{groupId}&quot;)
+    @Transactional
+    public ResponseEntity&lt;List&lt;Notification&gt;&gt; getGroupNotifications(
+            @PathVariable int userId,
+            @PathVariable int groupId) {
+        
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L108">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L111">        Group group = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L112" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L113">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L116">        List&lt;Notification&gt; notifications = notificationRepository.findByUserIdAndGroupId(userId, groupId);</span>
+        
+        // Force initialization
+<span class="nc" id="L119">        notifications.forEach(n -&gt; {</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">            if (n.getRecipient() != null) n.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L121" title="All 2 branches missed.">            if (n.getRelatedGroup() != null) n.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">            if (n.getTriggeredBy() != null) n.getTriggeredBy().getUserName();</span>
+<span class="nc" id="L123">        });</span>
+        
+<span class="nc" id="L125">        return ResponseEntity.ok(notifications);</span>
+    }
+
+    /**
+     * Get unread count per group
+     */
+    @GetMapping(&quot;/user/{userId}/group/{groupId}/unread/count&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getGroupUnreadCount(
+            @PathVariable int userId,
+            @PathVariable int groupId) {
+        
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L137">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L140">        long count = notificationRepository.countUnreadByUserIdAndGroupId(userId, groupId);</span>
+<span class="nc" id="L141">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L142">        response.put(&quot;userId&quot;, userId);</span>
+<span class="nc" id="L143">        response.put(&quot;groupId&quot;, groupId);</span>
+<span class="nc" id="L144">        response.put(&quot;unreadCount&quot;, count);</span>
+        
+<span class="nc" id="L146">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Get recent notifications (last 30 days)
+     */
+    @GetMapping(&quot;/user/{userId}/recent&quot;)
+    @Transactional
+    public ResponseEntity&lt;List&lt;Notification&gt;&gt; getRecentNotifications(@PathVariable int userId) {
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L156">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L159">        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);</span>
+<span class="nc" id="L160">        List&lt;Notification&gt; notifications = notificationRepository.findRecentByUserId(userId, thirtyDaysAgo);</span>
+        
+        // Force initialization
+<span class="nc" id="L163">        notifications.forEach(n -&gt; {</span>
+<span class="nc bnc" id="L164" title="All 2 branches missed.">            if (n.getRecipient() != null) n.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            if (n.getRelatedGroup() != null) n.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">            if (n.getTriggeredBy() != null) n.getTriggeredBy().getUserName();</span>
+<span class="nc" id="L167">        });</span>
+        
+<span class="nc" id="L169">        return ResponseEntity.ok(notifications);</span>
+    }
+
+    /**
+     * Get high priority unread notifications
+     */
+    @GetMapping(&quot;/user/{userId}/priority&quot;)
+    @Transactional
+    public ResponseEntity&lt;List&lt;Notification&gt;&gt; getHighPriorityNotifications(@PathVariable int userId) {
+<span class="nc bnc" id="L178" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L179">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L182">        List&lt;Notification&gt; notifications = notificationRepository.findHighPriorityUnread(userId);</span>
+        
+        // Force initialization
+<span class="nc" id="L185">        notifications.forEach(n -&gt; {</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">            if (n.getRecipient() != null) n.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L187" title="All 2 branches missed.">            if (n.getRelatedGroup() != null) n.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L188" title="All 2 branches missed.">            if (n.getTriggeredBy() != null) n.getTriggeredBy().getUserName();</span>
+<span class="nc" id="L189">        });</span>
+        
+<span class="nc" id="L191">        return ResponseEntity.ok(notifications);</span>
+    }
+
+    /**
+     * Mark a notification as read
+     */
+    @PutMapping(&quot;/{notificationId}/read&quot;)
+    @Transactional
+    public ResponseEntity&lt;Notification&gt; markAsRead(@PathVariable int notificationId) {
+<span class="nc" id="L200">        Notification notification = notificationRepository.findById(notificationId).orElse(null);</span>
+        
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        if (notification == null) {</span>
+<span class="nc" id="L203">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L206">        notification.markAsRead();</span>
+<span class="nc" id="L207">        Notification saved = notificationRepository.save(notification);</span>
+        
+        // Force initialization
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        if (saved.getRecipient() != null) saved.getRecipient().getUserName();</span>
+<span class="nc bnc" id="L211" title="All 2 branches missed.">        if (saved.getRelatedGroup() != null) saved.getRelatedGroup().getId();</span>
+<span class="nc bnc" id="L212" title="All 2 branches missed.">        if (saved.getTriggeredBy() != null) saved.getTriggeredBy().getUserName();</span>
+        
+<span class="nc" id="L214">        return ResponseEntity.ok(saved);</span>
+    }
+
+    /**
+     * Mark all notifications as read for a user
+     */
+    @PutMapping(&quot;/user/{userId}/read-all&quot;)
+    @Transactional
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; markAllAsRead(@PathVariable int userId) {
+<span class="nc bnc" id="L223" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L224">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L227">        notificationRepository.markAllAsReadForUser(userId, LocalDateTime.now());</span>
+        
+<span class="nc" id="L229">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L230">        response.put(&quot;message&quot;, &quot;All notifications marked as read&quot;);</span>
+<span class="nc" id="L231">        response.put(&quot;userId&quot;, userId);</span>
+        
+<span class="nc" id="L233">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Mark all group notifications as read
+     */
+    @PutMapping(&quot;/user/{userId}/group/{groupId}/read-all&quot;)
+    @Transactional
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; markGroupNotificationsAsRead(
+            @PathVariable int userId,
+            @PathVariable int groupId) {
+        
+<span class="nc bnc" id="L245" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L246">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L249">        Group group = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L250" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L251">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L254">        notificationRepository.markAllAsReadForGroup(userId, groupId, LocalDateTime.now());</span>
+        
+<span class="nc" id="L256">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L257">        response.put(&quot;message&quot;, &quot;All group notifications marked as read&quot;);</span>
+<span class="nc" id="L258">        response.put(&quot;userId&quot;, userId);</span>
+<span class="nc" id="L259">        response.put(&quot;groupId&quot;, groupId);</span>
+        
+<span class="nc" id="L261">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Delete a notification
+     */
+    @DeleteMapping(&quot;/{notificationId}&quot;)
+    @Transactional
+    public ResponseEntity&lt;Void&gt; deleteNotification(@PathVariable int notificationId) {
+<span class="nc" id="L270">        Notification notification = notificationRepository.findById(notificationId).orElse(null);</span>
+        
+<span class="nc bnc" id="L272" title="All 2 branches missed.">        if (notification == null) {</span>
+<span class="nc" id="L273">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L276">        notificationRepository.deleteById(notificationId);</span>
+        
+<span class="nc" id="L278">        return ResponseEntity.noContent().build();</span>
+    }
+
+    /**
+     * Get notification summary by type
+     */
+    @GetMapping(&quot;/user/{userId}/summary&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getNotificationSummary(@PathVariable int userId) {
+<span class="nc bnc" id="L286" title="All 2 branches missed.">        if (!userRepository.existsById(userId)) {</span>
+<span class="nc" id="L287">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L290">        List&lt;Object[]&gt; summary = notificationRepository.getUnreadSummaryByType(userId);</span>
+        
+<span class="nc" id="L292">        Map&lt;String, Object&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L293">        response.put(&quot;userId&quot;, userId);</span>
+        
+<span class="nc" id="L295">        Map&lt;String, Long&gt; typeCounts = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L296">        summary.forEach(row -&gt; {</span>
+<span class="nc" id="L297">            Notification.NotificationType type = (Notification.NotificationType) row[0];</span>
+<span class="nc" id="L298">            Long count = (Long) row[1];</span>
+<span class="nc" id="L299">            typeCounts.put(type.name(), count);</span>
+<span class="nc" id="L300">        });</span>
+        
+<span class="nc" id="L302">        response.put(&quot;unreadByType&quot;, typeCounts);</span>
+<span class="nc" id="L303">        response.put(&quot;totalUnread&quot;, notificationRepository.countUnreadByUserId(userId));</span>
+        
+<span class="nc" id="L305">        return ResponseEntity.ok(response);</span>
+    }
+
+    /**
+     * Create a test notification (for testing purposes)
+     */
+    @PostMapping(&quot;/test&quot;)
+    @Transactional
+    public ResponseEntity&lt;Notification&gt; createTestNotification(
+            @RequestParam int userId,
+            @RequestParam String title,
+            @RequestParam String message,
+            @RequestParam(required = false) Integer groupId) {
+        
+<span class="nc" id="L319">        User user = userRepository.findById(userId);</span>
+<span class="nc bnc" id="L320" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L321">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L324">        Notification notification = new Notification(</span>
+            user,
+            Notification.NotificationType.SYSTEM_ANNOUNCEMENT,
+            title,
+            message
+        );
+        
+<span class="nc bnc" id="L331" title="All 2 branches missed.">        if (groupId != null) {</span>
+<span class="nc" id="L332">            Group group = groupRepository.findById(groupId).orElse(null);</span>
+<span class="nc bnc" id="L333" title="All 2 branches missed.">            if (group != null) {</span>
+<span class="nc" id="L334">                notification.setRelatedGroup(group);</span>
+            }
+        }
+        
+<span class="nc" id="L338">        Notification saved = notificationRepository.save(notification);</span>
+        
+        // Send via WebSocket
+<span class="nc" id="L341">        notificationService.sendNotificationToUser(userId, saved);</span>
+        
+<span class="nc" id="L343">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Refund.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Refunds</a> &gt; <span class="el_source">Refund.java</span></div><h1>Refund.java</h1><pre class="source lang-java linenums">package manytoone.Refunds;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import manytoone.Bills.Bill;
+
+import java.time.LocalDateTime;
+import java.util.Date;
+
+@Entity
+@Table(name = &quot;refunds&quot;)
+public class Refund {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;refund_id&quot;, nullable = false)
+    private int refund_id;
+    @ManyToOne
+    @JoinColumn(name = &quot;bill_id&quot;, nullable = false)
+    @JsonIgnore
+    private Bill bill;
+    @Column(name = &quot;refund_name&quot;, nullable = false)
+    private String refund_name;
+    @Column(name = &quot;refund_amount&quot;, nullable = false)
+    private String refund_amount;
+    @Column(name = &quot;refund_date&quot;, nullable = false)
+    private LocalDateTime refundDate;
+
+<span class="fc" id="L28">    public Refund() {this.refundDate = LocalDateTime.now();}</span>
+
+
+    public int getRefund_id() {
+<span class="fc" id="L32">        return refund_id;</span>
+    }
+
+    public void setRefund_id(int refund_id) {
+<span class="nc" id="L36">        this.refund_id = refund_id;</span>
+<span class="nc" id="L37">    }</span>
+
+    public Bill getBill(){
+<span class="fc" id="L40">        return bill;</span>
+    }
+
+    public void setBill(Bill bill){
+<span class="fc" id="L44">        this.bill = bill;</span>
+<span class="fc" id="L45">    }</span>
+
+    public int getBillId(){
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        return (bill != null) ? bill.getBill_id() : 0;</span>
+    }
+
+    public String getRefund_name() {
+<span class="fc" id="L52">        return refund_name;</span>
+    }
+
+    public void setRefund_name(String refund_name) {
+<span class="fc" id="L56">        this.refund_name = refund_name;</span>
+<span class="fc" id="L57">    }</span>
+
+    public String getRefund_amount() {
+<span class="fc" id="L60">        return refund_amount;</span>
+    }
+
+    public void setRefund_amount(String refund_amount) {
+<span class="fc" id="L64">        this.refund_amount = refund_amount;</span>
+<span class="fc" id="L65">    }</span>
+
+    public LocalDateTime getRefundDate() {
+<span class="fc" id="L68">        return refundDate;</span>
+    }
+
+    public void setRefundDate(LocalDateTime refundDate) {
+<span class="nc" id="L72">        this.refundDate = refundDate;</span>
+<span class="nc" id="L73">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

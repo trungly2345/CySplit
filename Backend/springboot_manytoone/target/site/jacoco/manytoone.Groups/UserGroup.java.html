@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserGroup.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Groups</a> &gt; <span class="el_source">UserGroup.java</span></div><h1>UserGroup.java</h1><pre class="source lang-java linenums">package manytoone.Groups;
+
+import jakarta.persistence.*;
+import manytoone.Users.User;
+import java.time.LocalDateTime;
+
+
+
+// Test for CI / CD pipe line
+@Entity
+@Table(
+    name = &quot;user_groups&quot;,
+    uniqueConstraints = @UniqueConstraint(
+        name = &quot;uk_user_group&quot;,
+        columnNames = {&quot;user_id&quot;, &quot;group_id&quot;}
+    )
+)
+public class UserGroup {
+    
+<span class="fc" id="L20">    public enum Role {</span>
+<span class="fc" id="L21">        ADMIN,</span>
+<span class="fc" id="L22">        MEMBER</span>
+    }
+    
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;user_id&quot;, nullable = false)
+    private User user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;group_id&quot;, nullable = false)
+    private Group group;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;role&quot;, nullable = false)
+    private Role role;
+
+    @Column(name = &quot;joined_date&quot;, nullable = false)
+    private LocalDateTime joinedDate;
+
+    @Column(name = &quot;total_contribution&quot;)
+    private Double totalContribution;
+
+    @Column(name = &quot;is_active&quot;, nullable = false)
+    private Boolean isActive;
+
+<span class="fc" id="L50">    protected UserGroup() {}</span>
+
+<span class="nc" id="L52">    public UserGroup(User user, Group group, Role role) {</span>
+<span class="nc" id="L53">        this.user = user;</span>
+<span class="nc" id="L54">        this.group = group;</span>
+<span class="nc" id="L55">        this.role = role;</span>
+<span class="nc" id="L56">        this.joinedDate = LocalDateTime.now();</span>
+<span class="nc" id="L57">        this.totalContribution = 0.0;</span>
+<span class="nc" id="L58">        this.isActive = true;</span>
+<span class="nc" id="L59">    }</span>
+
+    public boolean isAdmin() {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">        return this.role == Role.ADMIN;</span>
+    }
+
+    public boolean isMember() {
+<span class="nc bnc" id="L66" title="All 2 branches missed.">        return this.role == Role.MEMBER;</span>
+    }
+
+    public Integer getId() {
+<span class="nc" id="L70">        return id;</span>
+    }
+
+    public User getUser() {
+<span class="nc" id="L74">        return user;</span>
+    }
+
+    public void setUser(User user) {
+<span class="nc" id="L78">        this.user = user;</span>
+<span class="nc" id="L79">    }</span>
+
+    public Group getGroup() {
+<span class="nc" id="L82">        return group;</span>
+    }
+
+    public void setGroup(Group group) {
+<span class="nc" id="L86">        this.group = group;</span>
+<span class="nc" id="L87">    }</span>
+
+    public Role getRole() {
+<span class="nc" id="L90">        return role;</span>
+    }
+
+    public void setRole(Role role) {
+<span class="nc" id="L94">        this.role = role;</span>
+<span class="nc" id="L95">    }</span>
+
+    public LocalDateTime getJoinedDate() {
+<span class="nc" id="L98">        return joinedDate;</span>
+    }
+
+    public void setJoinedDate(LocalDateTime joinedDate) {
+<span class="nc" id="L102">        this.joinedDate = joinedDate;</span>
+<span class="nc" id="L103">    }</span>
+
+    public Double getTotalContribution() {
+<span class="nc" id="L106">        return totalContribution;</span>
+    }
+
+    public void setTotalContribution(Double totalContribution) {
+<span class="nc" id="L110">        this.totalContribution = totalContribution;</span>
+<span class="nc" id="L111">    }</span>
+
+    public Boolean getIsActive() {
+<span class="nc" id="L114">        return isActive;</span>
+    }
+
+    public void setIsActive(Boolean isActive) {
+<span class="nc" id="L118">        this.isActive = isActive;</span>
+<span class="nc" id="L119">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

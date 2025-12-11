@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Main.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone</a> &gt; <span class="el_source">Main.java</span></div><h1>Main.java</h1><pre class="source lang-java linenums">package manytoone;
+
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+
+@SpringBootApplication(scanBasePackages = {
+        &quot;manytoone&quot;
+})
+<span class="fc" id="L14">public class Main {</span>
+    public static void main(String[] args) {
+<span class="nc" id="L16">        SpringApplication.run(Main.class, args);</span>
+<span class="nc" id="L17">    }</span>
+
+
+    //trying to add new format user to the database on startup for testing. Will remove later. Will use the same construction to connect it with Groups.
+    @Bean
+    CommandLineRunner initUser(UserRepository userRepository) {
+<span class="fc" id="L23">        return args -&gt; {</span>
+            // Create a test user
+<span class="fc" id="L25">            User testUser = new User(</span>
+                &quot;testuser&quot;,         // userName
+                &quot;password123&quot;,      // userPassword
+                &quot;515-123-4567&quot;,    // phoneNumber
+                &quot;PayPal&quot;           // paymentMethod
+            );
+<span class="fc" id="L31">            testUser.setName(&quot;Test User&quot;);</span>
+<span class="fc" id="L32">            testUser.setEmailId(&quot;testuser@iastate.edu&quot;);</span>
+<span class="fc" id="L33">            testUser.setIfActive(true);</span>
+            
+            // Save the user to database
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">            if (!userRepository.existsByUserName(&quot;testuser&quot;)) {</span>
+<span class="nc" id="L37">                User savedUser = userRepository.save(testUser);</span>
+<span class="nc" id="L38">                System.out.println(&quot;Test user created with ID: &quot; + savedUser.getId());</span>
+<span class="nc" id="L39">            } else {</span>
+<span class="fc" id="L40">                System.out.println(&quot;Test user already exists&quot;);</span>
+            } 
+<span class="fc" id="L42">        };</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

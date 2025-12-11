@@ -1,6 +1,5 @@
 package manytoone.Refunds;
 
-
 import manytoone.Bills.Bill;
 import manytoone.Bills.BillRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("bills/refunds")
+@RequestMapping("/bills/{bill_id}/refunds")
 public class RefundController {
+
     @Autowired
     private RefundRepository refundRepository;
 
@@ -21,39 +21,110 @@ public class RefundController {
     private BillRepository billRepository;
 
 
-    // List all refunds
     @GetMapping
-    public ResponseEntity<List<Refund>> getAllRefunds() {
-        List<Refund> refunds = refundRepository.findAll();
+    public ResponseEntity<?> getRefundsForBill(@PathVariable int bill_id) {
+
+        Optional<Bill> billOpt = billRepository.findById(bill_id);
+        if (billOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Bill not found\"}");
+        }
+
+        Bill bill = billOpt.get();
+        List<Refund> refunds = refundRepository.findByBill(bill);
+
         return ResponseEntity.ok(refunds);
     }
 
 
-    // Get a refund by refund id
     @GetMapping("/{refund_id}")
-    public ResponseEntity<Refund> getRefundById(@PathVariable int refund_id) {
+    public ResponseEntity<?> getRefundById(@PathVariable int bill_id,
+                                           @PathVariable int refund_id) {
+
         Optional<Refund> refundOpt = refundRepository.findById(refund_id);
-        return refundOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        if (refundOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Refund not found\"}");
+        }
+
+        Refund refund = refundOpt.get();
+
+
+        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"Refund does not belong to this bill\"}");
+        }
+
+        return ResponseEntity.ok(refund);
     }
 
 
-    /***
-     * Creates a refund from an existing bill
-     *
-     * @param bill_id, a specific bill id from an existing bill
-     * @param req, a request body from refund to be saved to the repository
-     *
-     * @return a response body from the post request
-     */
-    @PostMapping("/{bill_id}")
-    public ResponseEntity<Refund> createRefund(@PathVariable int bill_id,
-                                               @RequestBody Refund req) {
+    @PostMapping
+    public ResponseEntity<?> createRefund(@PathVariable int bill_id,
+                                          @RequestBody Refund req) {
 
-        Bill bill = billRepository.findById(bill_id).orElseThrow(() -> new RuntimeException("Bill not found"));
+        Optional<Bill> billOpt = billRepository.findById(bill_id);
+        if (billOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Bill not found\"}");
+        }
+
+        Bill bill = billOpt.get();
+
         req.setBill(bill);
-        Refund newRefund = refundRepository.save(req);
-        return ResponseEntity.status(HttpStatus.CREATED).body(newRefund);
+
+        Refund saved = refundRepository.save(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
     }
 
+
+    @PutMapping("/{refund_id}")
+    public ResponseEntity<?> editRefund(@PathVariable int bill_id,
+                                        @PathVariable int refund_id,
+                                        @RequestBody Refund req) {
+
+        Optional<Refund> refundOpt = refundRepository.findById(refund_id);
+        if (refundOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Refund not found\"}");
+        }
+
+        Refund refund = refundOpt.get();
+
+        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"Refund does not belong to this bill\"}");
+        }
+
+        // Update fields
+        refund.setRefund_name(req.getRefund_name());
+        refund.setRefund_amount(req.getRefund_amount());
+
+        refundRepository.save(refund);
+
+        return ResponseEntity.ok(refund);
+    }
+
+    @DeleteMapping("/{refund_id}")
+    public ResponseEntity<?> deleteRefund(@PathVariable int bill_id,
+                                          @PathVariable int refund_id) {
+
+        Optional<Refund> refundOpt = refundRepository.findById(refund_id);
+        if (refundOpt.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("{\"message\": \"Refund not found\"}");
+        }
+
+        Refund refund = refundOpt.get();
+
+        if (refund.getBill() == null || refund.getBill().getBill_id() != bill_id) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("{\"message\": \"Refund does not belong to this bill\"}");
+        }
+
+        refundRepository.delete(refund);
+
+        return ResponseEntity.noContent().build();
+    }
 
 }

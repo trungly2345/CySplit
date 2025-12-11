@@ -4,7 +4,6 @@ import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
 import manytoone.Bills.Bill;
 import manytoone.Bills.BillRepository;
-import manytoone.Main;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

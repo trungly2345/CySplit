@@ -24,12 +24,14 @@
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/MessageAttachmentController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/UserSearchResponse.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Notifications/NotificationService.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/MessageRead.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/UserGroupController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/UserRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/MessageRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/UserGroupRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/websocket/WebSocketConfig.java
+/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Messages/MessageReadRepository.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitationController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Bills/Bill.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Conversations/ConversationController.java
@@ -44,4 +46,3 @@
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Groups/GroupInvitation.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Bills/BillShareController.java
 /Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/Users/UserController.java
-/Users/trungquocly/3_hosen_3/Backend/springboot_manytoone/src/main/java/manytoone/TrungLySystemTest.java

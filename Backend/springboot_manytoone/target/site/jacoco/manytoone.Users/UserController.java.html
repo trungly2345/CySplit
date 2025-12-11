@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Users</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package manytoone.Users;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+
+@RestController
+@RequestMapping(&quot;/users&quot;)  // Base path for all user endpoints
+<span class="fc" id="L11">public class UserController {</span>
+
+    @Autowired
+    UserRepository userRepository;
+
+
+<span class="fc" id="L17">    private String success = &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</span>
+<span class="fc" id="L18">    private String failure = &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</span>
+
+    // Search users by username (for adding friends/to groups - returns minimal info)
+    @GetMapping(&quot;/search/{username}&quot;)
+    public ResponseEntity&lt;UserSearchResponse&gt; searchUserByUsername(@PathVariable String username) {
+<span class="nc" id="L23">        User user = userRepository.findByUserName(username);</span>
+<span class="nc bnc" id="L24" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L25">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L27">        return ResponseEntity.ok(new UserSearchResponse(user.getId(), user.getUserName(), user.getUserRating()));</span>
+    }
+
+    // Get user by ID
+    @GetMapping(&quot;/{user_id}&quot;)
+    public ResponseEntity&lt;User&gt; getUserById(@PathVariable int user_id) {
+<span class="nc" id="L33">        User user = userRepository.findById(user_id);</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L35">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L37">        return ResponseEntity.ok(user);</span>
+    }
+
+    // Create new user
+    @PostMapping(&quot;&quot;)
+    public ResponseEntity&lt;User&gt; createUser(@RequestBody User user) {
+        // Check if username already exists
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (userRepository.existsByUserName(user.getUserName())) {</span>
+<span class="nc" id="L45">            return ResponseEntity.status(HttpStatus.CONFLICT).build();</span>
+        }
+<span class="nc" id="L47">        User newUser = userRepository.save(user);</span>
+<span class="nc" id="L48">        return ResponseEntity.status(HttpStatus.CREATED).body(newUser);</span>
+    }
+
+    // Update user
+    @PutMapping(&quot;/{user_id}&quot;)
+    public ResponseEntity&lt;User&gt; updateUser(@PathVariable int user_id, @RequestBody User request) {
+        try {
+<span class="nc" id="L55">            User existingUser = userRepository.findById(user_id);</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">            if (existingUser == null) {</span>
+<span class="nc" id="L57">                return ResponseEntity.notFound().build();</span>
+            }
+
+            // Check if new username already exists and is not the current user
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            if (!request.getUserName().equals(existingUser.getUserName()) &amp;&amp; </span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                userRepository.existsByUserName(request.getUserName())) {</span>
+<span class="nc" id="L63">                return ResponseEntity.status(HttpStatus.CONFLICT).build();</span>
+            }
+
+            // Update all fields
+<span class="nc" id="L67">            existingUser.setUserName(request.getUserName());</span>
+<span class="nc" id="L68">            existingUser.setUserPassword(request.getUserPassword());</span>
+<span class="nc" id="L69">            existingUser.setPhoneNumber(request.getPhoneNumber());</span>
+<span class="nc" id="L70">            existingUser.setPaymentMethod(request.getPaymentMethod());</span>
+<span class="nc" id="L71">            existingUser.setUserRating(request.getUserRating());</span>
+<span class="nc" id="L72">            existingUser.setName(request.getName());</span>
+<span class="nc" id="L73">            existingUser.setEmailId(request.getEmailId());</span>
+<span class="nc" id="L74">            existingUser.setIfActive(request.isIfActive());</span>
+
+<span class="nc" id="L76">            User updatedUser = userRepository.save(existingUser);</span>
+<span class="nc" id="L77">            return ResponseEntity.ok(updatedUser);</span>
+<span class="nc" id="L78">        } catch (Exception e) {</span>
+<span class="nc" id="L79">            return ResponseEntity.status(HttpStatus.BAD_REQUEST)</span>
+<span class="nc" id="L80">                .body(null);</span>
+        }
+    }
+
+    // Delete user
+    @DeleteMapping(&quot;/{user_id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteUser(@PathVariable int user_id) {
+<span class="nc bnc" id="L87" title="All 2 branches missed.">        if (!userRepository.existsById(user_id)) {</span>
+<span class="nc" id="L88">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L90">        userRepository.deleteById(user_id);</span>
+<span class="nc" id="L91">        return ResponseEntity.noContent().build();</span>
+    }
+
+    // Login endpoint
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;User&gt; login(@RequestBody LoginRequest loginRequest) {
+<span class="nc" id="L97">        User user = userRepository.findByUserNameAndPassword(</span>
+<span class="nc" id="L98">            loginRequest.getUserName(), </span>
+<span class="nc" id="L99">            loginRequest.getUserPassword()</span>
+        );
+        
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L103">            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();</span>
+        }
+        
+<span class="nc" id="L106">        return ResponseEntity.ok(user);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,3 +1,4 @@
+manytoone/Messages/MessageRead.class
 manytoone/Groups/GroupInvitationController.class
 manytoone/Conversations/Conversation.class
 manytoone/Groups/GroupController.class
@@ -12,6 +13,7 @@ manytoone/BillsToGroup/BillToGroup.class
 manytoone/Messages/MessageAttachment.class
 manytoone/Messages/MessageRequest.class
 manytoone/Users/User.class
+manytoone/Messages/MessageReadRepository.class
 manytoone/Bills/BillShareController.class
 manytoone/Groups/GroupInvitationRepository.class
 manytoone/Messages/MessageAttachmentController.class
