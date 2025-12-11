@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 
 
 /**
@@ -25,6 +29,11 @@ public class GroupController {
     @Autowired
     GroupRepository groupRepository;
 
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
 
     private String success = "{\"message\":\"success\"}";
     private String failure = "{\"message\":\"failure\"}";
@@ -36,8 +45,13 @@ public class GroupController {
 
     @PostMapping("/groups")
     public ResponseEntity <Group> createGroup(@RequestBody Group req) {
-     Group newGroup = groupRepository.save(req);
-      return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
+        // If this is a temporary group and no join code provided, generate one
+        if (req.isTemporary() && (req.getJoinCode() == null || req.getJoinCode().isEmpty())) {
+            String uniqueCode = JoinCodeGenerator.generateUniqueCode(groupRepository);
+            req.setJoinCode(uniqueCode);
+        }
+        Group newGroup = groupRepository.save(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);
     }
 
 
@@ -64,5 +78,53 @@ public class GroupController {
      }
      groupRepository.deleteById(group_id);
        return ResponseEntity.noContent().build();
+   }
+
+   // ========== JOIN BY CODE ENDPOINT ==========
+   @PostMapping("/groups/join/{code}")
+   public ResponseEntity<?> joinGroupByCode(
+           @PathVariable String code,
+           @RequestParam int userId) {
+       
+       // Find group by join code
+       Group group = groupRepository.findByJoinCode(code.toUpperCase());
+       if (group == null) {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                   .body("{\"message\":\"Invalid join code\"}");
+       }
+       
+       // Find user
+       User user = userRepository.findById(userId);
+       if (user == null) {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                   .body("{\"message\":\"User not found\"}");
+       }
+       
+       // Check if user is already in the group
+       if (userGroupRepository.existsByUserIdAndGroupId(userId, group.getId())) {
+           return ResponseEntity.status(HttpStatus.CONFLICT)
+                   .body("{\"message\":\"User already in group\"}");
+       }
+       
+       // Add user to group as MEMBER
+       UserGroup userGroup = new UserGroup(user, group, UserGroup.Role.MEMBER);
+       UserGroup savedUserGroup = userGroupRepository.save(userGroup);
+       
+       // Force initialization
+       savedUserGroup.getUser().getUserName();
+       savedUserGroup.getGroup().getId();
+       
+       return ResponseEntity.status(HttpStatus.CREATED).body(savedUserGroup);
+   }
+
+   // ========== GET GROUP BY CODE ENDPOINT ==========
+   @GetMapping("/groups/code/{code}")
+   public ResponseEntity<?> getGroupByCode(@PathVariable String code) {
+       Group group = groupRepository.findByJoinCode(code.toUpperCase());
+       if (group == null) {
+           return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                   .body("{\"message\":\"Invalid join code\"}");
+       }
+       return ResponseEntity.ok(group);
    }
 }

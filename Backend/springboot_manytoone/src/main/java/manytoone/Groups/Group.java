@@ -1,8 +1,8 @@
 package manytoone.Groups;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -29,14 +29,27 @@ public class Group {
     @Column(name = "capacity")
     private int capacity;
 
+    @Column(name = "join_code", unique = true, length = 5)
+    private String joinCode;
 
-    @JsonIgnore
-    public Group() {}                 // <-- required no-args ctor
+    @Column(name = "is_temporary")
+    @JsonProperty("isTemporary")
+    private boolean isTemporary = false;
+
+
+    public Group() {}                 // <-- required no-args ctor for JPA and Jackson
 
 
     public Group(String group_name, int capacity){
         this.group_name = group_name;
         this.capacity = capacity;
+        this.isTemporary = false;
+    }
+
+    public Group(String group_name, int capacity, boolean isTemporary){
+        this.group_name = group_name;
+        this.capacity = capacity;
+        this.isTemporary = isTemporary;
     }
 
     public int getId() {
@@ -63,6 +76,22 @@ public class Group {
 
     public void setCapacity(int capacity) {
         this.capacity = capacity;
+    }
+
+    public String getJoinCode() {
+        return joinCode;
+    }
+
+    public void setJoinCode(String joinCode) {
+        this.joinCode = joinCode;
+    }
+
+    public boolean isTemporary() {
+        return isTemporary;
+    }
+
+    public void setTemporary(boolean temporary) {
+        isTemporary = temporary;
     }
 
 }
