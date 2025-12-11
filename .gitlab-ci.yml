@@ -5,7 +5,7 @@ stages:
 maven-build:
   stage: mavenbuild
   tags:
-    - springboot_tag        # <-- use your LOCAL runner tag here
+    - trungly_tag        # <-- use your LOCAL runner tag here
   script:
     - cd Backend/springboot_manytoone
     - mvn package
@@ -21,7 +21,7 @@ maven-build:
 maven-test:
   stage: maventest
   tags:
-    - springboot_tag           # <-- same local runner tag
+    - trungly_tag           # <-- same local runner tag
   script:
     - cd Backend/springboot_manytoone
     - mvn test
