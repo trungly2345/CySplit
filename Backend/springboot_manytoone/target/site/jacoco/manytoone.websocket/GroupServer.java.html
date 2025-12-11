@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupServer.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.websocket</a> &gt; <span class="el_source">GroupServer.java</span></div><h1>GroupServer.java</h1><pre class="source lang-java linenums">package manytoone.websocket;
+
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnMessage;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
+import jakarta.websocket.server.PathParam;
+import jakarta.websocket.server.ServerEndpoint;
+
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupInvitationRepository;
+import manytoone.Groups.GroupRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+/**
+ * Represents a WebSocket chat server for handling real-time communication
+ * between users. Each user connects to the server using their unique
+ * username.
+ *
+ * This class is annotated with Spring's `@ServerEndpoint` and `@Component`
+ * annotations, making it a WebSocket endpoint that can handle WebSocket
+ * connections at the &quot;/chat/{username}&quot; endpoint.
+ *
+ * Example URL: ws://localhost:8080/chat/username
+ *
+ * The server provides functionality for broadcasting messages to all connected
+ * users and sending messages to specific users.
+ */
+@ServerEndpoint(&quot;/GroupServer/{group_name}/{user_name}&quot;)
+@Component
+<span class="fc" id="L40">public class GroupServer {</span>
+
+    // Store all socket session and their corresponding username
+    // Two maps for the ease of retrieval by key
+<span class="fc" id="L44">    private static final Map &lt;String , Set&lt;Session&gt;&gt; groupSession = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L45">    private static final Map &lt;Session, String&gt; sessionToGroup = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L46">    private static final Map &lt; Session , String&gt; sessionToUser = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="fc" id="L47">    private static final Map &lt; String, Session &gt; usernameSessionMap = new ConcurrentHashMap &lt;&gt; ();</span>
+<span class="fc" id="L48">    private static final Map &lt; String, Session &gt; groupnameSessionMap = new ConcurrentHashMap &lt;&gt; ();</span>
+
+    // server side logger
+<span class="fc" id="L51">    private final Logger logger = LoggerFactory.getLogger(GroupServer.class);</span>
+
+    /**
+     * This method is called when a new WebSocket connection is established.
+     *
+     * @param session represents the WebSocket session for the connected user.
+     * @param group_name username specified in path parameter.
+     */
+    @OnOpen
+    public void onOpen(Session session, @PathParam(&quot;group_name&quot;) String group_name, @PathParam(&quot;user_name&quot;) String username) throws IOException {
+
+        GroupRepository groupRepository;
+
+<span class="nc" id="L64">        groupSession.computeIfAbsent(group_name, g -&gt; ConcurrentHashMap.newKeySet()).add(session);</span>
+<span class="nc" id="L65">        sessionToGroup.put(session, group_name);</span>
+<span class="nc" id="L66">        sessionToUser.put(session, username);</span>
+<span class="nc" id="L67">        usernameSessionMap.put(username,session);</span>
+
+<span class="nc" id="L69">        broadcast(group_name, &quot;User &quot; + username + &quot; has joined the chat!&quot; );</span>
+
+       // check if the group name duplicate exists
+<span class="nc bnc" id="L72" title="All 2 branches missed.">        if (groupnameSessionMap.containsKey(group_name)) {</span>
+<span class="nc" id="L73">            session.getBasicRemote().sendText(&quot;Group Name exists!&quot;);</span>
+        }
+<span class="nc" id="L75">    }</span>
+
+    @OnClose
+    public void onClose(Session session) {
+<span class="nc" id="L79">        String group = sessionToGroup.remove(session);</span>
+<span class="nc" id="L80">        String user  = sessionToUser.remove(session);</span>
+<span class="nc bnc" id="L81" title="All 2 branches missed.">        if (group != null) {</span>
+<span class="nc" id="L82">            Set&lt;Session&gt; set = groupSession.get(group);</span>
+<span class="nc bnc" id="L83" title="All 2 branches missed.">            if (set != null) set.remove(session);</span>
+<span class="nc bnc" id="L84" title="All 2 branches missed.">            broadcast(group, &quot;[leave] &quot; + (user != null ? user : &quot;user&quot;) + &quot; left&quot;);</span>
+        }
+<span class="nc" id="L86">    }</span>
+
+    @OnMessage
+    public void onMessage(Session session, String message) throws IOException{
+        // get the user from the session
+<span class="nc" id="L91">        String user = sessionToUser.get(session);</span>
+<span class="nc" id="L92">        String group = sessionToGroup.get(session);</span>
+
+<span class="nc" id="L94">        logger.info(&quot;[onMessage] &quot; + group + user + &quot;: &quot; + message);</span>
+
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        message = (message == null) ? &quot; &quot; : message.trim();</span>
+
+<span class="nc bnc" id="L98" title="All 2 branches missed.">        if(message.isEmpty()){</span>
+<span class="nc" id="L99">            return;</span>
+        }
+
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if(message.startsWith(&quot;@&quot;)){</span>
+<span class="nc" id="L103">            String[] split_msg = message.split(&quot;\\s+&quot;);</span>
+
+<span class="nc" id="L105">            StringBuilder msgBuilder = new StringBuilder();</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">            for(int i = 1; i &lt; split_msg.length; i++){</span>
+<span class="nc" id="L107">                msgBuilder.append(split_msg[i]).append(&quot; &quot;);</span>
+            }
+<span class="nc" id="L109">            String toUserName = split_msg[0].substring(1);</span>
+<span class="nc" id="L110">            String Msg = msgBuilder.toString();</span>
+<span class="nc" id="L111">            sendMessageToPArticularUser(toUserName, &quot;&lt;Whisper from...&quot; + user + &quot;&gt; : &quot; + Msg);</span>
+<span class="nc" id="L112">            sendMessageToPArticularUser(user, &quot;&lt;Whisper from...&quot; + user + &quot;&gt; : &quot; + Msg);</span>
+
+<span class="nc" id="L114">        } else {</span>
+<span class="nc" id="L115">            broadcast(group, &quot; &lt;&quot; + user + &quot;&gt; &quot; + &quot; &quot; + message);</span>
+        }
+
+<span class="nc" id="L118">    }</span>
+
+    /**
+     * Sends a message to a specific user in the chat (DM).
+     *
+     * @param username The username of the recipient.
+     * @param message  The message to be sent.
+     */
+    private void sendMessageToPArticularUser(String username, String message) {
+        try {
+<span class="nc" id="L128">            usernameSessionMap.get(username).getBasicRemote().sendText(message);</span>
+<span class="nc" id="L129">        } catch (IOException e) {</span>
+<span class="nc" id="L130">            logger.info(&quot;[DM Exception] &quot; + e.getMessage());</span>
+<span class="nc" id="L131">        }</span>
+<span class="nc" id="L132">    }</span>
+
+    /**
+     * Broadcasts a message to all users in the chat.
+     *
+     * @param message The message to be broadcasted to all users.
+     */
+    private void broadcast(String group_name, String message) {
+<span class="nc" id="L140">        Set &lt;Session&gt; sessions = groupSession.get(group_name);</span>
+<span class="nc" id="L141">        sessions.forEach((session) -&gt; {</span>
+            try {
+<span class="nc" id="L143">                session.getBasicRemote().sendText(message);</span>
+<span class="nc" id="L144">            } catch (IOException e) {</span>
+<span class="nc" id="L145">                logger.info(&quot;[Broadcast Exception] &quot; + e.getMessage());</span>
+<span class="nc" id="L146">            }</span>
+<span class="nc" id="L147">        });</span>
+<span class="nc" id="L148">    }</span>
+
+
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

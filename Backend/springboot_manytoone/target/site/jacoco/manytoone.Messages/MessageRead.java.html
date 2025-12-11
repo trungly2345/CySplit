@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MessageRead.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Messages</a> &gt; <span class="el_source">MessageRead.java</span></div><h1>MessageRead.java</h1><pre class="source lang-java linenums">package manytoone.Messages;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
+import manytoone.Users.User;
+
+/**
+ * Entity to track which users have read which messages in group conversations
+ */
+@Entity
+@Table(name = &quot;message_reads&quot;, 
+       uniqueConstraints = @UniqueConstraint(columnNames = {&quot;message_id&quot;, &quot;user_id&quot;}))
+public class MessageRead {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;id&quot;)
+    private Integer id;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;message_id&quot;, nullable = false)
+    private Message message;
+
+    @ManyToOne
+    @JoinColumn(name = &quot;user_id&quot;, nullable = false)
+    private User user;
+
+<span class="pc" id="L37">    @Column(name = &quot;read_at&quot;, nullable = false)</span>
+<span class="pc" id="L38">    private LocalDateTime readAt = LocalDateTime.now();</span>
+
+<span class="fc" id="L40">    protected MessageRead() {}</span>
+
+<span class="nc" id="L42">    public MessageRead(Message message, User user) {</span>
+<span class="nc" id="L43">        this.message = message;</span>
+<span class="nc" id="L44">        this.user = user;</span>
+<span class="nc" id="L45">        this.readAt = LocalDateTime.now();</span>
+<span class="nc" id="L46">    }</span>
+
+    // Getters and Setters
+
+    public Integer getId() {
+<span class="nc" id="L51">        return id;</span>
+    }
+
+    public Message getMessage() {
+<span class="nc" id="L55">        return message;</span>
+    }
+
+    public void setMessage(Message message) {
+<span class="nc" id="L59">        this.message = message;</span>
+<span class="nc" id="L60">    }</span>
+
+    public User getUser() {
+<span class="nc" id="L63">        return user;</span>
+    }
+
+    public void setUser(User user) {
+<span class="nc" id="L67">        this.user = user;</span>
+<span class="nc" id="L68">    }</span>
+
+    public LocalDateTime getReadAt() {
+<span class="nc" id="L71">        return readAt;</span>
+    }
+
+    public void setReadAt(LocalDateTime readAt) {
+<span class="nc" id="L75">        this.readAt = readAt;</span>
+<span class="nc" id="L76">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

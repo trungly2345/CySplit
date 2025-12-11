@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupInvitationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Groups</a> &gt; <span class="el_source">GroupInvitationController.java</span></div><h1>GroupInvitationController.java</h1><pre class="source lang-java linenums">package manytoone.Groups;
+
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.Notifications.NotificationService;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+
+@RestController
+<span class="fc" id="L23">public class GroupInvitationController {</span>
+
+    @Autowired
+    GroupRepository groupRepository;
+
+    @Autowired
+    GroupInvitationRepository invitationRepository;
+    
+    @Autowired
+    UserRepository userRepository;
+    
+    @Autowired
+    NotificationService notificationService;
+
+
+
+
+<span class="fc" id="L40">    private String success = &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</span>
+<span class="fc" id="L41">    private String failure = &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</span>
+
+    @GetMapping(&quot;/invitations&quot;)
+    public List&lt;GroupInvitation&gt; getGroupInviationById() {
+<span class="nc" id="L45">        return invitationRepository.findAll();</span>
+    }
+
+    @GetMapping(&quot;/invitations/{invitation_id}&quot;)
+    public ResponseEntity &lt;GroupInvitation&gt; getGroupInvitationById(@PathVariable Long invitation_id) {
+<span class="nc" id="L50">        Optional&lt;GroupInvitation&gt; invitation = invitationRepository.findById(invitation_id);</span>
+<span class="nc" id="L51">        return invitation.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());</span>
+    }
+
+    @GetMapping(&quot;/invitations/user/{userName}&quot;)
+    public ResponseEntity&lt;List&lt;GroupInvitation&gt;&gt; getInvitationsForUser(@PathVariable String userName) {
+<span class="nc" id="L56">        User user = userRepository.findByUserName(userName);</span>
+<span class="nc bnc" id="L57" title="All 2 branches missed.">        if (user == null) {</span>
+<span class="nc" id="L58">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L61">        List&lt;GroupInvitation&gt; invitations = invitationRepository.findAllByUser_Id(user.getId());</span>
+<span class="nc" id="L62">        return ResponseEntity.ok(invitations);</span>
+    }
+
+    @GetMapping(&quot;/groups/{group_id}/invitations&quot;)
+    public ResponseEntity&lt;List&lt;GroupInvitation&gt;&gt; getInvitationsForGroup(@PathVariable int group_id) {
+<span class="nc" id="L67">        Group group = groupRepository.findById(group_id);</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L69">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L72">        List&lt;GroupInvitation&gt; invitations = invitationRepository.findAllByGroup_Id(group_id);</span>
+<span class="nc" id="L73">        return ResponseEntity.ok(invitations);</span>
+    }
+
+    // Invite a specific user to a specific group
+    @PostMapping(&quot;/groups/{user_id}/{group_id}/invitations&quot;)
+    public ResponseEntity&lt;GroupInvitation&gt; createInvitation(
+            @PathVariable(&quot;group_id&quot;) int groupId,
+            @PathVariable(&quot;user_id&quot;) int userId) {
+
+
+        // find group
+<span class="nc" id="L84">        Group group = groupRepository.findById(groupId);</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L86">            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();</span>
+        }
+
+
+        // find user
+<span class="nc" id="L91">        User recipient = userRepository.findById(userId);</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">        if (recipient == null) {</span>
+<span class="nc" id="L93">            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();</span>
+        }
+        
+<span class="nc bnc" id="L96" title="All 2 branches missed.">        if (invitationRepository.existsByGroup_IdAndUser_Id(groupId, userId)) {</span>
+<span class="nc" id="L97">            return ResponseEntity.status(HttpStatus.CONFLICT).build();</span>
+        }
+        
+<span class="nc" id="L100">        User inviter = userRepository.findAll().stream().findFirst().orElse(null);</span>
+<span class="nc bnc" id="L101" title="All 2 branches missed.">        if (inviter == null) {</span>
+<span class="nc" id="L102">            System.out.println(&quot;WARNING: No users exist in database. Create a user first.&quot;);</span>
+        }
+
+<span class="nc" id="L105">        GroupInvitation invitation = new GroupInvitation(group, recipient);</span>
+<span class="nc" id="L106">        invitation.setInv_status(GroupInvitation.invitationStatus.Pending);</span>
+<span class="nc" id="L107">        GroupInvitation saved = invitationRepository.save(invitation);</span>
+
+        
+<span class="nc bnc" id="L110" title="All 2 branches missed.">        if (inviter != null) {</span>
+<span class="nc" id="L111">            notificationService.notifyGroupInvitation(recipient, group, inviter);</span>
+        }
+        
+<span class="nc" id="L114">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+
+
+
+    @PutMapping(&quot;invitations/{invitation_id}&quot;)
+    public ResponseEntity &lt;GroupInvitation&gt; updateGroup(@PathVariable int invitation_id, @RequestBody GroupInvitation req){
+<span class="nc" id="L121">        Optional&lt;GroupInvitation&gt;currentInv = invitationRepository.findById((long) invitation_id);</span>
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        if (currentInv.isEmpty()) {</span>
+<span class="nc" id="L123">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L125">        GroupInvitation invitation = currentInv.get();</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">        if (req.getInv_status() == null){</span>
+<span class="nc" id="L127">            invitation.setInv_status(req.getInv_status());</span>
+        }
+
+<span class="nc bnc" id="L130" title="All 2 branches missed.">        if (req.getDateCreated() == null){</span>
+<span class="nc" id="L131">            invitation.setDateCreated(req.getDateCreated());</span>
+        }
+
+<span class="nc" id="L134">        GroupInvitation updated = invitationRepository.save(invitation);</span>
+<span class="nc" id="L135">        return ResponseEntity.ok(updated);</span>
+
+
+    }
+
+
+
+    @PutMapping(&quot;invitations/{invitation_id}/invitationStatus&quot;)
+    public ResponseEntity&lt;GroupInvitation&gt; updateInvitationStatus(
+            @PathVariable int invitation_id, 
+            @RequestBody GroupInvitation req) {
+        
+<span class="nc" id="L147">        Optional&lt;GroupInvitation&gt; currentInv = invitationRepository.findById((long) invitation_id);</span>
+<span class="nc bnc" id="L148" title="All 2 branches missed.">        if (currentInv.isEmpty()) {</span>
+<span class="nc" id="L149">            return ResponseEntity.notFound().build();</span>
+        }
+        
+<span class="nc" id="L152">        GroupInvitation invitation = currentInv.get();</span>
+<span class="nc" id="L153">        GroupInvitation.invitationStatus oldStatus = invitation.getInv_status();</span>
+        
+        // Update the status
+<span class="nc bnc" id="L156" title="All 2 branches missed.">        if (req.getInv_status() != null) {</span>
+<span class="nc" id="L157">            invitation.setInv_status(req.getInv_status());</span>
+        }
+        
+<span class="nc" id="L160">        GroupInvitation updated = invitationRepository.save(invitation);</span>
+        
+<span class="nc bnc" id="L162" title="All 4 branches missed.">        if (req.getInv_status() == GroupInvitation.invitationStatus.Accepted &amp;&amp; </span>
+            oldStatus != GroupInvitation.invitationStatus.Accepted) {
+            
+<span class="nc" id="L165">            User acceptedUser = userRepository.findByUserName(invitation.getUserName());</span>
+<span class="nc" id="L166">            Group group = invitation.getGroup();</span>
+            
+<span class="nc bnc" id="L168" title="All 4 branches missed.">            if (acceptedUser != null &amp;&amp; group != null) {</span>
+<span class="nc" id="L169">                User admin = userRepository.findAll().stream().findFirst().orElse(null);</span>
+<span class="nc bnc" id="L170" title="All 2 branches missed.">                if (admin != null) {</span>
+<span class="nc" id="L171">                    notificationService.notifyInvitationAccepted(admin, group, acceptedUser);</span>
+                }
+            }
+        }
+        
+<span class="nc" id="L176">        return ResponseEntity.ok(updated);</span>
+    }
+
+
+    @DeleteMapping(&quot;invitations/{invitation_id}&quot;)
+    public ResponseEntity &lt;GroupInvitation&gt; deleteGroupById(@PathVariable Long invitation_id){
+<span class="nc bnc" id="L182" title="All 2 branches missed.">        if (!invitationRepository.existsById(invitation_id)){</span>
+<span class="nc" id="L183">            return ResponseEntity.notFound().build();</span>
+        }
+<span class="nc" id="L185">        invitationRepository.deleteById(invitation_id);</span>
+<span class="nc" id="L186">        return ResponseEntity.noContent().build();</span>
+    }
+
+
+
+
+
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

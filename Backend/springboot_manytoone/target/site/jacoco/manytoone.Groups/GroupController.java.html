@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Groups</a> &gt; <span class="el_source">GroupController.java</span></div><h1>GroupController.java</h1><pre class="source lang-java linenums">package manytoone.Groups;
+
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+
+/**
+ *
+ * @author Vivek Bengre
+ *
+ */
+
+@RestController
+<span class="fc" id="L23">public class GroupController {</span>
+
+    @Autowired
+    GroupRepository groupRepository;
+
+
+<span class="fc" id="L29">    private String success = &quot;{\&quot;message\&quot;:\&quot;success\&quot;}&quot;;</span>
+<span class="fc" id="L30">    private String failure = &quot;{\&quot;message\&quot;:\&quot;failure\&quot;}&quot;;</span>
+
+    @GetMapping(&quot;/groups/{group_id}&quot;)
+    public Group getGroupById(@PathVariable int group_id) {
+<span class="nc" id="L34">        return groupRepository.findById(group_id);</span>
+    }
+
+    @PostMapping(&quot;/groups&quot;)
+    public ResponseEntity &lt;Group&gt; createGroup(@RequestBody Group req) {
+<span class="nc" id="L39">     Group newGroup = groupRepository.save(req);</span>
+<span class="nc" id="L40">      return ResponseEntity.status(HttpStatus.CREATED).body(newGroup);</span>
+    }
+
+
+
+   @PutMapping(&quot;/groups/{group_id}&quot;)
+    public ResponseEntity &lt;Group&gt; updateGroup(@PathVariable int group_id, @RequestBody Group request){
+<span class="nc" id="L47">       Group updateGroup = groupRepository.findById(group_id);</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">       if (updateGroup == null){</span>
+<span class="nc" id="L49">           return null;</span>
+       }
+<span class="nc" id="L51">       updateGroup.setGroup_name(request.getGroup_name());</span>
+<span class="nc" id="L52">       updateGroup.setCapacity(request.getCapacity());</span>
+<span class="nc" id="L53">       updateGroup.setId(request.getId());</span>
+<span class="nc" id="L54">       groupRepository.save(updateGroup);</span>
+<span class="nc" id="L55">       return ResponseEntity.ok(updateGroup);</span>
+   }
+
+
+   @DeleteMapping(&quot;/groups/{group_id}&quot;)
+    public ResponseEntity &lt;Group&gt; deleteGroupById(@PathVariable int group_id){
+<span class="nc" id="L61">     Group group = groupRepository.findById(group_id);</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">     if (group == null){</span>
+<span class="nc" id="L63">         return ResponseEntity.notFound().build();</span>
+     }
+<span class="nc" id="L65">     groupRepository.deleteById(group_id);</span>
+<span class="nc" id="L66">       return ResponseEntity.noContent().build();</span>
+   }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

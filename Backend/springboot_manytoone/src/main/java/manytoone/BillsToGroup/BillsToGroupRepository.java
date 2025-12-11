@@ -10,10 +10,14 @@ import manytoone.Users.User;
 
 public interface BillsToGroupRepository extends JpaRepository<BillToGroup, Integer> {
     List<BillToGroup> findByGroupAndAssignedBy(Group group, User user);
+
     
     // Find all groups a bill is assigned to
     List<BillToGroup> findByBill(Bill bill);
-    
-    // Find all bills assigned to a group
+
+
+    // Get all BillToGroup entries for a group
     List<BillToGroup> findByGroup(Group group);
+
+
 }

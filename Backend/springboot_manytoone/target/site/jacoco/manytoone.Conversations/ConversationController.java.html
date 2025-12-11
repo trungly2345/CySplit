@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConversationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Conversations</a> &gt; <span class="el_source">ConversationController.java</span></div><h1>ConversationController.java</h1><pre class="source lang-java linenums">package manytoone.Conversations;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+
+    @RestController
+    @RequestMapping(&quot;/conversations&quot;)
+    public class ConversationController {
+
+        private final ConversationRepository conversationRepository;
+        private final UserRepository userRepository;
+
+        public ConversationController(ConversationRepository conversationRepository,
+<span class="fc" id="L20">                                      UserRepository userRepository) {</span>
+<span class="fc" id="L21">            this.conversationRepository = conversationRepository;</span>
+<span class="fc" id="L22">            this.userRepository = userRepository;</span>
+<span class="fc" id="L23">        }</span>
+
+
+        @GetMapping
+        public ResponseEntity&lt;List&lt;Conversation&gt;&gt; getAllConversations() {
+<span class="nc" id="L28">            List&lt;Conversation&gt; conversations = conversationRepository.findAll();</span>
+<span class="nc" id="L29">            return ResponseEntity.ok(conversations);</span>
+        }
+
+        @GetMapping(&quot;/{id}&quot;)
+        public ResponseEntity&lt;Conversation&gt; getConversationById(@PathVariable int id) {
+<span class="nc" id="L34">            return conversationRepository.findById(id)</span>
+<span class="nc" id="L35">                    .map(ResponseEntity::ok)</span>
+<span class="nc" id="L36">                    .orElse(ResponseEntity.notFound().build());</span>
+        }
+
+
+        @PostMapping
+        public ResponseEntity&lt;Conversation&gt; createConversation(@RequestBody Conversation request) {
+
+<span class="nc" id="L43">            Conversation conversation = new Conversation();</span>
+<span class="nc" id="L44">            conversation.setName(request.getName());</span>
+<span class="nc" id="L45">            conversation.setConversationType(request.getConversationType());</span>
+<span class="nc" id="L46">            conversation.setCreatedAt(LocalDateTime.now());</span>
+
+            // If you have a user ID field in the request, attach the creator
+<span class="nc bnc" id="L49" title="All 4 branches missed.">            if (request.getCreatedBy() != null &amp;&amp; request.getCreatedBy().getId() != 0) {</span>
+<span class="nc" id="L50">                User creator = userRepository.findById(request.getCreatedBy().getId());</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">                if (creator != null) {</span>
+<span class="nc" id="L52">                    conversation.setCreatedBy(creator);</span>
+                }
+            }
+
+<span class="nc" id="L56">            Conversation saved = conversationRepository.save(conversation);</span>
+<span class="nc" id="L57">            return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+        }
+
+        @DeleteMapping(&quot;/{id}&quot;)
+        public ResponseEntity&lt;Void&gt; deleteConversation(@PathVariable int id) {
+<span class="nc bnc" id="L62" title="All 2 branches missed.">            if (!conversationRepository.existsById(id)) {</span>
+<span class="nc" id="L63">                return ResponseEntity.notFound().build();</span>
+            }
+<span class="nc" id="L65">            conversationRepository.deleteById(id);</span>
+<span class="nc" id="L66">            return ResponseEntity.noContent().build();</span>
+        }
+    }
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

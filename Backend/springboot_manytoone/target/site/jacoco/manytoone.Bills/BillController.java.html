@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BillController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Bills</a> &gt; <span class="el_source">BillController.java</span></div><h1>BillController.java</h1><pre class="source lang-java linenums">package manytoone.Bills;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import manytoone.BillsToGroup.BillToGroup;
+import manytoone.BillsToGroup.BillsToGroupRepository;
+import manytoone.Groups.Group;
+import manytoone.Groups.UserGroup;
+import manytoone.Groups.UserGroupRepository;
+import manytoone.Notifications.NotificationService;
+import manytoone.Users.User;
+
+@RestController
+@RequestMapping(&quot;/bill&quot;)
+<span class="fc" id="L28">public class BillController {</span>
+
+    @Autowired
+    private BillRepository billRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private BillsToGroupRepository billsToGroupRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+
+
+    @GetMapping
+    public ResponseEntity&lt;List&lt;Bill&gt;&gt; getAllBills() {
+<span class="nc" id="L45">        List&lt;Bill&gt; bills = billRepository.findAll();</span>
+<span class="nc" id="L46">        return ResponseEntity.ok(bills);</span>
+    }
+
+    // GET /bill/{bill_id}
+    @GetMapping(&quot;/{bill_id}&quot;)
+    public ResponseEntity&lt;Bill&gt; getBillById(@PathVariable int bill_id) {
+<span class="fc" id="L52">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="fc" id="L53">        return billOpt.map(ResponseEntity::ok)</span>
+<span class="fc" id="L54">                .orElseGet(() -&gt; ResponseEntity.notFound().build());</span>
+    }
+
+    // POST /bill
+    // create a new bill
+    @PostMapping
+    public ResponseEntity&lt;Bill&gt; createBill(@RequestBody Bill req) {
+<span class="fc" id="L61">        Bill newBill = billRepository.save(req);</span>
+<span class="fc" id="L62">        return ResponseEntity.status(HttpStatus.CREATED).body(newBill);</span>
+    }
+
+    // PUT /bill/{bill_id}
+    // update existing bill
+    @PutMapping(&quot;/{bill_id}&quot;)
+    public ResponseEntity&lt;Bill&gt; updateBill(@PathVariable int bill_id, @RequestBody Bill request) {
+<span class="fc" id="L69">        Optional&lt;Bill&gt; billOpt = billRepository.findById(bill_id);</span>
+<span class="fc bfc" id="L70" title="All 2 branches covered.">        if (billOpt.isEmpty()) {</span>
+<span class="fc" id="L71">            return ResponseEntity.notFound().build();</span>
+        }
+
+<span class="fc" id="L74">        Bill updateBill = billOpt.get();</span>
+
+<span class="fc" id="L76">        updateBill.setBill_name(request.getBill_name());</span>
+<span class="fc" id="L77">        updateBill.setBill_amount(request.getBill_amount());</span>
+<span class="fc" id="L78">        updateBill.setDueCreated(request.getDueCreated());</span>
+<span class="fc" id="L79">        updateBill.setDueTime(request.getDueTime());</span>
+<span class="fc" id="L80">        updateBill.setPaid(request.isPaid());</span>
+
+
+<span class="fc" id="L83">        billRepository.save(updateBill);</span>
+
+        // ========== NOTIFICATION: Notify group members about bill update ==========
+        // Find all groups this bill is assigned to
+<span class="fc" id="L87">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(updateBill);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
+<span class="nc" id="L89">            Group group = link.getGroup();</span>
+<span class="nc" id="L90">            User updatedBy = link.getAssignedBy(); // Use the person who assigned the bill</span>
+            
+<span class="nc bnc" id="L92" title="All 2 branches missed.">            if (group != null) {</span>
+                // Notify all group members except the person who updated it
+<span class="nc" id="L94">                List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L96" title="All 4 branches missed.">                    if (updatedBy == null || member.getUser().getId() != updatedBy.getId()) {</span>
+<span class="nc" id="L97">                        notificationService.notifyBillUpdated(</span>
+<span class="nc" id="L98">                            member.getUser(),</span>
+                            group,
+<span class="nc bnc" id="L100" title="All 2 branches missed.">                            updatedBy != null ? updatedBy : member.getUser(), // Fallback to member if updatedBy is null</span>
+<span class="nc" id="L101">                            updateBill.getBill_name()</span>
+                        );
+                    }
+<span class="nc" id="L104">                }</span>
+            }
+<span class="nc" id="L106">        }</span>
+
+<span class="fc" id="L108">        return ResponseEntity.ok(updateBill);</span>
+    }
+
+    // DELETE /bill/{bill_id}
+    @DeleteMapping(&quot;/{bill_id}&quot;)
+    public ResponseEntity&lt;Void&gt; deleteBillById(@PathVariable int bill_id) {
+<span class="fc bfc" id="L114" title="All 2 branches covered.">        if (!billRepository.existsById(bill_id)) {</span>
+<span class="fc" id="L115">            return ResponseEntity.notFound().build();</span>
+        }
+        
+        // ========== NOTIFICATION: Get bill info before deleting ==========
+<span class="fc" id="L119">        Bill bill = billRepository.findById(bill_id).get();</span>
+<span class="fc" id="L120">        String billName = bill.getBill_name();</span>
+        
+        // Find all groups this bill was assigned to
+<span class="fc" id="L123">        List&lt;BillToGroup&gt; groupLinks = billsToGroupRepository.findByBill(bill);</span>
+        
+        // Delete the bill
+<span class="fc" id="L126">        billRepository.deleteById(bill_id);</span>
+        
+        // Send notifications after successful deletion
+<span class="pc bpc" id="L129" title="1 of 2 branches missed.">        for (BillToGroup link : groupLinks) {</span>
+<span class="nc" id="L130">            Group group = link.getGroup();</span>
+<span class="nc" id="L131">            User deletedBy = link.getAssignedBy();</span>
+            
+<span class="nc bnc" id="L133" title="All 4 branches missed.">            if (group != null &amp;&amp; deletedBy != null) {</span>
+<span class="nc" id="L134">                notificationService.notifyBillDeleted(group, deletedBy, billName);</span>
+            }
+<span class="nc" id="L136">        }</span>
+        
+<span class="fc" id="L138">        return ResponseEntity.noContent().build();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

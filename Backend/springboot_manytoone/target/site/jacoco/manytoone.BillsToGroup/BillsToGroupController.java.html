@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BillsToGroupController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.BillsToGroup</a> &gt; <span class="el_source">BillsToGroupController.java</span></div><h1>BillsToGroupController.java</h1><pre class="source lang-java linenums">package manytoone.BillsToGroup;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import manytoone.Bills.Bill;
+import manytoone.Bills.BillRepository;
+import manytoone.Groups.Group;
+import manytoone.Groups.GroupRepository;
+import manytoone.Notifications.NotificationService;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+
+@RequestMapping(&quot;/groupbill&quot;)
+@RestController
+<span class="fc" id="L22">public class BillsToGroupController {</span>
+
+    @Autowired
+    BillsToGroupRepository billsToGroupRepository;
+
+    @Autowired
+    GroupRepository groupRepository;
+
+    @Autowired
+    UserRepository userRepository;
+
+    @Autowired
+    BillRepository billRepository;
+
+    @Autowired
+    NotificationService notificationService;
+
+
+
+
+    @PostMapping(&quot;/{groupId}/bills&quot;)
+    public ResponseEntity&lt;?&gt; assignBillToGroup(
+            @PathVariable Integer groupId,
+            @RequestBody Map&lt;String, Object&gt; body) {
+
+        // Extract billId
+<span class="nc" id="L48">        Integer billId = (Integer) body.get(&quot;billId&quot;);</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (billId == null) {</span>
+<span class="nc" id="L50">            return ResponseEntity.badRequest().body(&quot;{\&quot;message\&quot;:\&quot;billId is required\&quot;}&quot;);</span>
+        }
+
+
+<span class="nc bnc" id="L54" title="All 2 branches missed.">        Integer assignedByUserId = body.get(&quot;assignedByUserId&quot;) != null</span>
+<span class="nc" id="L55">                ? (Integer) body.get(&quot;assignedByUserId&quot;)</span>
+<span class="nc" id="L56">                : null;</span>
+
+<span class="nc bnc" id="L58" title="All 2 branches missed.">        String notes = body.get(&quot;notes&quot;) != null</span>
+<span class="nc" id="L59">                ? body.get(&quot;notes&quot;).toString()</span>
+<span class="nc" id="L60">                : null;</span>
+
+
+<span class="nc" id="L63">        Group group = groupRepository.findById(groupId).orElse(null);</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (group == null) {</span>
+<span class="nc" id="L65">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L66">                    .body(&quot;{\&quot;message\&quot;:\&quot;Group not found\&quot;}&quot;);</span>
+        }
+
+        // 2. Load Bill
+<span class="nc" id="L70">        Bill bill = billRepository.findById(billId).orElse(null);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">        if (bill == null) {</span>
+<span class="nc" id="L72">            return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L73">                    .body(&quot;{\&quot;message\&quot;:\&quot;Bill not found\&quot;}&quot;);</span>
+        }
+
+
+<span class="nc" id="L77">        User assignedBy = null;</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        if (assignedByUserId != null) {</span>
+<span class="nc" id="L79">            assignedBy = userRepository.findById(assignedByUserId).orElse(null);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (assignedBy == null) {</span>
+<span class="nc" id="L81">                return ResponseEntity.status(HttpStatus.NOT_FOUND)</span>
+<span class="nc" id="L82">                        .body(&quot;{\&quot;message\&quot;:\&quot;Assigned-by user not found\&quot;}&quot;);</span>
+            }
+        }
+
+<span class="nc" id="L86">        BillToGroup link = new BillToGroup(group, bill, assignedBy, notes);</span>
+
+<span class="nc" id="L88">        BillToGroup saved = billsToGroupRepository.save(link);</span>
+
+        // ========== NOTIFICATION: Notify group members about new bill ==========
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (assignedBy != null) {</span>
+            try {
+                // Parse bill amount as double for notification
+<span class="nc" id="L94">                double billAmount = Double.parseDouble(bill.getBill_amount());</span>
+<span class="nc" id="L95">                notificationService.notifyBillCreated(group, assignedBy, bill.getBill_name(), billAmount);</span>
+<span class="nc" id="L96">            } catch (NumberFormatException e) {</span>
+                // Log error but don't fail the bill creation
+<span class="nc" id="L98">                System.err.println(&quot;Failed to parse bill amount for notification: &quot; + e.getMessage());</span>
+<span class="nc" id="L99">            }</span>
+        }
+
+<span class="nc" id="L102">        return ResponseEntity.status(HttpStatus.CREATED).body(saved);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

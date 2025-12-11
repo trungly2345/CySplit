@@ -1,0 +1,469 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NotificationService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Notifications</a> &gt; <span class="el_source">NotificationService.java</span></div><h1>NotificationService.java</h1><pre class="source lang-java linenums">package manytoone.Notifications;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import manytoone.Notifications.Notification;
+import manytoone.Notifications.NotificationRepository;
+import manytoone.Notifications.NotificationWebSocket;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
+import manytoone.Groups.Group;
+import manytoone.Groups.UserGroup;
+import manytoone.Groups.UserGroupRepository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+
+/**
+ * Service layer for notification business logic and helper methods
+ */
+@Service
+<span class="fc" id="L22">public class NotificationService {</span>
+
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UserGroupRepository userGroupRepository;
+
+    @Autowired
+    private NotificationWebSocket notificationWebSocket;
+
+    // ========== Helper Methods for Creating Notifications ==========
+
+    /**
+     * Notify user about group invitation
+     */
+    @Transactional
+    public Notification notifyGroupInvitation(User recipient, Group group, User invitedBy) {
+<span class="nc" id="L43">        String title = &quot;Group Invitation&quot;;</span>
+<span class="nc" id="L44">        String message = String.format(&quot;You've been invited to join group '%s' by %s&quot;, </span>
+<span class="nc" id="L45">            group.getGroup_name(), invitedBy.getUserName());</span>
+        
+<span class="nc" id="L47">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.GROUP_INVITATION,
+            title,
+            message
+        );
+<span class="nc" id="L53">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L54">        notification.setTriggeredBy(invitedBy);</span>
+<span class="nc" id="L55">        notification.setPriority(3); // High priority</span>
+<span class="nc" id="L56">        notification.setRelatedEntityType(&quot;INVITATION&quot;);</span>
+        
+<span class="nc" id="L58">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L59">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L61">        return saved;</span>
+    }
+
+    /**
+     * Notify group admin that invitation was accepted
+     */
+    @Transactional
+    public Notification notifyInvitationAccepted(User admin, Group group, User acceptedUser) {
+<span class="nc" id="L69">        String title = &quot;Invitation Accepted&quot;;</span>
+<span class="nc" id="L70">        String message = String.format(&quot;%s accepted the invitation to join '%s'&quot;, </span>
+<span class="nc" id="L71">            acceptedUser.getUserName(), group.getGroup_name());</span>
+        
+<span class="nc" id="L73">        Notification notification = new Notification(</span>
+            admin,
+            Notification.NotificationType.GROUP_INVITATION_ACCEPTED,
+            title,
+            message
+        );
+<span class="nc" id="L79">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L80">        notification.setTriggeredBy(acceptedUser);</span>
+        
+<span class="nc" id="L82">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L83">        sendNotificationToUser(admin.getId(), saved);</span>
+        
+<span class="nc" id="L85">        return saved;</span>
+    }
+
+    /**
+     * Notify user about role change in group
+     */
+    @Transactional
+    public Notification notifyRoleChanged(User recipient, Group group, UserGroup.Role newRole, User changedBy) {
+<span class="nc" id="L93">        String title = &quot;Role Changed&quot;;</span>
+<span class="nc" id="L94">        String message = String.format(&quot;Your role in '%s' has been changed to %s by %s&quot;, </span>
+<span class="nc" id="L95">            group.getGroup_name(), newRole.name(), changedBy.getUserName());</span>
+        
+<span class="nc" id="L97">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.GROUP_ROLE_CHANGED,
+            title,
+            message
+        );
+<span class="nc" id="L103">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L104">        notification.setTriggeredBy(changedBy);</span>
+<span class="nc" id="L105">        notification.setPriority(2); // Medium priority</span>
+        
+<span class="nc" id="L107">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L108">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L110">        return saved;</span>
+    }
+
+    /**
+     * Notify group members about new member
+     */
+    @Transactional
+    public void notifyGroupMemberAdded(Group group, User newMember, User addedBy) {
+<span class="nc" id="L118">        List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+        
+<span class="nc" id="L120">        String title = &quot;New Member Added&quot;;</span>
+<span class="nc" id="L121">        String message = String.format(&quot;%s added %s to the group '%s'&quot;, </span>
+<span class="nc" id="L122">            addedBy.getUserName(), newMember.getUserName(), group.getGroup_name());</span>
+        
+<span class="nc bnc" id="L124" title="All 2 branches missed.">        for (UserGroup member : members) {</span>
+            // Don't notify the new member or the person who added them
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            if (member.getUser().getId() != newMember.getId() &amp;&amp; </span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                member.getUser().getId() != addedBy.getId()) {</span>
+                
+<span class="nc" id="L129">                Notification notification = new Notification(</span>
+<span class="nc" id="L130">                    member.getUser(),</span>
+                    Notification.NotificationType.GROUP_MEMBER_ADDED,
+                    title,
+                    message
+                );
+<span class="nc" id="L135">                notification.setRelatedGroup(group);</span>
+<span class="nc" id="L136">                notification.setTriggeredBy(addedBy);</span>
+                
+<span class="nc" id="L138">                Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L139">                sendNotificationToUser(member.getUser().getId(), saved);</span>
+            }
+<span class="nc" id="L141">        }</span>
+<span class="nc" id="L142">    }</span>
+
+    /**
+     * Notify group members about removed member
+     */
+    @Transactional
+    public void notifyGroupMemberRemoved(Group group, User removedMember, User removedBy) {
+<span class="nc" id="L149">        List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+        
+<span class="nc" id="L151">        String title = &quot;Member Removed&quot;;</span>
+<span class="nc" id="L152">        String message = String.format(&quot;%s removed %s from the group '%s'&quot;, </span>
+<span class="nc" id="L153">            removedBy.getUserName(), removedMember.getUserName(), group.getGroup_name());</span>
+        
+<span class="nc bnc" id="L155" title="All 2 branches missed.">        for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L156" title="All 2 branches missed.">            if (member.getUser().getId() != removedMember.getId() &amp;&amp; </span>
+<span class="nc bnc" id="L157" title="All 2 branches missed.">                member.getUser().getId() != removedBy.getId()) {</span>
+                
+<span class="nc" id="L159">                Notification notification = new Notification(</span>
+<span class="nc" id="L160">                    member.getUser(),</span>
+                    Notification.NotificationType.GROUP_MEMBER_REMOVED,
+                    title,
+                    message
+                );
+<span class="nc" id="L165">                notification.setRelatedGroup(group);</span>
+<span class="nc" id="L166">                notification.setTriggeredBy(removedBy);</span>
+                
+<span class="nc" id="L168">                Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L169">                sendNotificationToUser(member.getUser().getId(), saved);</span>
+            }
+<span class="nc" id="L171">        }</span>
+<span class="nc" id="L172">    }</span>
+
+    /**
+     * Notify group members when someone leaves the group
+     */
+    @Transactional
+    public void notifyGroupMemberLeft(Group group, User leftMember) {
+<span class="nc" id="L179">        List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+        
+<span class="nc" id="L181">        String title = &quot;Member Left Group&quot;;</span>
+<span class="nc" id="L182">        String message = String.format(&quot;%s left the group '%s'&quot;, </span>
+<span class="nc" id="L183">            leftMember.getUserName(), group.getGroup_name());</span>
+        
+<span class="nc bnc" id="L185" title="All 2 branches missed.">        for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L186" title="All 2 branches missed.">            if (member.getUser().getId() != leftMember.getId()) {</span>
+<span class="nc" id="L187">                Notification notification = new Notification(</span>
+<span class="nc" id="L188">                    member.getUser(),</span>
+                    Notification.NotificationType.GROUP_MEMBER_LEFT,
+                    title,
+                    message
+                );
+<span class="nc" id="L193">                notification.setRelatedGroup(group);</span>
+<span class="nc" id="L194">                notification.setTriggeredBy(leftMember);</span>
+                
+<span class="nc" id="L196">                Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L197">                sendNotificationToUser(member.getUser().getId(), saved);</span>
+            }
+<span class="nc" id="L199">        }</span>
+<span class="nc" id="L200">    }</span>
+
+    /**
+     * Notify user about mention in group chat
+     */
+    @Transactional
+    public Notification notifyGroupChatMention(User recipient, Group group, User mentionedBy, String messagePreview) {
+<span class="nc" id="L207">        String title = String.format(&quot;Mentioned in %s&quot;, group.getGroup_name());</span>
+<span class="nc" id="L208">        String message = String.format(&quot;%s mentioned you in group chat: %s&quot;, </span>
+<span class="nc" id="L209">            mentionedBy.getUserName(), messagePreview);</span>
+        
+<span class="nc" id="L211">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.GROUP_CHAT_MENTION,
+            title,
+            message
+        );
+<span class="nc" id="L217">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L218">        notification.setTriggeredBy(mentionedBy);</span>
+<span class="nc" id="L219">        notification.setPriority(3); // High priority</span>
+        
+<span class="nc" id="L221">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L222">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L224">        return saved;</span>
+    }
+
+    /**
+     * Notify user about new messages in group chat (when they're offline)
+     */
+    @Transactional
+    public Notification notifyGroupChatNewMessage(User recipient, Group group, int unreadCount) {
+<span class="nc" id="L232">        String title = String.format(&quot;New messages in %s&quot;, group.getGroup_name());</span>
+<span class="nc" id="L233">        String message = String.format(&quot;You have %d unread message%s in '%s'&quot;, </span>
+<span class="nc bnc" id="L234" title="All 2 branches missed.">            unreadCount, unreadCount &gt; 1 ? &quot;s&quot; : &quot;&quot;, group.getGroup_name());</span>
+        
+<span class="nc" id="L236">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.GROUP_CHAT_NEW_MESSAGE,
+            title,
+            message
+        );
+<span class="nc" id="L242">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L243">        notification.setPriority(1); // Low priority</span>
+        
+<span class="nc" id="L245">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L246">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L248">        return saved;</span>
+    }
+
+    /**
+     * Notify group members about new bill
+     */
+    @Transactional
+    public void notifyBillCreated(Group group, User createdBy, String billTitle, double amount) {
+<span class="nc" id="L256">        List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+        
+<span class="nc" id="L258">        String title = &quot;New Bill Created&quot;;</span>
+<span class="nc" id="L259">        String message = String.format(&quot;%s created a new bill '%s' for $%.2f in group '%s'&quot;, </span>
+<span class="nc" id="L260">            createdBy.getUserName(), billTitle, amount, group.getGroup_name());</span>
+        
+<span class="nc bnc" id="L262" title="All 2 branches missed.">        for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L263" title="All 2 branches missed.">            if (member.getUser().getId() != createdBy.getId()) {</span>
+<span class="nc" id="L264">                Notification notification = new Notification(</span>
+<span class="nc" id="L265">                    member.getUser(),</span>
+                    Notification.NotificationType.BILL_CREATED,
+                    title,
+                    message
+                );
+<span class="nc" id="L270">                notification.setRelatedGroup(group);</span>
+<span class="nc" id="L271">                notification.setTriggeredBy(createdBy);</span>
+<span class="nc" id="L272">                notification.setPriority(2); // Medium priority</span>
+                
+<span class="nc" id="L274">                Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L275">                sendNotificationToUser(member.getUser().getId(), saved);</span>
+            }
+<span class="nc" id="L277">        }</span>
+<span class="nc" id="L278">    }</span>
+
+    /**
+     * Notify user about bill update
+     */
+    @Transactional
+    public Notification notifyBillUpdated(User recipient, Group group, User updatedBy, String billTitle) {
+<span class="nc" id="L285">        String title = &quot;Bill Updated&quot;;</span>
+<span class="nc" id="L286">        String message = String.format(&quot;%s updated the bill '%s' in group '%s'&quot;, </span>
+<span class="nc" id="L287">            updatedBy.getUserName(), billTitle, group.getGroup_name());</span>
+        
+<span class="nc" id="L289">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.BILL_UPDATED,
+            title,
+            message
+        );
+<span class="nc" id="L295">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L296">        notification.setTriggeredBy(updatedBy);</span>
+        
+<span class="nc" id="L298">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L299">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L301">        return saved;</span>
+    }
+
+    /**
+     * Notify user about payment required
+     */
+    @Transactional
+    public Notification notifyBillPaymentRequired(User recipient, Group group, String billTitle, double amount) {
+<span class="nc" id="L309">        String title = &quot;Bill Due Soon&quot;;</span>
+<span class="nc" id="L310">        String message = String.format(&quot;You owe $%.2f for '%s' in group '%s'&quot;, </span>
+<span class="nc" id="L311">            amount, billTitle, group.getGroup_name());</span>
+        
+<span class="nc" id="L313">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.BILL_PAYMENT_REQUIRED,
+            title,
+            message
+        );
+<span class="nc" id="L319">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L320">        notification.setPriority(3); // High priority</span>
+        
+<span class="nc" id="L322">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L323">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L325">        return saved;</span>
+    }
+
+    /**
+     * Notify user about payment received
+     */
+    @Transactional
+    public Notification notifyBillPaymentReceived(User recipient, Group group, User paidBy, double amount) {
+<span class="nc" id="L333">        String title = &quot;Payment Received&quot;;</span>
+<span class="nc" id="L334">        String message = String.format(&quot;%s paid $%.2f in group '%s'&quot;, </span>
+<span class="nc" id="L335">            paidBy.getUserName(), amount, group.getGroup_name());</span>
+        
+<span class="nc" id="L337">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.BILL_PAYMENT_RECEIVED,
+            title,
+            message
+        );
+<span class="nc" id="L343">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L344">        notification.setTriggeredBy(paidBy);</span>
+        
+<span class="nc" id="L346">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L347">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L349">        return saved;</span>
+    }
+
+    /**
+     * Notify user about contribution added
+     */
+    @Transactional
+    public Notification notifyContributionAdded(User recipient, Group group, User addedBy, String contributionDetails) {
+<span class="nc" id="L357">        String title = &quot;New Contribution&quot;;</span>
+<span class="nc" id="L358">        String message = String.format(&quot;%s added a contribution to group '%s': %s&quot;, </span>
+<span class="nc" id="L359">            addedBy.getUserName(), group.getGroup_name(), contributionDetails);</span>
+        
+<span class="nc" id="L361">        Notification notification = new Notification(</span>
+            recipient,
+            Notification.NotificationType.CONTRIBUTION_ADDED,
+            title,
+            message
+        );
+<span class="nc" id="L367">        notification.setRelatedGroup(group);</span>
+<span class="nc" id="L368">        notification.setTriggeredBy(addedBy);</span>
+        
+<span class="nc" id="L370">        Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L371">        sendNotificationToUser(recipient.getId(), saved);</span>
+        
+<span class="nc" id="L373">        return saved;</span>
+    }
+
+    /**
+     * Send system announcement to all users or specific group
+     */
+    @Transactional
+    public void sendSystemAnnouncement(String title, String message, Group group) {
+        List&lt;User&gt; recipients;
+        
+<span class="nc bnc" id="L383" title="All 2 branches missed.">        if (group != null) {</span>
+<span class="nc" id="L384">            List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+<span class="nc" id="L385">            recipients = members.stream().map(UserGroup::getUser).toList();</span>
+<span class="nc" id="L386">        } else {</span>
+<span class="nc" id="L387">            recipients = userRepository.findAll();</span>
+        }
+        
+<span class="nc bnc" id="L390" title="All 2 branches missed.">        for (User user : recipients) {</span>
+<span class="nc" id="L391">            Notification notification = new Notification(</span>
+                user,
+                Notification.NotificationType.SYSTEM_ANNOUNCEMENT,
+                title,
+                message
+            );
+<span class="nc" id="L397">            notification.setRelatedGroup(group);</span>
+<span class="nc" id="L398">            notification.setPriority(3); // High priority</span>
+            
+<span class="nc" id="L400">            Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L401">            sendNotificationToUser(user.getId(), saved);</span>
+<span class="nc" id="L402">        }</span>
+<span class="nc" id="L403">    }</span>
+
+    /**
+     * Notify group members about deleted bill
+     */
+    @Transactional
+    public void notifyBillDeleted(Group group, User deletedBy, String billTitle) {
+<span class="nc" id="L410">        List&lt;UserGroup&gt; members = userGroupRepository.findByGroupId(group.getId());</span>
+        
+<span class="nc" id="L412">        String title = &quot;Bill Deleted&quot;;</span>
+<span class="nc" id="L413">        String message = String.format(&quot;%s deleted the bill '%s' from group '%s'&quot;, </span>
+<span class="nc" id="L414">            deletedBy.getUserName(), billTitle, group.getGroup_name());</span>
+        
+<span class="nc bnc" id="L416" title="All 2 branches missed.">        for (UserGroup member : members) {</span>
+<span class="nc bnc" id="L417" title="All 2 branches missed.">            if (member.getUser().getId() != deletedBy.getId()) {</span>
+<span class="nc" id="L418">                Notification notification = new Notification(</span>
+<span class="nc" id="L419">                    member.getUser(),</span>
+                    Notification.NotificationType.BILL_DELETED,
+                    title,
+                    message
+                );
+<span class="nc" id="L424">                notification.setRelatedGroup(group);</span>
+<span class="nc" id="L425">                notification.setTriggeredBy(deletedBy);</span>
+<span class="nc" id="L426">                notification.setPriority(1); // Low priority</span>
+                
+<span class="nc" id="L428">                Notification saved = notificationRepository.save(notification);</span>
+<span class="nc" id="L429">                sendNotificationToUser(member.getUser().getId(), saved);</span>
+            }
+<span class="nc" id="L431">        }</span>
+<span class="nc" id="L432">    }</span>
+
+    // ========== Cleanup Methods ==========
+
+    /**
+     * Delete old read notifications (older than specified days)
+     */
+    @Transactional
+    public void cleanupOldNotifications(int daysOld) {
+<span class="nc" id="L441">        LocalDateTime cutoffDate = LocalDateTime.now().minusDays(daysOld);</span>
+<span class="nc" id="L442">        notificationRepository.deleteOldReadNotifications(cutoffDate);</span>
+<span class="nc" id="L443">    }</span>
+
+    /**
+     * Delete expired notifications
+     */
+    @Transactional
+    public void cleanupExpiredNotifications() {
+<span class="nc" id="L450">        LocalDateTime now = LocalDateTime.now();</span>
+<span class="nc" id="L451">        notificationRepository.deleteExpiredNotifications(now);</span>
+<span class="nc" id="L452">    }</span>
+
+    // ========== WebSocket Communication ==========
+
+    /**
+     * Send notification to user via WebSocket
+     */
+    public void sendNotificationToUser(int userId, Notification notification) {
+        try {
+<span class="nc" id="L461">            notificationWebSocket.sendNotificationToUser(userId, notification);</span>
+<span class="nc" id="L462">        } catch (Exception e) {</span>
+            // Log error but don't fail the notification creation
+<span class="nc" id="L464">            System.err.println(&quot;Failed to send WebSocket notification to user &quot; + userId + &quot;: &quot; + e.getMessage());</span>
+<span class="nc" id="L465">        }</span>
+<span class="nc" id="L466">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupInvitation.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Groups</a> &gt; <span class="el_source">GroupInvitation.java</span></div><h1>GroupInvitation.java</h1><pre class="source lang-java linenums">package manytoone.Groups;
+
+import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import manytoone.Users.User;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Table(
+        name = &quot;group_invitation&quot;,
+        uniqueConstraints = @UniqueConstraint(
+                name = &quot;uk_group_user&quot;,
+                columnNames = {&quot;group_id&quot;, &quot;user_id&quot;}
+        )
+)
+public class GroupInvitation {
+<span class="fc" id="L18">    public enum invitationStatus  {</span>
+<span class="fc" id="L19">        Pending,</span>
+<span class="fc" id="L20">        Accepted,</span>
+<span class="fc" id="L21">        Declined</span>
+    }
+
+
+
+
+
+@Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id; //
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = &quot;group_id&quot;,
+            nullable = false,
+            foreignKey = @ForeignKey(name = &quot;fk_group_invitation_group&quot;)
+
+    )
+    @JsonIgnore
+    private Group group;
+
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(
+            name = &quot;user_id&quot;,
+            nullable = false,
+            foreignKey = @ForeignKey(name = &quot;fk_group_invitation_user&quot;)
+
+    )
+    @JsonIgnore
+    private User user;
+
+<span class="pc" id="L53">    @Column(name = &quot;date_created&quot;, nullable = false)</span>
+<span class="pc" id="L54">    private LocalDateTime dateCreated = LocalDateTime.now();</span>
+
+<span class="pc" id="L56">    @Enumerated(EnumType.STRING)</span>
+    @Column(name = &quot;invitation_status&quot;, nullable = false)
+    private invitationStatus inv_status = invitationStatus.Pending;
+
+<span class="fc" id="L60">    public GroupInvitation() {}</span>
+
+<span class="nc" id="L62">    public GroupInvitation(Group group, User user) {</span>
+<span class="nc" id="L63">        this.group = group;</span>
+<span class="nc" id="L64">        this.user = user;</span>
+<span class="nc" id="L65">    }</span>
+
+<span class="nc" id="L67">    public invitationStatus getInv_status() { return inv_status; }</span>
+
+<span class="nc" id="L69">    public void setInv_status(invitationStatus inv_status) { this.inv_status = inv_status;}</span>
+    // getters/setters
+<span class="nc" id="L71">    public Integer getId() { return id; }</span>
+<span class="nc" id="L72">    public void setId(Integer id) { this.id = id; }</span>
+<span class="nc" id="L73">    public Group getGroup() { return group; }</span>
+<span class="nc" id="L74">    public void setGroup(Group group) { this.group = group; }</span>
+    @Transient
+<span class="nc bnc" id="L76" title="All 2 branches missed.">    public String getUserName() { return user != null ? user.getUserName() : null;}</span>
+
+<span class="nc" id="L78">    public User getUser (){ return user; }</span>
+<span class="nc" id="L79">    public void setUserName(User user) { this.user = user; }</span>
+<span class="nc" id="L80">    public LocalDateTime getDateCreated() { return dateCreated; }</span>
+<span class="nc" id="L81">    public void setDateCreated(LocalDateTime dateCreated) { this.dateCreated = dateCreated; }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

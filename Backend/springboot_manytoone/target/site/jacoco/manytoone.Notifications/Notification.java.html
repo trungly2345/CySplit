@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Notification.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Notifications</a> &gt; <span class="el_source">Notification.java</span></div><h1>Notification.java</h1><pre class="source lang-java linenums">package manytoone.Notifications;
+
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import manytoone.Groups.Group;
+import manytoone.Users.User;
+
+/**
+ * Entity representing a notification in the system.
+ * Supports various notification types including group invitations, mentions, 
+ * bill updates, role changes, and group activity.
+ */
+@Entity
+@Table(name = &quot;notifications&quot;)
+@JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+public class Notification {
+
+    /**
+     * Enum defining all possible notification types in the system
+     */
+<span class="fc" id="L34">    public enum NotificationType {</span>
+        // Group-related notifications
+<span class="fc" id="L36">        GROUP_INVITATION,           // User invited to join a group</span>
+<span class="fc" id="L37">        GROUP_INVITATION_ACCEPTED,  // Someone accepted invitation to your group</span>
+<span class="fc" id="L38">        GROUP_ROLE_CHANGED,         // Your role in a group changed</span>
+<span class="fc" id="L39">        GROUP_MEMBER_ADDED,         // New member added to group</span>
+<span class="fc" id="L40">        GROUP_MEMBER_REMOVED,       // Member removed from group</span>
+<span class="fc" id="L41">        GROUP_MEMBER_LEFT,          // Member left the group</span>
+        
+        // Chat-related notifications
+<span class="fc" id="L44">        GROUP_CHAT_MENTION,         // You were mentioned in group chat</span>
+<span class="fc" id="L45">        GROUP_CHAT_NEW_MESSAGE,     // New message in group (unread count)</span>
+        
+        // Bill-related notifications
+<span class="fc" id="L48">        BILL_CREATED,               // New bill created in group</span>
+<span class="fc" id="L49">        BILL_UPDATED,               // Bill details updated</span>
+<span class="fc" id="L50">        BILL_DELETED,               // Bill deleted</span>
+<span class="fc" id="L51">        BILL_PAYMENT_REQUIRED,      // You need to pay for a bill</span>
+<span class="fc" id="L52">        BILL_PAYMENT_RECEIVED,      // Payment received for bill</span>
+<span class="fc" id="L53">        BILL_SPLIT_UPDATED,         // Bill split ratios changed</span>
+        
+        // Contribution notifications
+<span class="fc" id="L56">        CONTRIBUTION_ADDED,         // Someone added contribution to group</span>
+<span class="fc" id="L57">        CONTRIBUTION_REMINDER,      // Reminder to contribute</span>
+        
+        // System notifications
+<span class="fc" id="L60">        SYSTEM_ANNOUNCEMENT,        // General system announcement</span>
+<span class="fc" id="L61">        ACCOUNT_UPDATE              // Account-related update</span>
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;recipient_id&quot;, nullable = false)
+    private User recipient;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = &quot;type&quot;, nullable = false)
+    private NotificationType type;
+
+    @Column(name = &quot;title&quot;, nullable = false, length = 255)
+    private String title;
+
+    @Column(name = &quot;message&quot;, nullable = false, length = 1000)
+    private String message;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;related_group_id&quot;)
+    private Group relatedGroup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = &quot;triggered_by_user_id&quot;)
+    private User triggeredBy;
+
+    @Column(name = &quot;related_entity_id&quot;)
+    private Integer relatedEntityId; // ID of bill, invitation, etc.
+
+    @Column(name = &quot;related_entity_type&quot;, length = 50)
+    private String relatedEntityType; // &quot;BILL&quot;, &quot;INVITATION&quot;, &quot;MESSAGE&quot;, etc.
+
+<span class="pc" id="L96">    @Column(name = &quot;is_read&quot;, nullable = false)</span>
+<span class="pc" id="L97">    private Boolean isRead = false;</span>
+
+    @Column(name = &quot;created_at&quot;, nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = &quot;read_at&quot;)
+    private LocalDateTime readAt;
+
+    @Column(name = &quot;expires_at&quot;)
+    private LocalDateTime expiresAt;
+
+<span class="pc" id="L108">    @Column(name = &quot;priority&quot;, nullable = false)</span>
+<span class="pc" id="L109">    private Integer priority = 1; // 1=low, 2=medium, 3=high, 4=urgent</span>
+
+    @Column(name = &quot;action_url&quot;, length = 500)
+    private String actionUrl; // Deep link or URL for action
+
+<span class="fc" id="L114">    protected Notification() {}</span>
+
+<span class="nc" id="L116">    public Notification(User recipient, NotificationType type, String title, String message) {</span>
+<span class="nc" id="L117">        this.recipient = recipient;</span>
+<span class="nc" id="L118">        this.type = type;</span>
+<span class="nc" id="L119">        this.title = title;</span>
+<span class="nc" id="L120">        this.message = message;</span>
+<span class="nc" id="L121">        this.createdAt = LocalDateTime.now();</span>
+<span class="nc" id="L122">        this.isRead = false;</span>
+<span class="nc" id="L123">        this.priority = 1;</span>
+<span class="nc" id="L124">    }</span>
+
+    // Getters and Setters
+
+    public Integer getId() {
+<span class="nc" id="L129">        return id;</span>
+    }
+
+    public User getRecipient() {
+<span class="nc" id="L133">        return recipient;</span>
+    }
+
+    public void setRecipient(User recipient) {
+<span class="nc" id="L137">        this.recipient = recipient;</span>
+<span class="nc" id="L138">    }</span>
+
+    public NotificationType getType() {
+<span class="nc" id="L141">        return type;</span>
+    }
+
+    public void setType(NotificationType type) {
+<span class="nc" id="L145">        this.type = type;</span>
+<span class="nc" id="L146">    }</span>
+
+    public String getTitle() {
+<span class="nc" id="L149">        return title;</span>
+    }
+
+    public void setTitle(String title) {
+<span class="nc" id="L153">        this.title = title;</span>
+<span class="nc" id="L154">    }</span>
+
+    public String getMessage() {
+<span class="nc" id="L157">        return message;</span>
+    }
+
+    public void setMessage(String message) {
+<span class="nc" id="L161">        this.message = message;</span>
+<span class="nc" id="L162">    }</span>
+
+    public Group getRelatedGroup() {
+<span class="nc" id="L165">        return relatedGroup;</span>
+    }
+
+    public void setRelatedGroup(Group relatedGroup) {
+<span class="nc" id="L169">        this.relatedGroup = relatedGroup;</span>
+<span class="nc" id="L170">    }</span>
+
+    public User getTriggeredBy() {
+<span class="nc" id="L173">        return triggeredBy;</span>
+    }
+
+    public void setTriggeredBy(User triggeredBy) {
+<span class="nc" id="L177">        this.triggeredBy = triggeredBy;</span>
+<span class="nc" id="L178">    }</span>
+
+    public Integer getRelatedEntityId() {
+<span class="nc" id="L181">        return relatedEntityId;</span>
+    }
+
+    public void setRelatedEntityId(Integer relatedEntityId) {
+<span class="nc" id="L185">        this.relatedEntityId = relatedEntityId;</span>
+<span class="nc" id="L186">    }</span>
+
+    public String getRelatedEntityType() {
+<span class="nc" id="L189">        return relatedEntityType;</span>
+    }
+
+    public void setRelatedEntityType(String relatedEntityType) {
+<span class="nc" id="L193">        this.relatedEntityType = relatedEntityType;</span>
+<span class="nc" id="L194">    }</span>
+
+    public Boolean getIsRead() {
+<span class="nc" id="L197">        return isRead;</span>
+    }
+
+    public void setIsRead(Boolean isRead) {
+<span class="nc" id="L201">        this.isRead = isRead;</span>
+<span class="nc bnc" id="L202" title="All 4 branches missed.">        if (isRead &amp;&amp; this.readAt == null) {</span>
+<span class="nc" id="L203">            this.readAt = LocalDateTime.now();</span>
+        }
+<span class="nc" id="L205">    }</span>
+
+    public LocalDateTime getCreatedAt() {
+<span class="nc" id="L208">        return createdAt;</span>
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+<span class="nc" id="L212">        this.createdAt = createdAt;</span>
+<span class="nc" id="L213">    }</span>
+
+    public LocalDateTime getReadAt() {
+<span class="nc" id="L216">        return readAt;</span>
+    }
+
+    public void setReadAt(LocalDateTime readAt) {
+<span class="nc" id="L220">        this.readAt = readAt;</span>
+<span class="nc" id="L221">    }</span>
+
+    public LocalDateTime getExpiresAt() {
+<span class="nc" id="L224">        return expiresAt;</span>
+    }
+
+    public void setExpiresAt(LocalDateTime expiresAt) {
+<span class="nc" id="L228">        this.expiresAt = expiresAt;</span>
+<span class="nc" id="L229">    }</span>
+
+    public Integer getPriority() {
+<span class="nc" id="L232">        return priority;</span>
+    }
+
+    public void setPriority(Integer priority) {
+<span class="nc" id="L236">        this.priority = priority;</span>
+<span class="nc" id="L237">    }</span>
+
+    public String getActionUrl() {
+<span class="nc" id="L240">        return actionUrl;</span>
+    }
+
+    public void setActionUrl(String actionUrl) {
+<span class="nc" id="L244">        this.actionUrl = actionUrl;</span>
+<span class="nc" id="L245">    }</span>
+
+    /**
+     * Helper method to mark notification as read
+     */
+    public void markAsRead() {
+<span class="nc" id="L251">        this.isRead = true;</span>
+<span class="nc" id="L252">        this.readAt = LocalDateTime.now();</span>
+<span class="nc" id="L253">    }</span>
+
+    /**
+     * Helper method to check if notification has expired
+     */
+    public boolean isExpired() {
+<span class="nc bnc" id="L259" title="All 4 branches missed.">        return expiresAt != null &amp;&amp; LocalDateTime.now().isAfter(expiresAt);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

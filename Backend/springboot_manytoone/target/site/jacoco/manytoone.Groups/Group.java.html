@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Group.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">many-to-one</a> &gt; <a href="index.source.html" class="el_package">manytoone.Groups</a> &gt; <span class="el_source">Group.java</span></div><h1>Group.java</h1><pre class="source lang-java linenums">package manytoone.Groups;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
+
+// TEst TEst TEst
+@Entity
+@Table(name = &quot;groups&quot;)
+@JsonIgnoreProperties({&quot;hibernateLazyInitializer&quot;, &quot;handler&quot;})
+public class Group {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = &quot;group_id&quot; , nullable = false)
+    private int group_id; // Primary key
+    @Column(name = &quot;group_name&quot; , nullable = false)
+    private String group_name;
+
+
+    @Column(name = &quot;capacity&quot;)
+    private int capacity;
+
+
+    @JsonIgnore
+<span class="fc" id="L34">    public Group() {}                 // &lt;-- required no-args ctor</span>
+
+
+<span class="nc" id="L37">    public Group(String group_name, int capacity){</span>
+<span class="nc" id="L38">        this.group_name = group_name;</span>
+<span class="nc" id="L39">        this.capacity = capacity;</span>
+<span class="nc" id="L40">    }</span>
+
+    public int getId() {
+<span class="nc" id="L43">        return group_id;</span>
+    }
+
+    public void setId(int group_id) {
+<span class="nc" id="L47">        this.group_id = group_id;</span>
+<span class="nc" id="L48">    }</span>
+
+    public String getGroup_name() {
+<span class="nc" id="L51">        return group_name;</span>
+    }
+
+    public void setGroup_name(String group_name) {
+<span class="nc" id="L55">        this.group_name = group_name;</span>
+<span class="nc" id="L56">    }</span>
+
+
+
+    public int getCapacity() {
+<span class="nc" id="L61">        return capacity;</span>
+    }
+
+    public void setCapacity(int capacity) {
+<span class="nc" id="L65">        this.capacity = capacity;</span>
+<span class="nc" id="L66">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
