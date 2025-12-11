@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "group_bills")
 public class BillToGroup {
 
-    // Test 3 for testing pipeline 
+    // Testing for backend team
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

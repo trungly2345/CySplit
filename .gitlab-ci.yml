@@ -1,32 +1,48 @@
 stages:
   - mavenbuild
   - maventest
+  - mavendeploy
 
 maven-build:
   stage: mavenbuild
   tags:
-    - trungly_tag        # <-- use your LOCAL runner tag here
+    - springboot_tag          # <-- tag of your VM/backend runner
   script:
     - cd Backend/springboot_manytoone
-    - mvn package
+    - mvn -B package
   artifacts:
     paths:
       - Backend/springboot_manytoone/target/*.jar
   only:
     refs:
-      - trungly_backend    # <-- your local branch name
+      - main
     changes:
       - Backend/**/*
 
 maven-test:
   stage: maventest
   tags:
-    - trungly_tag           # <-- same local runner tag
+    - springboot_tag          # <-- same VM/backend runner
   script:
     - cd Backend/springboot_manytoone
-    - mvn test
+    - mvn -B test
   only:
     refs:
-      - trungly_backend    # <-- your local branch name
+      - main
+    changes:
+      - Backend/**/*
+
+maven-deploy:
+  stage: mavendeploy
+  tags:
+    - springboot_tag
+  script:
+    - cd Backend/springboot_manytoone
+    - mv target/*.jar /target/web-demo.jar
+    - sudo systemctl stop system-web-demo
+    - sudo systemctl start system-web-demo
+  only:
+    refs:
+      - main
     changes:
       - Backend/**/*
