@@ -5,6 +5,8 @@ import io.restassured.http.ContentType;
 import manytoone.Bills.Bill;
 import manytoone.Bills.BillRepository;
 import manytoone.Refunds.RefundRepository;
+import manytoone.Users.User;
+import manytoone.Users.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,38 +35,45 @@ public class RefundSystemTest {
     @Autowired
     private RefundRepository refundRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @BeforeEach
     void setup() {
         RestAssured.port = port;
     }
 
-    /**
-     * System test:
-     * 1. Create a Bill in the DB
-     * 2. POST /bills/{billId}/refunds to create a refund
-     * 3. GET /bills/{billId}/refunds and verify the refund is returned
-     */
+
     @Test
     void createRefund_andListRefundsForBill_success() {
-        // ---------- Arrange: create a Bill ----------
-        Bill bill = new Bill();
 
+        Bill bill = new Bill();
         bill.setBill_name("Test Bill For Refund");
         bill.setBill_amount("42.50");
-
-        // If your Bill has dueTime / dueCreated non-nullable, set them:
         bill.setDueTime(LocalDateTime.now().plusDays(7));
         bill.setDueCreated(LocalDateTime.now());
 
         bill = billRepository.save(bill);
-        int billId = bill.getBillId();  // adjust getter name if different
+        int billId = bill.getBillId();
 
-        // ---------- Arrange: payload for Refund ----------
+        User refundedUser = new User(
+                "refundUser1",
+                "password123",
+                "515-000-0000",
+                "venmo"
+        );
+        refundedUser = userRepository.save(refundedUser);
+
+
         Map<String, Object> payload = new HashMap<>();
         payload.put("refund_name", "Overcharged correction");
         payload.put("refund_amount", "10.00");
 
-        // ---------- Act + Assert: POST /bills/{billId}/refunds ----------
+        Map<String, Object> refundedTo = new HashMap<>();
+        refundedTo.put("id", refundedUser.getId());
+        payload.put("refundedTo", refundedTo);
+
+
         int refundId =
                 given()
                         .contentType(ContentType.JSON)
@@ -75,10 +84,11 @@ public class RefundSystemTest {
                         .statusCode(201)
                         .body("refund_name", equalTo("Overcharged correction"))
                         .body("refund_amount", equalTo("10.00"))
+                        .body("refundedTo.id", equalTo(refundedUser.getId()))
                         .extract()
-                        .path("refund_id"); // adjust if your field name is different
+                        .path("refund_id");
 
-        // ---------- Assert: GET /bills/{billId}/refunds returns the refund ----------
+
         given()
                 .when()
                 .get("/bills/{billId}/refunds", billId)
@@ -87,13 +97,13 @@ public class RefundSystemTest {
                 .body("$", hasSize(1))
                 .body("[0].refund_id", equalTo(refundId))
                 .body("[0].refund_name", equalTo("Overcharged correction"))
-                .body("[0].refund_amount", equalTo("10.00"));
+                .body("[0].refund_amount", equalTo("10.00"))
+                .body("[0].refundedTo.id", equalTo(refundedUser.getId()));
     }
 
     @Test
-    // testing testing testing testing 
     void updateAndDeleteRefund_success() {
-        // ----- Arrange: Create a Bill -----
+
         Bill bill = new Bill();
         bill.setBill_name("Bill For Update/Delete");
         bill.setBill_amount("30.00");
@@ -103,9 +113,22 @@ public class RefundSystemTest {
         int billId = bill.getBillId();
 
 
+        User refundedUser = new User(
+                "refundUser2",
+                "password123",
+                "515-111-1111",
+                "cash"
+        );
+        refundedUser = userRepository.save(refundedUser);
+
+
         Map<String, Object> payload = new HashMap<>();
         payload.put("refund_name", "Initial Refund");
         payload.put("refund_amount", "5.00");
+
+        Map<String, Object> refundedTo = new HashMap<>();
+        refundedTo.put("id", refundedUser.getId());
+        payload.put("refundedTo", refundedTo);
 
         int refundId =
                 given()
@@ -118,10 +141,11 @@ public class RefundSystemTest {
                         .extract()
                         .path("refund_id");
 
-
         Map<String, Object> updatePayload = new HashMap<>();
         updatePayload.put("refund_name", "Updated Refund");
         updatePayload.put("refund_amount", "7.00");
+        // controller's PUT only updates name + amount, so no need to send refundedTo again
+
 
         given()
                 .contentType(ContentType.JSON)
@@ -142,12 +166,12 @@ public class RefundSystemTest {
                 .body("refund_name", equalTo("Updated Refund"))
                 .body("refund_amount", equalTo("7.00"));
 
+
         given()
                 .when()
                 .delete("/bills/{billId}/refunds/{refundId}", billId, refundId)
                 .then()
                 .statusCode(204);
-
 
         given()
                 .when()
