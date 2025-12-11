@@ -21,8 +21,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.Volley;
 
 public class ProfileFragment extends Fragment {
 
