@@ -6,7 +6,7 @@ stages:
 maven-build:
   stage: mavenbuild
   tags:
-    - springboot_tag          # <-- tag of your VM/backend runner
+    - trungly_tag            # <-- YOUR LOCAL MAC RUNNER
   script:
     - cd Backend/springboot_manytoone
     - mvn -B package
@@ -22,7 +22,7 @@ maven-build:
 maven-test:
   stage: maventest
   tags:
-    - springboot_tag          # <-- same VM/backend runner
+    - trungly_tag
   script:
     - cd Backend/springboot_manytoone
     - mvn -B test
@@ -35,12 +35,12 @@ maven-test:
 auto-deploy:
   stage: mavendeploy
   tags:
-    - springboot_tag
+    - trungly_tag
   script:
     - cd Backend/springboot_manytoone
-    - mv target/*.jar /target/web-demo.jar
-    - sudo systemctl stop system-web-demo
-    - sudo systemctl start system-web-demo
+    - mkdir -p deploy
+    - cp target/*.jar deploy/web-demo.jar
+    - echo "Deploy complete (local copy only)"
   only:
     refs:
       - main
