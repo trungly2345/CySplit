@@ -1,62 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="24dp"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="16dp">
+    android:layout_height="match_parent">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+    <TextView
+        android:text="Receipt Summary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/restaurant_name"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Receipt"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:paddingBottom="12dp" />
+    <TextView
+        android:id="@+id/receipt_total"
+        android:text="Total: $0.00"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/receipt_subtotal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Subtotal: $0.00"
-            android:textSize="18sp"
-            android:paddingBottom="8dp"/>
+    <TextView
+        android:id="@+id/receipt_paid_total"
+        android:text="Paid: $0.00"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/receipt_tax"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tax: $0.00"
-            android:textSize="18sp"
-            android:paddingBottom="8dp"/>
+    <TextView
+        android:id="@+id/receipt_unpaid_total"
+        android:text="Unpaid: $0.00"
+        android:textSize="18sp"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/receipt_tip"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Tip: $0.00"
-            android:textSize="18sp"
-            android:paddingBottom="8dp"/>
-
-        <TextView
-            android:id="@+id/total_amount"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Total: $0.00"
-            android:textSize="20sp"
-            android:textStyle="bold"
-            android:paddingBottom="16dp"/>
-
-        <LinearLayout
-            android:id="@+id/items_list_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"/>
-
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>
