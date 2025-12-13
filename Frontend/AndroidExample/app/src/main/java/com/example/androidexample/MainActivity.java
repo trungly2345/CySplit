@@ -3,6 +3,9 @@ package com.example.androidexample;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
+
+import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -33,7 +36,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Apply theme based on user preference
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String theme = prefs.getString("theme_preference", "system");
         switch (theme) {
@@ -53,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNav = findViewById(R.id.bottom_navigation);
 
-        // Restore last selected navigation item if available
         if (savedInstanceState != null) {
             selectedNavItemId = savedInstanceState.getInt("SELECTED_NAV_ID", R.id.nav_home);
         }
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void loadFragmentForMenuItem(int itemId) {
         Fragment selectedFragment = null;
+        Activity selectedActivity = null;
 
         if (itemId == R.id.nav_home) {
             selectedFragment = new HomeFragment();
@@ -93,6 +95,11 @@ public class MainActivity extends AppCompatActivity {
             selectedFragment = new GroupFragment();
         } else if (itemId == R.id.nav_profile) {
             selectedFragment = new ProfileFragment();
+        }
+        else if (itemId == R.id.nav_join_group) {
+            Intent intent = new Intent(MainActivity.this, EnterGroupCodeActivity.class);
+            startActivity(intent);
+            return;
         }
 
         if (selectedFragment != null) {

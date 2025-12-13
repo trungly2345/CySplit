@@ -5,67 +5,69 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
+import java.util.List;
 
+/**
+ * BillItemsAdapter
+ * ----------------
+ * Simple RecyclerView adapter for displaying bill items.
+ * Uses the row_bill_item.xml layout.
+ */
 public class BillItemsAdapter extends RecyclerView.Adapter<BillItemsAdapter.Holder> {
 
-    private ArrayList<BillItem> items;
-    private final BiConsumer<BillItem, BillItemsActivity.Action> callback;
+    private List<BillItem> items = new ArrayList<>();
 
-    public BillItemsAdapter(ArrayList<BillItem> items,
-                            BiConsumer<BillItem, BillItemsActivity.Action> callback) {
-        this.items = new ArrayList<>(items);
-        this.callback = callback;
+    public BillItemsAdapter() {
     }
 
-    public void updateList(ArrayList<BillItem> newItems) {
-        this.items = new ArrayList<>(newItems);
+    /** Update adapter list */
+    public void setItems(List<BillItem> newItems) {
+        if (newItems == null) newItems = new ArrayList<>();
+        this.items = newItems;
         notifyDataSetChanged();
     }
 
+    @NonNull
     @Override
-    public Holder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.row_bill_item, parent, false);
         return new Holder(v);
     }
 
     @Override
-    public void onBindViewHolder(Holder h, int pos) {
-        BillItem b = items.get(pos);
+    public void onBindViewHolder(@NonNull Holder holder, int position) {
+        BillItem item = items.get(position);
 
-        h.name.setText(b.itemName);
-        h.qty.setText("x" + b.quantity);
-        h.price.setText("$" + String.format("%.2f", b.price));
-        h.paid.setText(b.paid ? "Paid" : "Unpaid");
-        h.paid.setTextColor(b.paid ? 0xFF006600 : 0xFFAA0000);
+        holder.title.setText(item.itemName);
 
-        h.btnToggle.setOnClickListener(v -> callback.accept(b, BillItemsActivity.Action.TOGGLE_PAID));
-        h.btnEdit.setOnClickListener(v -> callback.accept(b, BillItemsActivity.Action.EDIT));
-        h.btnDelete.setOnClickListener(v -> callback.accept(b, BillItemsActivity.Action.DELETE));
+        double total = item.price * item.quantity;
+        holder.amount.setText(String.format("$%.2f", total));
+
+        holder.date.setText(item.paid ? "Paid" : "Unpaid");
     }
 
+
     @Override
-    public int getItemCount() { return items.size(); }
+    public int getItemCount() {
+        return items.size();
+    }
 
-    public static class Holder extends RecyclerView.ViewHolder {
+    /** ViewHolder for each bill item card */
+    static class Holder extends RecyclerView.ViewHolder {
 
-        TextView name, qty, price, paid;
-        View btnToggle, btnEdit, btnDelete;
+        TextView title, amount, date;
 
-        public Holder(View v) {
-            super(v);
-            name = v.findViewById(R.id.item_name);
-            qty = v.findViewById(R.id.item_qty);
-            price = v.findViewById(R.id.item_price);
-            paid = v.findViewById(R.id.item_paid_state);
+        public Holder(@NonNull View itemView) {
+            super(itemView);
 
-            btnToggle = v.findViewById(R.id.btn_toggle_paid);
-            btnEdit = v.findViewById(R.id.btn_edit_item);
-            btnDelete = v.findViewById(R.id.btn_delete_item);
+            title  = itemView.findViewById(R.id.billItemTitle);
+            amount = itemView.findViewById(R.id.billItemAmount);
+            date   = itemView.findViewById(R.id.billItemDate);
         }
     }
 }
