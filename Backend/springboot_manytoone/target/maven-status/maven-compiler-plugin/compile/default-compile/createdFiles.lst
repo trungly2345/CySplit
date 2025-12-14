@@ -2,6 +2,7 @@ manytoone/Messages/MessageRead.class
 manytoone/Groups/GroupInvitationController.class
 manytoone/Conversations/Conversation.class
 manytoone/Groups/GroupController.class
+manytoone/Bills/BillItemController.class
 manytoone/websocket/WebSocketSpringbootApplication.class
 manytoone/Payments/PaymentController.class
 manytoone/Bills/BillShareRepository.class
@@ -33,10 +34,12 @@ manytoone/Payments/Payment.class
 manytoone/Bills/BillShare.class
 manytoone/Notifications/NotificationController.class
 manytoone/Groups/GroupInvitation$invitationStatus.class
+manytoone/Bills/BillItem.class
 manytoone/Bills/BillController.class
 manytoone/Bills/BillRepository.class
 manytoone/Conversations/ConversationRepository.class
 manytoone/Groups/UserGroupController.class
+manytoone/Bills/BillItemRepository.class
 manytoone/Refunds/Refund.class
 manytoone/Notifications/Notification.class
 manytoone/Notifications/NotificationRepository.class
