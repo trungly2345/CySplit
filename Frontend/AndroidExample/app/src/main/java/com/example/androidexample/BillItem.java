@@ -1,17 +1,20 @@
 package com.example.androidexample;
 
 public class BillItem {
-    public int id;
+    public int itemId;
     public String itemName;
-    public double price;
     public int quantity;
+    public double price;
     public boolean paid;
+    public double amount;
 
-    public BillItem(int id, String itemName, double price, int quantity, boolean paid) {
-        this.id = id;
+    public BillItem(int itemId, String itemName, int quantity, double price, boolean paid) {
+        this.itemId = itemId;
         this.itemName = itemName;
-        this.price = price;
         this.quantity = quantity;
+        this.price = price;
         this.paid = paid;
     }
+
+    
 }
